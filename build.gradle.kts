@@ -15,7 +15,7 @@ kotlin {
 }
 
 tasks.withType<Wrapper> {
-  gradleVersion = "5.3.1"
+  gradleVersion = "5.6.4"
   distributionType = Wrapper.DistributionType.ALL
 }
 
