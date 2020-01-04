@@ -2,10 +2,13 @@
 *.class
 *.iml
 *.ipr
-.idea/
-.gradle/
-build/
-out/
+target
+.idea
+
+
+.settings/
+.classpath
+.project
 
 # Log file
 *.log
