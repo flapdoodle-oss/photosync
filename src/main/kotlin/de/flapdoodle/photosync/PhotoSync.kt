@@ -23,6 +23,10 @@ object PhotoSync {
     dumpCollector.report()
     println("-----------------------")
 
-    GroupMetaData(blobCollector.blobs())
+    val groupMeta = GroupMetaData(blobCollector.blobs())
+
+    blobCollector.blobs().forEach {
+      println("${it.path} -> ${groupMeta.isMeta(it)}")
+    }
   }
 }
