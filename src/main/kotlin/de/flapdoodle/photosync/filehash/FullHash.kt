@@ -5,9 +5,9 @@ import java.nio.file.Path
 
 data class FullHash(
     private val hash: String
-) {
+) : Hash<FullHash> {
 
-  companion object {
-    fun hash(path: Path) = FullHash(Hashing.sha256(Files.readAllBytes(path)))
+  companion object : Hasher<FullHash> {
+    override fun hash(path: Path, size: Long) = FullHash(Hashing.sha256(Files.readAllBytes(path)))
   }
 }

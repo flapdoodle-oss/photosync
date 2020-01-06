@@ -6,8 +6,17 @@ object Hashing {
   fun sha256(input: ByteArray) = hash("SHA-256",input)
 
   private fun hash(type: String, input: ByteArray) =
-      MessageDigest
+      bytesToHex(MessageDigest
           .getInstance(type)
-          .digest(input)
-          .joinToString(separator = "") { Integer.toHexString(it.toInt()) }
+          .digest(input))
+
+  private fun bytesToHex(hash: ByteArray): String {
+    val hexString = StringBuffer()
+    for (i in hash.indices) {
+      val hex = Integer.toHexString(0xff and hash[i].toInt())
+      if (hex.length == 1) hexString.append('0')
+      hexString.append(hex)
+    }
+    return hexString.toString()
+  }
 }
