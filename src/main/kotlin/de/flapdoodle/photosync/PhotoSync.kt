@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync
 
 import de.flapdoodle.photosync.analyze.GroupMetaData
+import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.collector.BlobCollector
 import de.flapdoodle.photosync.collector.DumpingPathCollector
 import de.flapdoodle.photosync.collector.FileVisitorAdapter
@@ -28,5 +29,7 @@ object PhotoSync {
     blobCollector.blobs().forEach {
       println("${it.path} -> ${groupMeta.isMeta(it)}")
     }
+
+    GroupSameContent(groupMeta.baseBlobs())
   }
 }

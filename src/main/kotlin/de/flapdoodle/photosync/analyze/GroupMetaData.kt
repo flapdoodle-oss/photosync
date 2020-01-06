@@ -18,6 +18,8 @@ class GroupMetaData(blobs: List<Blob>) {
         val baseFile = fileNames.filter { fileName.startsWith(it.first) && fileName!=it.first }
         if (baseFile.isNotEmpty()) {
           groupMap.getOrPut(baseFile.single().second) { mutableListOf() }.add(path)
+        } else {
+          groupMap.put(path, mutableListOf())
         }
       }
 
@@ -45,4 +47,5 @@ class GroupMetaData(blobs: List<Blob>) {
 
   fun isMeta(blob: Blob) = isMeta.contains(blob)
   fun metaBlobs(blob: Blob) = groupedBlobs[blob] ?: emptyList()
+  fun baseBlobs() = groupedBlobs.keys
 }
