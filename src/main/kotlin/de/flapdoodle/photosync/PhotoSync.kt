@@ -5,6 +5,8 @@ import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.collector.BlobCollector
 import de.flapdoodle.photosync.collector.DumpingPathCollector
 import de.flapdoodle.photosync.collector.FileVisitorAdapter
+import de.flapdoodle.photosync.filehash.HashStrategy
+import de.flapdoodle.photosync.filehash.QuickHash
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.streams.toList
@@ -30,6 +32,25 @@ object PhotoSync {
       println("${it.path} -> ${groupMeta.isMeta(it)}")
     }
 
-    GroupSameContent(groupMeta.baseBlobs())
+    val groupedByContent = GroupSameContent(
+        blobs = groupMeta.baseBlobs(),
+        hashStrategy = HashStrategy { listOf(QuickHash) }
+    )
+
+    println("--------------------------\n")
+    println("unique blobs: ")
+    groupedByContent.uniqueBlobs().forEach {
+      println("${it.path}")
+    }
+
+    println("--------------------------\n")
+    println("blobs with multiple locations: ")
+    groupedByContent.collisions().forEach { (h,blobs) ->
+      println("- - - - - - - - \n")
+      println("hash: $h")
+      blobs.forEach {
+        println("${it.path}")
+      }
+    }
   }
 }

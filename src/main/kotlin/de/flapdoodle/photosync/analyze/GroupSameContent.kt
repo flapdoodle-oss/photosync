@@ -2,43 +2,31 @@ package de.flapdoodle.photosync.analyze
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.filehash.FullHash
+import de.flapdoodle.photosync.filehash.Hash
+import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.Hasher
 import de.flapdoodle.photosync.filehash.QuickHash
+import java.nio.file.Path
 
 class GroupSameContent(
     blobs: Iterable<Blob>,
-    hasher: List<Hasher<*>> = listOf(QuickHash.Companion, FullHash.Companion)
+    hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash.Companion, FullHash.Companion) }
 ) {
-  private val sizeCluster: Map<Long, List<Blob>> = blobs.groupBy { it.size }
+
+  private val groupedByHash: Map<Hash<*>,List<Blob>>
 
   init {
-    sizeCluster.forEach { size, list ->
-      if (list.size>1) {
-        println("files with size: $size")
-        list.forEach { println("-> $it") }
+    groupedByHash = HashStrategy.groupBlobs(HashStrategy { listOf(SizeHasher()) + hashStrategy.hasher() }, blobs)
+  }
 
-        groupByHash(list, hasher)
-      }
+  data class SizeHash(private val size: Long) : Hash<SizeHash>
+
+  class SizeHasher : Hasher<SizeHash> {
+    override fun hash(path: Path, size: Long): SizeHash {
+      return SizeHash(size)
     }
   }
 
-  companion object {
-    private fun groupByHash(list: List<Blob>, hasher: List<Hasher<*>>) {
-      var collisions = list
-      var uniqueBlobs = emptyList<Blob>()
-
-      hasher.forEach {hasher ->
-        val groupedByHash = collisions.groupBy { hasher.hash(it.path,it.size) }
-        uniqueBlobs = uniqueBlobs + groupedByHash.filter { it.value.size==1 }.values.flatten()
-
-        collisions = groupedByHash.filter { it.value.size > 1 }.values.flatten()
-
-        // TODO .. so funktioniert das noch nicht richtig
-        println("collisions left:")
-        collisions.forEach {
-          println(it)
-        }
-      }
-    }
-  }
+  fun uniqueBlobs() = groupedByHash.values.filter { it.size==1 }.map { it.single() }
+  fun collisions() = groupedByHash.filter { it.value.size>1 }
 }
