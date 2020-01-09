@@ -2,6 +2,7 @@ package de.flapdoodle.photosync
 
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
+import de.flapdoodle.photosync.analyze.ScanDiffAnalyzer
 import de.flapdoodle.photosync.collector.BlobCollector
 import de.flapdoodle.photosync.collector.DumpingPathCollector
 import de.flapdoodle.photosync.collector.FileVisitorAdapter
@@ -18,6 +19,12 @@ object PhotoSync {
 
     val src = scan(Path.of(args[0]))
     val dst = scan(Path.of(args[1]))
+
+    println("---------------------")
+    println(" Scan Diff")
+    println("---------------------")
+
+    ScanDiffAnalyzer(src,dst, HashStrategy { listOf(QuickHash) })
   }
 
   private fun scan(
@@ -61,8 +68,4 @@ object PhotoSync {
     return Scan(groupMeta, groupedByContent)
   }
 
-  class Scan(
-      val groupMeta: GroupMetaData,
-      val groupedByContent: GroupSameContent
-  )
 }

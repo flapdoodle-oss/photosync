@@ -18,7 +18,7 @@ data class QuickHash(
           Hashing.sha256(read(path, size - BLOCK_SIZE, BLOCK_SIZE))
         else
           ""
-        
+
         val firstHash = if (size > 0)
           Hashing.sha256(read(path, 0, BLOCK_SIZE))
         else
