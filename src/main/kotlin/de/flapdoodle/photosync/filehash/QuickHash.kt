@@ -1,6 +1,5 @@
 package de.flapdoodle.photosync.filehash
 
-import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.Path
@@ -15,13 +14,17 @@ data class QuickHash(
 
     override fun hash(path: Path, size: Long): QuickHash {
       return try {
-        if (size>0) {
-          val firstBlock = read(path, 0, BLOCK_SIZE)
-          val secondBlock = read(path, size - BLOCK_SIZE, BLOCK_SIZE)
-          QuickHash(Hashing.sha256(firstBlock), Hashing.sha256(secondBlock))
-        } else {
-          QuickHash("","")
-        }
+        val secondHash = if (size > BLOCK_SIZE)
+          Hashing.sha256(read(path, size - BLOCK_SIZE, BLOCK_SIZE))
+        else
+          ""
+        
+        val firstHash = if (size > 0)
+          Hashing.sha256(read(path, 0, BLOCK_SIZE))
+        else
+          ""
+
+        QuickHash(firstHash, secondHash)
       } catch (ex: Exception) {
         throw RuntimeException("could not hash $path", ex)
       }

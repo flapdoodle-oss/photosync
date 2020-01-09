@@ -9,19 +9,24 @@ import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.streams.toList
 
 object PhotoSync {
 
   @JvmStatic
   fun main(vararg args: String) {
-    require(args.isNotEmpty()) { "usage: <path>" }
+    require(args.size > 1) { "usage: <src> <dst<" }
 
-    val path = args[0]
+    val src = scan(Path.of(args[0]))
+    val dst = scan(Path.of(args[1]))
+  }
 
+  private fun scan(
+      path: Path,
+      hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) }
+  ): Scan {
     val dumpCollector = DumpingPathCollector()
     val blobCollector = BlobCollector()
-    Files.walkFileTree(Path.of(path), FileVisitorAdapter(blobCollector.andThen(dumpCollector)))
+    Files.walkFileTree(path, FileVisitorAdapter(blobCollector.andThen(dumpCollector)))
 
     dumpCollector.report()
     println("-----------------------")
@@ -34,7 +39,7 @@ object PhotoSync {
 
     val groupedByContent = GroupSameContent(
         blobs = groupMeta.baseBlobs(),
-        hashStrategy = HashStrategy { listOf(QuickHash) }
+        hashStrategy = hashStrategy
     )
 
     println("--------------------------\n")
@@ -45,12 +50,19 @@ object PhotoSync {
 
     println("--------------------------\n")
     println("blobs with multiple locations: ")
-    groupedByContent.collisions().forEach { (h,blobs) ->
+    groupedByContent.collisions().forEach { (h, blobs) ->
       println("- - - - - - - - \n")
       println("hash: $h")
       blobs.forEach {
         println("${it.path}")
       }
     }
+
+    return Scan(groupMeta, groupedByContent)
   }
+
+  class Scan(
+      val groupMeta: GroupMetaData,
+      val groupedByContent: GroupSameContent
+  )
 }
