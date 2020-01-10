@@ -28,6 +28,25 @@ class DiffAsCommandsReporter(
     result.matchingBlobs.forEach { (source, dest) ->
       sync(source,dest)
     }
+
+    result.copySource.forEach {
+      create(it)
+    }
+
+    result.moveDestinations.forEach { (source, dest) ->
+      val movedDest = dest.replaceBase(source.base.path.rewrite(srcPath,dstPath))
+
+      op("mv", dest.base.path, movedDest.base.path)
+      dest.meta.zip(movedDest.meta).forEach {
+        op("mv", it.first.path, it.second.path)
+      }
+
+      sync(source,movedDest)
+    }
+
+    result.removeDestinations.forEach {
+      remove(it)
+    }
   }
 
   private fun sync(entry: DiffEntry.Match) {
@@ -44,7 +63,7 @@ class DiffAsCommandsReporter(
   }
 
   private fun sync(source: BlobWithMeta, dest: BlobWithMeta) {
-    println("sync ${source.base.path} ${dest.base.path}")
+    println("#sync ${source.base.path} ${dest.base.path}")
     source.meta.forEach {sourceMeta ->
       val expectedDestination = sourceMeta.path.rewrite(srcPath, dstPath)
       val matchingDest = dest.meta.find { expectedDestination ==it.path }
@@ -62,19 +81,26 @@ class DiffAsCommandsReporter(
 
   private fun newEntry(entry: DiffEntry.NewEntry) {
     entry.src.blobs.forEach { blobWithMeta ->
-      op("cp", blobWithMeta.base.path, blobWithMeta.base.path.rewrite(srcPath,dstPath))
-      blobWithMeta.meta.forEach {
-        op("cp", it.path, it.path.rewrite(srcPath,dstPath))
-      }
+      create(blobWithMeta)
     }
   }
 
   private fun deleteEntry(entry: DiffEntry.DeletedEntry) {
     entry.dst.blobs.forEach { blobWithMeta ->
-      op("rm", blobWithMeta.base.path)
-      blobWithMeta.meta.forEach {
-        op("rm", it.path)
-      }
+      remove(blobWithMeta)
+    }
+  }
+
+  private fun create(blobWithMeta: BlobWithMeta) {
+    op("cp", blobWithMeta.base.path, blobWithMeta.base.path.rewrite(srcPath, dstPath))
+    blobWithMeta.meta.forEach {
+      op("cp", it.path, it.path.rewrite(srcPath, dstPath))
+    }
+  }
+  private fun remove(blobWithMeta: BlobWithMeta) {
+    op("rm", blobWithMeta.base.path)
+    blobWithMeta.meta.forEach {
+      op("rm", it.path)
     }
   }
 

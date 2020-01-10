@@ -15,4 +15,15 @@ internal class PathsKtTest {
     assertThat(base.isMetaOf(base)).isFalse()
     assertThat(base.isMetaOf(meta)).isFalse()
   }
+
+  @Test
+  fun `replace base`() {
+    val meta = Path.of("foo","bar.txt")
+    val base = Path.of("foo","bar")
+    val dest = Path.of("bar","blob")
+
+    val result = meta.replaceBase(base,dest)
+
+    assertThat(result).isEqualTo(Path.of("bar","blob.txt"))
+  }
 }
