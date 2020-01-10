@@ -2,10 +2,11 @@ package de.flapdoodle.photosync
 
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
-import de.flapdoodle.photosync.analyze.ScanDiffAnalyzer
+import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.collector.BlobCollector
 import de.flapdoodle.photosync.collector.DumpingPathCollector
 import de.flapdoodle.photosync.collector.FileVisitorAdapter
+import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
 import java.nio.file.Files
@@ -24,7 +25,7 @@ object PhotoSync {
     println(" Scan Diff")
     println("---------------------")
 
-    ScanDiffAnalyzer(src,dst, HashStrategy { listOf(QuickHash) })
+    ScanDiffAnalyzer(src, dst, HashStrategy { listOf(QuickHash) })
   }
 
   private fun scan(
@@ -65,7 +66,7 @@ object PhotoSync {
       }
     }
 
-    return Scan(groupMeta, groupedByContent)
+    return Scan(path, groupMeta, groupedByContent)
   }
 
 }
