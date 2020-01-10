@@ -9,6 +9,7 @@ import de.flapdoodle.photosync.collector.FileVisitorAdapter
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
+import de.flapdoodle.photosync.report.DiffAsCommandsReporter
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -16,7 +17,7 @@ object PhotoSync {
 
   @JvmStatic
   fun main(vararg args: String) {
-    require(args.size > 1) { "usage: <src> <dst<" }
+    require(args.size > 1) { "usage: <src> <dst>" }
 
     val src = scan(Path.of(args[0]))
     val dst = scan(Path.of(args[1]))
@@ -25,7 +26,13 @@ object PhotoSync {
     println(" Scan Diff")
     println("---------------------")
 
-    ScanDiffAnalyzer(src, dst, HashStrategy { listOf(QuickHash) })
+    val diff = ScanDiffAnalyzer.scan(src, dst, QuickHash)
+
+    println("---------------------")
+    println(" Result")
+    println("---------------------")
+
+    DiffAsCommandsReporter(src.path, dst.path).generate(diff)
   }
 
   private fun scan(

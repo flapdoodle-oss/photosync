@@ -20,7 +20,22 @@ interface HashStrategy {
         }
       }
 
-    fun groupBlobs(hashStrategy: HashStrategy, blobs: Iterable<Blob>): Map<Hash<*>, List<Blob>> {
+    fun groupBlobs(
+        hasher: Hasher<*>,
+        blobs: Iterable<Blob>
+    ): Map<Hash<*>, List<Blob>> {
+      return groupBlobs(
+          hashStrategy = HashStrategy { listOf(hasher) },
+          blobs = blobs,
+          rehashOnCollisionOnly = false
+      )
+    }
+
+    fun groupBlobs(
+        hashStrategy: HashStrategy,
+        blobs: Iterable<Blob>,
+        rehashOnCollisionOnly: Boolean = true
+    ): Map<Hash<*>, List<Blob>> {
       var groupedBlobs:Map<Hash<*>,List<Blob>> = blobs.groupBy { NoHash }
 
       hashStrategy.hasher().forEach { hasher ->
@@ -28,7 +43,7 @@ interface HashStrategy {
 
         groupedBlobs.forEach { hash, list ->
           val parentHash = if (hash != NoHash) hash else null
-          rehashedBlobs = if (list.size>1) {
+          rehashedBlobs = if (list.size>1 || !rehashOnCollisionOnly) {
             println("must rehash ${list.size} entries with $hasher")
             rehashedBlobs + list.groupBy { Hash.prepend(hasher.hash(it.path, it.size),parentHash) }
           } else {

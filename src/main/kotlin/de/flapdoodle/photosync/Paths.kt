@@ -7,3 +7,7 @@ fun Path.isMetaOf(basePath: Path): Boolean {
       && this.fileName != basePath.fileName
       && this.fileName.toString().startsWith(basePath.fileName.toString())
 }
+
+fun Path.rewrite(srcBase: Path, dstBase: Path): Path {
+  return dstBase.resolve(srcBase.relativize(this))
+}
