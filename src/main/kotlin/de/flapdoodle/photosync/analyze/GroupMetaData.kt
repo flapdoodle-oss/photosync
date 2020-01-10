@@ -13,8 +13,12 @@ class GroupMetaData(blobs: List<Blob>) {
       val baseFiles = paths.filter { thisPath -> paths.none { thisPath.isMetaOf(it) } }
       val metaFiles = paths.filter { !baseFiles.contains(it) }
 
-      return metaFiles.groupBy { thisPath -> baseFiles.find { thisPath.isMetaOf(it) }
-          ?: throw IllegalArgumentException("basePath not found: $thisPath - $paths") }
+      return baseFiles.map {
+        it to emptyList<Path>()
+      }.toMap() + metaFiles.groupBy { thisPath ->
+        baseFiles.find { thisPath.isMetaOf(it) }
+            ?: throw IllegalArgumentException("basePath not found: $thisPath - $paths")
+      }
     }
 
     internal fun groupByBaseName(paths: List<Path>): Map<Path, List<Path>> {
