@@ -73,7 +73,7 @@ object PhotoSync {
       }
     }
 
-    return Scan(path, groupMeta, groupedByContent)
+    return Scan.of(path, groupedByContent, groupMeta)
   }
 
 }

@@ -12,8 +12,8 @@ object ScanDiffAnalyzer {
   ): List<DiffEntry> {
     //val strategy = HashStrategy { listOf(SizeHasher()) + hashStrategy.hasher() }
 
-    val srcMap = src.blobs().associateBy { it.any() }
-    val dstMap = dst.blobs().associateBy { it.any() }
+    val srcMap = src.blobs.associateBy { it.any() }
+    val dstMap = dst.blobs.associateBy { it.any() }
 
     val srcGroupedByHash = HashStrategy.groupBlobs(hasher, srcMap.keys)
     val dstGroupedByHash = HashStrategy.groupBlobs(hasher, dstMap.keys)

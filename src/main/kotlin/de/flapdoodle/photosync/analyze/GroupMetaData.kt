@@ -20,24 +20,6 @@ class GroupMetaData(blobs: List<Blob>) {
             ?: throw IllegalArgumentException("basePath not found: $thisPath - $paths")
       }
     }
-
-    internal fun groupByBaseName(paths: List<Path>): Map<Path, List<Path>> {
-      //val fileNames= paths.associateBy { it.fileName.toString() }
-      val fileNames = paths.map { it.fileName.toString() to it }
-      val groupMap: HashMap<Path, MutableList<Path>> = HashMap()
-
-      paths.forEach { path ->
-        val fileName = path.fileName.toString()
-        val baseFile = fileNames.filter { fileName.startsWith(it.first) && fileName != it.first }
-        if (baseFile.isNotEmpty()) {
-          groupMap.getOrPut(baseFile.single().second) { mutableListOf() }.add(path)
-        } else {
-          groupMap.put(path, mutableListOf())
-        }
-      }
-
-      return groupMap
-    }
   }
 
   init {
