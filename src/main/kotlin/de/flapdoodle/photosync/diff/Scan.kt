@@ -9,6 +9,11 @@ class Scan(
     val blobs: List<GroupedBlobs>
 ) {
 
+  init {
+    require(blobs.all { it.blobs.all { it.base.path.startsWith(path) } }) { "wrong path in blobs.base: $blobs" }
+    require(blobs.all { it.blobs.all { it.meta.all { it.path.startsWith(path) } } }) { "wrong path in blobs.meta: $blobs" }
+  }
+
   companion object {
 
     fun of(path: Path, groupedByContent: GroupSameContent, groupMeta: GroupMetaData): Scan {

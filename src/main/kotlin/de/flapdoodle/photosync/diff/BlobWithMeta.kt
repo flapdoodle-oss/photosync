@@ -7,7 +7,7 @@ import java.nio.file.Path
 
 data class BlobWithMeta(
     val base: Blob,
-    val meta: List<Blob>
+    val meta: List<Blob> = emptyList()
 ) {
 
   init {
