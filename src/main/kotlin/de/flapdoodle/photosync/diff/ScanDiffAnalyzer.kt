@@ -23,10 +23,10 @@ object ScanDiffAnalyzer {
       require(matchedDst==null || matchedDst.size==1) { "multiple entries not expected: $hash -> $matchedDst" }
 
       if (matchedDst!=null) {
-        println("found ${list.single()} -> ${matchedDst.single()}")
+//        println("found ${list.single()} -> ${matchedDst.single()}")
         DiffEntry.Match(srcMap[list.single()]!!, dstMap[matchedDst.single()]!!)
       } else {
-        println("missing ${list.single()}")
+//        println("missing ${list.single()}")
         DiffEntry.NewEntry(srcMap[list.single()]!!)
       }
     }
@@ -41,22 +41,22 @@ object ScanDiffAnalyzer {
         //println("found ${matchedSrc.single()} -> ${list.single()}")
         DiffEntry.Noop
       } else {
-        println("deleted ${list.single()}")
+//        println("deleted ${list.single()}")
         DiffEntry.DeletedEntry(dstMap[list.single()]!!)
       }
     }
 
     val diff = srcDiff + dstDiff
 
-    diff.forEach {
-      println("--------------------------")
-      when (it) {
-        is DiffEntry.Match -> println("match: $it")
-        is DiffEntry.NewEntry -> println("new: $it")
-        is DiffEntry.DeletedEntry -> println("delete: $it")
-        is DiffEntry.Noop -> {}
-      }
-    }
+//    diff.forEach {
+//      println("--------------------------")
+//      when (it) {
+//        is DiffEntry.Match -> println("match: $it")
+//        is DiffEntry.NewEntry -> println("new: $it")
+//        is DiffEntry.DeletedEntry -> println("delete: $it")
+//        is DiffEntry.Noop -> {}
+//      }
+//    }
 
     return diff
   }

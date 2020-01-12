@@ -44,7 +44,7 @@ interface HashStrategy {
         groupedBlobs.forEach { hash, list ->
           val parentHash = if (hash != NoHash) hash else null
           rehashedBlobs = if (list.size>1 || !rehashOnCollisionOnly) {
-            println("must rehash ${list.size} entries with $hasher")
+//            println("must rehash ${list.size} entries with $hasher")
             rehashedBlobs + list.groupBy { Hash.prepend(hasher.hash(it.path, it.size),parentHash) }
           } else {
             rehashedBlobs + (hash to list)
