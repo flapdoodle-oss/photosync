@@ -1,4 +1,4 @@
-package de.flapdoodle.photosync.report
+package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry

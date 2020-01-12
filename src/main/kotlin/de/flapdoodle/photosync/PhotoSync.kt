@@ -9,7 +9,8 @@ import de.flapdoodle.photosync.collector.FileVisitorAdapter
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.report.Diff2SyncCommands
+import de.flapdoodle.photosync.sync.Diff2SyncCommands
+import de.flapdoodle.photosync.sync.UnixCommandListRenderer
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -32,7 +33,9 @@ object PhotoSync {
     println(" Result")
     println("---------------------")
 
-    Diff2SyncCommands(src.path, dst.path).generate(diff)
+    val commands = Diff2SyncCommands(src.path, dst.path).generate(diff)
+
+    UnixCommandListRenderer.execute(commands)
   }
 
   private fun scan(

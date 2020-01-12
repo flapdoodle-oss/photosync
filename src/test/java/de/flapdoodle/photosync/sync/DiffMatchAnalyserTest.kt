@@ -1,4 +1,4 @@
-package de.flapdoodle.photosync.report
+package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.FileTimes
@@ -6,7 +6,6 @@ import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.GroupedBlobs
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
