@@ -26,4 +26,14 @@ class Scan(
       return Scan(path, blobs)
     }
   }
+
+  fun diskSpaceUsed(): Long {
+    return blobs.fold(0L) { size, group ->
+      size + group.blobs.fold(0L) { subSize, blobWithMeta ->
+        subSize + blobWithMeta.base.size + blobWithMeta.meta.fold(0L) { metaSize,meta ->
+          metaSize + meta.size
+        }
+      }
+    }
+  }
 }
