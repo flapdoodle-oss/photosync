@@ -1,10 +1,11 @@
 package de.flapdoodle.photosync.collector
 
+import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
 
 class ProgressReportPathCollector : PathCollector {
   override fun add(path: Path, size: Long, lastModifiedTime: FileTime) {
-    println("-> $path size=$size\r")
+    Monitor.report("collect","$path (size=$size)")
   }
 }

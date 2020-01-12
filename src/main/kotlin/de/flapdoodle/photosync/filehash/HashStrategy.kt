@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.filehash
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.KotlinCompilerFix_SAM_Helper
+import de.flapdoodle.photosync.progress.Monitor
 
 
 interface HashStrategy {
@@ -39,13 +40,14 @@ interface HashStrategy {
       var groupedBlobs:Map<Hash<*>,List<Blob>> = blobs.groupBy { NoHash }
 
       hashStrategy.hasher().forEach { hasher ->
+        val useHasher = hasher.withMonitor()
         var rehashedBlobs: Map<Hash<*>,List<Blob>> = emptyMap()
 
         groupedBlobs.forEach { hash, list ->
           val parentHash = if (hash != NoHash) hash else null
           rehashedBlobs = if (list.size>1 || !rehashOnCollisionOnly) {
 //            println("must rehash ${list.size} entries with $hasher")
-            rehashedBlobs + list.groupBy { Hash.prepend(hasher.hash(it.path, it.size),parentHash) }
+            rehashedBlobs + list.groupBy { Hash.prepend(useHasher.hash(it.path, it.size),parentHash) }
           } else {
             rehashedBlobs + (hash to list)
           }
