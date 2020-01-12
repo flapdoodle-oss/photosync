@@ -23,36 +23,43 @@ object PhotoSync {
   fun main(vararg args: String) {
     require(args.size > 1) { "usage: <src> <dst>" }
 
-    Monitor.execute {
-      val start = LocalDateTime.now()
+    val start = LocalDateTime.now()
+    var srcDiskSpaceUsed = 0L
+    var dstDiskSpaceUsed = 0L
 
+    val commands = Monitor.execute {
       val src = Monitor.scope("scan") {
         Monitor.message(args[0])
         scan(Path.of(args[0]))
       }
+
+      srcDiskSpaceUsed = src.diskSpaceUsed()
 
       val dst = Monitor.scope("scan") {
         Monitor.message(args[1])
         scan(Path.of(args[1]))
       }
 
+      dstDiskSpaceUsed = dst.diskSpaceUsed()
+
       val diff = Monitor.scope("diff") {
         Monitor.message("src: ${src.diskSpaceUsed()}, dst: ${dst.diskSpaceUsed()}")
         ScanDiffAnalyzer.scan(src, dst, QuickHash)
       }
 
-      val commands = Diff2SyncCommands(src.path, dst.path).generate(diff)
-
-      UnixCommandListRenderer.execute(commands)
-
-      val end = LocalDateTime.now()
-
-      println("- - - - - - - - - - - - - - - - -")
-      println("Speed: ${Duration.between(start, end).toSeconds()}s")
-      println("Source: ${src.diskSpaceUsed() / (1024 * 1024)} MB")
-      println("Backup: ${dst.diskSpaceUsed() / (1024 * 1024)} MB")
+      Diff2SyncCommands(src.path, dst.path).generate(diff)
     }
 
+    println()
+
+    UnixCommandListRenderer.execute(commands)
+
+    val end = LocalDateTime.now()
+
+    println("- - - - - - - - - - - - - - - - -")
+    println("Speed: ${Duration.between(start, end).toSeconds()}s")
+    println("Source: ${srcDiskSpaceUsed / (1024 * 1024)} MB")
+    println("Backup: ${dstDiskSpaceUsed / (1024 * 1024)} MB")
   }
 
   private fun scan(

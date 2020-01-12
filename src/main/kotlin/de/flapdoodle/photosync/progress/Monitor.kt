@@ -11,6 +11,7 @@ object Monitor {
       state.set(StateHolder())
       return action()
     } finally {
+      reporter.report("")
       state.remove()
       threadReporter.remove()
     }
