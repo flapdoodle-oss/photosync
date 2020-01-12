@@ -89,7 +89,7 @@ class Diff2SyncCommands(
 
   private fun remove(blobWithMeta: BlobWithMeta): CommandGroup {
     return CommandGroup(
-        listOf(Command.Rm(blobWithMeta.base.path)) + blobWithMeta.meta.map { Command.Rm(it.path) }
+        listOf(Command.Remove(blobWithMeta.base.path)) + blobWithMeta.meta.map { Command.Remove(it.path) }
     )
   }
 }
