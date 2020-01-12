@@ -44,7 +44,7 @@ class Diff2SyncCommands(
     }
 
     val removeCommands = result.removeDestinations.map {
-      remove(it)
+      remove(it,Command.Cause.CopyRemovedFromSource)
     }
 
     return syncCommands + createCommands + movedDestCommands + removeCommands
@@ -76,7 +76,7 @@ class Diff2SyncCommands(
 
   private fun deleteEntry(entry: DiffEntry.DeletedEntry): CommandGroup {
     return entry.dst.blobs.fold(CommandGroup()) { commandGroup, blobWithMeta ->
-      commandGroup + remove(blobWithMeta)
+      commandGroup + remove(blobWithMeta, Command.Cause.DeletedEntry)
     }
   }
 
@@ -87,9 +87,9 @@ class Diff2SyncCommands(
     )
   }
 
-  private fun remove(blobWithMeta: BlobWithMeta): CommandGroup {
+  private fun remove(blobWithMeta: BlobWithMeta, cause: Command.Cause): CommandGroup {
     return CommandGroup(
-        listOf(Command.Remove(blobWithMeta.base.path)) + blobWithMeta.meta.map { Command.Remove(it.path) }
+        listOf(Command.Remove(blobWithMeta.base.path, cause=cause)) + blobWithMeta.meta.map { Command.Remove(it.path, cause=cause) }
     )
   }
 }

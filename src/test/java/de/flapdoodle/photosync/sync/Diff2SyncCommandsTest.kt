@@ -54,8 +54,8 @@ internal class Diff2SyncCommandsTest {
 
     assertThat(result).containsExactly(
         CommandGroup() +
-            Command.Remove(path("dst", "base")) +
-            Command.Remove(path("dst", "base.info"))
+            Command.Remove(path("dst", "base"), Command.Cause.DeletedEntry) +
+            Command.Remove(path("dst", "base.info"), Command.Cause.DeletedEntry)
     )
   }
 
@@ -160,8 +160,8 @@ internal class Diff2SyncCommandsTest {
         CommandGroup() +
             Command.Copy(path("src", "base.info"), path("dst", "base.info")),
         CommandGroup() +
-            Command.Remove(path("dst", "second")) +
-            Command.Remove(path("dst", "second.info"))
+            Command.Remove(path("dst", "second"), Command.Cause.CopyRemovedFromSource) +
+            Command.Remove(path("dst", "second.info"), Command.Cause.CopyRemovedFromSource)
     )
   }
 
