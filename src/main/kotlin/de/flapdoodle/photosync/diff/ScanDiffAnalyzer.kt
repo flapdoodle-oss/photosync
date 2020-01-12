@@ -14,16 +14,16 @@ object ScanDiffAnalyzer {
     val srcMap = src.blobs.associateBy { it.any() }
     val dstMap = dst.blobs.associateBy { it.any() }
 
-    val srcGroupedByHash = HashStrategy.groupBlobs(hasher, srcMap.keys)
-    val dstGroupedByHash = HashStrategy.groupBlobs(hasher, dstMap.keys)
+    val srcGroupedByHash = Monitor.scope("hash src") { HashStrategy.groupBlobs(hasher, srcMap.keys) }
+    val dstGroupedByHash = Monitor.scope("hash dst") { HashStrategy.groupBlobs(hasher, dstMap.keys) }
 
     val srcDiff = srcGroupedByHash.map { (hash, list) ->
       require(list.size == 1) { "multiple entries not expected: $hash -> $list" }
 
       val matchedDst = dstGroupedByHash[hash]
-      require(matchedDst==null || matchedDst.size==1) { "multiple entries not expected: $hash -> $matchedDst" }
+      require(matchedDst == null || matchedDst.size == 1) { "multiple entries not expected: $hash -> $matchedDst" }
 
-      if (matchedDst!=null) {
+      if (matchedDst != null) {
 //        println("found ${list.single()} -> ${matchedDst.single()}")
         DiffEntry.Match(srcMap[list.single()]!!, dstMap[matchedDst.single()]!!)
       } else {
@@ -36,9 +36,9 @@ object ScanDiffAnalyzer {
       require(list.size == 1) { "multiple entries not expected: $hash -> $list" }
 
       val matchedSrc = srcGroupedByHash[hash]
-      require(matchedSrc==null || matchedSrc.size==1) { "multiple entries not expected: $hash -> $matchedSrc" }
+      require(matchedSrc == null || matchedSrc.size == 1) { "multiple entries not expected: $hash -> $matchedSrc" }
 
-      if (matchedSrc!=null) {
+      if (matchedSrc != null) {
         //println("found ${matchedSrc.single()} -> ${list.single()}")
         DiffEntry.Noop
       } else {
@@ -46,8 +46,6 @@ object ScanDiffAnalyzer {
         DiffEntry.DeletedEntry(dstMap[list.single()]!!)
       }
     }
-
-    Monitor.report("hash",null)
 
     val diff = srcDiff + dstDiff
 

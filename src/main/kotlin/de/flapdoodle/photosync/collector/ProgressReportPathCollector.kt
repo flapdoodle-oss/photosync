@@ -6,6 +6,6 @@ import java.nio.file.attribute.FileTime
 
 class ProgressReportPathCollector : PathCollector {
   override fun add(path: Path, size: Long, lastModifiedTime: FileTime) {
-    Monitor.report("collect","$path (size=$size)")
+    Monitor.message("$path (size=$size)")
   }
 }

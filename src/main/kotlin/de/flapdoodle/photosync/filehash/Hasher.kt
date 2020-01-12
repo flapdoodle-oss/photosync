@@ -10,7 +10,7 @@ interface Hasher<T: Hash<T>> {
     val that = this
     return object: Hasher<T> {
       override fun hash(path: Path, size: Long): T {
-        Monitor.report("hash","$path")
+        Monitor.message("$path")
         return that.hash(path,size)
       }
     }

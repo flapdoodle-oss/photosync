@@ -3,36 +3,37 @@ package de.flapdoodle.photosync.progress
 object Monitor {
 
   private val threadReporter = ThreadLocal<Reporter>()
-  private val scopes = ThreadLocal<Scopes>()
+  private val state = ThreadLocal<StateHolder>()
 
   fun <T> execute(reporter: Reporter = ConsoleReporter(), action: () -> T): T {
     try {
       threadReporter.set(reporter)
-      scopes.set(Scopes())
+      state.set(StateHolder())
       return action()
     } finally {
-      scopes.remove()
+      state.remove()
       threadReporter.remove()
     }
   }
 
   fun <T> scope(key: String, action: () -> T): T {
-    val currentScopes = scopes.get()
+    val stateHolder = state.get()
 
-    try {
-      currentScopes?.let {
-        it.open(key)
+    return if (stateHolder!=null) {
+      val lastState = stateHolder.start(key)
+      try {
+        return action()
+      } finally {
+        stateHolder.end(lastState)
       }
-      return action()
-    } finally {
-      currentScopes?.let {
-        it.close(key)
-      }
+    } else {
+      action()
     }
+
   }
 
   fun message(message: String) {
-    scopes.get()?.let {
+    state.get()?.let {
       it.message(message)
       threadReporter.get()?.let { reporter ->
         reporter.report(it.asMessage())
@@ -40,25 +41,38 @@ object Monitor {
     }
   }
 
-
-  class Scopes() {
-    private var messages = emptyMap<String, String>()
-    private var currentScope: String? = null
-
-    fun open(key: String) {
-
-    }
-
-    fun close(key: String) {
-
-    }
-
-    fun message(message: String) {
-
+  data class State(
+      val key: String,
+      val map: Map<String,String> = emptyMap()
+  ) {
+    fun message(message: String): State {
+      return copy(map = map + (key to message))
     }
 
     fun asMessage(): String {
-      return "test"
+      return map.map { "${it.key}: ${it.value}" }.joinToString(separator = " | ")
+    }
+  }
+
+  class StateHolder() {
+    private var currentState=State("")
+
+    fun start(key: String): State {
+      val ret = currentState
+      currentState = currentState.copy(key = key)
+      return ret
+    }
+
+    fun end(state: State) {
+      this.currentState=state
+    }
+
+    fun message(message: String) {
+      currentState=currentState.message(message)
+    }
+
+    fun asMessage(): String {
+      return currentState.asMessage()
     }
   }
 
@@ -78,14 +92,4 @@ object Monitor {
     }
 
   }
-
-  @Deprecated("remove")
-  fun report(key: String, message: String?) {
-  }
-
-  @Deprecated("remove")
-  fun reset() {
-  }
-
-
 }

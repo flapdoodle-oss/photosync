@@ -26,22 +26,20 @@ object PhotoSync {
     Monitor.execute {
       val start = LocalDateTime.now()
 
-      println("---------------------")
-      println(" Scan")
-      println("---------------------")
+      val src = Monitor.scope("scan") {
+        Monitor.message(args[0])
+        scan(Path.of(args[0]))
+      }
 
-      val src = scan(Path.of(args[0]))
-      val dst = scan(Path.of(args[1]))
+      val dst = Monitor.scope("scan") {
+        Monitor.message(args[1])
+        scan(Path.of(args[1]))
+      }
 
-      println("---------------------")
-      println(" Diff")
-      println("---------------------")
-
-      val diff = ScanDiffAnalyzer.scan(src, dst, QuickHash)
-
-      println("---------------------")
-      println(" Sync")
-      println("---------------------")
+      val diff = Monitor.scope("diff") {
+        Monitor.message("src: ${src.diskSpaceUsed()}, dst: ${dst.diskSpaceUsed()}")
+        ScanDiffAnalyzer.scan(src, dst, QuickHash)
+      }
 
       val commands = Diff2SyncCommands(src.path, dst.path).generate(diff)
 
@@ -49,13 +47,12 @@ object PhotoSync {
 
       val end = LocalDateTime.now()
 
-      println("---------------------")
-      println(" Stats")
-      println("---------------------")
+      println("- - - - - - - - - - - - - - - - -")
       println("Speed: ${Duration.between(start, end).toSeconds()}s")
       println("Source: ${src.diskSpaceUsed() / (1024 * 1024)} MB")
       println("Backup: ${dst.diskSpaceUsed() / (1024 * 1024)} MB")
     }
+
   }
 
   private fun scan(
@@ -64,7 +61,9 @@ object PhotoSync {
   ): Scan {
     //val dumpCollector = DumpingPathCollector()
     val blobCollector = BlobCollector()
-    Files.walkFileTree(path, FileVisitorAdapter(blobCollector.andThen(ProgressReportPathCollector())))
+    Monitor.scope("collect") {
+      Files.walkFileTree(path, FileVisitorAdapter(blobCollector.andThen(ProgressReportPathCollector())))
+    }
 
 //    dumpCollector.report()
 //    println("-----------------------")
