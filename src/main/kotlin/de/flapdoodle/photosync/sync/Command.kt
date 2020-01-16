@@ -2,7 +2,7 @@ package de.flapdoodle.photosync.sync
 
 import java.nio.file.Path
 
-abstract sealed class Command {
+sealed class Command {
   enum class Cause {
     DeletedEntry,
     CopyRemovedFromSource

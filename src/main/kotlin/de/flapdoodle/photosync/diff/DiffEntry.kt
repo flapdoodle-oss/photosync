@@ -1,6 +1,6 @@
 package de.flapdoodle.photosync.diff
 
-abstract sealed class DiffEntry {
+sealed class DiffEntry {
   data class Match(
       val src: GroupedBlobs,
       val dst: GroupedBlobs
