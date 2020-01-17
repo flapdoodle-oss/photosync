@@ -166,6 +166,35 @@ internal class Diff2SyncCommandsTest {
   }
 
   @Test
+  fun `match gives cp commands for missing meta files`() {
+    val dstTimeStamp = FileTimes.now()
+    val sourceTimeStamp = dstTimeStamp + 1
+
+    val src = GroupedBlobs(
+        listOf(BlobWithMeta(
+            base = Blob(path("src", "base"), 0, sourceTimeStamp),
+            meta = listOf(
+                Blob(path("src", "base.info"), 0, sourceTimeStamp)
+            ))
+        )
+    )
+
+    val dst = GroupedBlobs(
+        listOf(BlobWithMeta(
+            base = Blob(path("dst", "base"), 0, dstTimeStamp),
+            meta = listOf())
+        )
+    )
+    val result = testee.generate(listOf(DiffEntry.Match(src, dst)))
+
+    assertThat(result).containsExactly(
+        CommandGroup() +
+            Command.Copy(path("src", "base.info"), path("dst", "base.info"))
+    )
+  }
+
+
+  @Test
   fun `match gives move commands for moved dest and cp commands for meta files`() {
     val dstTimeStamp = FileTimes.now()
     val sourceTimeStamp = dstTimeStamp + 1

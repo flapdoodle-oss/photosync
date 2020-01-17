@@ -32,6 +32,29 @@ internal class DiffMatchAnalyserTest {
   }
 
   @Test
+  fun `one source matches one dest with metafile on source side only`() {
+    val srcGroup = GroupedBlobs(listOf(
+        BlobWithMeta(
+            Blob(Path.of("src", "bar"), 0, FileTimes.now()),
+            listOf(
+                Blob(Path.of("src", "bar.info"), 0, FileTimes.now())
+            )
+        )
+    ))
+
+    val dstGroup = GroupedBlobs(listOf(
+        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now()))
+    ))
+
+    val result = testee.inspect(DiffEntry.Match(srcGroup, dstGroup))
+
+    assertThat(result.matchingBlobs).containsEntry(srcGroup.blobs[0], dstGroup.blobs[0])
+    assertThat(result.removeDestinations).isEmpty()
+    assertThat(result.moveDestinations).isEmpty()
+    assertThat(result.copySource).isEmpty()
+  }
+
+  @Test
   fun `one source matches dest, but path does not match`() {
     val srcGroup = GroupedBlobs(listOf(
         BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
