@@ -9,7 +9,11 @@ import java.nio.file.attribute.BasicFileAttributes
 class FileVisitorAdapter(
     private val collector: PathCollector
 ) : FileVisitor<Path> {
-  override fun preVisitDirectory(path: Path, attributes: BasicFileAttributes?): FileVisitResult {
+  override fun preVisitDirectory(path: Path, attributes: BasicFileAttributes): FileVisitResult {
+    require(attributes.isDirectory) { "$path is not a directory" }
+
+    collector.addDir(path)
+
     return FileVisitResult.CONTINUE
   }
 

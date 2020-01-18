@@ -6,6 +6,8 @@ import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.collector.BlobCollector
 import de.flapdoodle.photosync.collector.FileVisitorAdapter
 import de.flapdoodle.photosync.collector.ProgressReportPathCollector
+import de.flapdoodle.photosync.collector.TreeCollector
+import de.flapdoodle.photosync.diff.FileTree
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
@@ -27,17 +29,20 @@ object PhotoSync {
     var srcDiskSpaceUsed = 0L
     var dstDiskSpaceUsed = 0L
 
+    val srcPath = Path.of(args[0])
+    val dstPath = Path.of(args[1])
+
     val commands = Monitor.execute {
       val src = Monitor.scope("scan") {
-        Monitor.message(args[0])
-        scan(Path.of(args[0]))
+        Monitor.message(srcPath.toString())
+        scan(srcPath)
       }
 
       srcDiskSpaceUsed = src.diskSpaceUsed()
 
       val dst = Monitor.scope("scan") {
-        Monitor.message(args[1])
-        scan(Path.of(args[1]))
+        Monitor.message(dstPath.toString())
+        scan(dstPath)
       }
 
       dstDiskSpaceUsed = dst.diskSpaceUsed()
@@ -52,6 +57,28 @@ object PhotoSync {
 
     println()
 
+    Monitor.execute {
+      val src = Monitor.scope("scan tree") {
+        Monitor.message(srcPath.toString())
+
+        val treeCollector = TreeCollector()
+        Files.walkFileTree(srcPath, FileVisitorAdapter(treeCollector.andThen(ProgressReportPathCollector())))
+        FileTree.of(treeCollector.dirs, treeCollector.files)
+      }
+
+      val dst = Monitor.scope("scan tree") {
+        Monitor.message(dstPath.toString())
+
+        val treeCollector = TreeCollector()
+        Files.walkFileTree(dstPath, FileVisitorAdapter(treeCollector.andThen(ProgressReportPathCollector())))
+        FileTree.of(treeCollector.dirs, treeCollector.files)
+      }
+
+      //CommandListSimplifier.rewrite(commands, src.dirs, dst.dirs)
+    }
+
+    println()
+    
     UnixCommandListRenderer.execute(commands)
 
     val end = LocalDateTime.now()
@@ -66,41 +93,16 @@ object PhotoSync {
       path: Path,
       hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) }
   ): Scan {
-    //val dumpCollector = DumpingPathCollector()
     val blobCollector = BlobCollector()
     Monitor.scope("collect") {
       Files.walkFileTree(path, FileVisitorAdapter(blobCollector.andThen(ProgressReportPathCollector())))
     }
 
-//    dumpCollector.report()
-//    println("-----------------------")
-
     val groupMeta = GroupMetaData(blobCollector.blobs())
-
-//    blobCollector.blobs().forEach {
-//      println("${it.path} -> ${groupMeta.isMeta(it)}")
-//    }
-
     val groupedByContent = GroupSameContent(
         blobs = groupMeta.baseBlobs(),
         hashStrategy = hashStrategy
     )
-
-//    println("--------------------------\n")
-//    println("unique blobs: ")
-//    groupedByContent.uniqueBlobs().forEach {
-//      println("${it.path}")
-//    }
-
-//    println("--------------------------\n")
-//    println("blobs with multiple locations: ")
-//    groupedByContent.collisions().forEach { (h, blobs) ->
-//      println("- - - - - - - - \n")
-//      println("hash: $h")
-//      blobs.forEach {
-//        println("${it.path}")
-//      }
-//    }
 
     return Scan.of(path, groupedByContent, groupMeta)
   }
