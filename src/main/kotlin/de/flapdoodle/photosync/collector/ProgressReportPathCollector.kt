@@ -8,8 +8,4 @@ class ProgressReportPathCollector : PathCollector {
   override fun add(path: Path, size: Long, lastModifiedTime: FileTime) {
     Monitor.message("$path (size=$size)")
   }
-
-  override fun addDir(path: Path) {
-    Monitor.message("$path")
-  }
 }

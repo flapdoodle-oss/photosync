@@ -6,11 +6,12 @@ import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.collector.BlobCollector
 import de.flapdoodle.photosync.collector.FileVisitorAdapter
 import de.flapdoodle.photosync.collector.ProgressReportPathCollector
-import de.flapdoodle.photosync.collector.TreeCollector
-import de.flapdoodle.photosync.diff.FileTree
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
+import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
+import de.flapdoodle.photosync.filetree.FileTreeVisitorAdapter
+import de.flapdoodle.photosync.filetree.ProgressReportFileTreeCollector
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
@@ -61,18 +62,23 @@ object PhotoSync {
       val src = Monitor.scope("scan tree") {
         Monitor.message(srcPath.toString())
 
-        val treeCollector = TreeCollector()
-        Files.walkFileTree(srcPath, FileVisitorAdapter(treeCollector.andThen(ProgressReportPathCollector())))
-        FileTree.of(treeCollector.dirs, treeCollector.files)
+        val collector = TreeCollectorAdapter()
+        Files.walkFileTree(srcPath, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
+        collector.asTree()
       }
 
       val dst = Monitor.scope("scan tree") {
         Monitor.message(dstPath.toString())
 
-        val treeCollector = TreeCollector()
-        Files.walkFileTree(dstPath, FileVisitorAdapter(treeCollector.andThen(ProgressReportPathCollector())))
-        FileTree.of(treeCollector.dirs, treeCollector.files)
+        val collector = TreeCollectorAdapter()
+        Files.walkFileTree(dstPath, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
+        collector.asTree()
       }
+
+      println("-----------------")
+      println(src)
+      println("-----------------")
+      println(dst)
 
       //CommandListSimplifier.rewrite(commands, src.dirs, dst.dirs)
     }
