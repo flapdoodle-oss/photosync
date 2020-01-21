@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filetree
 
 import java.nio.file.Path
+import java.nio.file.attribute.FileTime
 
 sealed class Tree(
     open val path: Path
@@ -11,6 +12,12 @@ sealed class Tree(
   ) : Tree(path)
 
   data class File(
-      override val path: Path, val symbolicLink: Boolean = false
+      override val path: Path,
+      val size: Long,
+      val lastModifiedTime: FileTime
+  ) : Tree(path)
+
+  data class SymLink(
+      override val path: Path
   ) : Tree(path)
 }

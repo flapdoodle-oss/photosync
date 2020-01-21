@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.filetree
 
 import de.flapdoodle.photosync.add
 import java.nio.file.Path
+import java.nio.file.attribute.FileTime
 
 class TreeCollectorAdapter : FileTreeCollector {
   private val root = Dir()
@@ -15,8 +16,12 @@ class TreeCollectorAdapter : FileTreeCollector {
     current = current.up(path)
   }
 
-  override fun add(path: Path, symbolicLink: Boolean) {
-    current.add(path, symbolicLink)
+  override fun add(path: Path, size: Long, lastModifiedTime: FileTime) {
+    current.add(path,size,lastModifiedTime)
+  }
+
+  override fun addSymlink(path: Path) {
+    current.addSymlink(path)
   }
 
   fun asTree(): Tree {
@@ -28,7 +33,8 @@ class TreeCollectorAdapter : FileTreeCollector {
       private val dirPath: Path? = null
   ) {
     private var dirs: Map<Path, Dir> = emptyMap()
-    private var files: Map<Path, Boolean> = emptyMap()
+    private var files: Map<Path, Pair<Long, FileTime>> = emptyMap()
+    private var symlinks: Set<Path> = emptySet()
 
     fun down(path: Path): Dir {
       val ret = Dir(this, path)
@@ -42,8 +48,12 @@ class TreeCollectorAdapter : FileTreeCollector {
       return parent
     }
 
-    fun add(path: Path, symbolicLink: Boolean) {
-      files = files add (path to symbolicLink)
+    fun add(path: Path,size: Long, lastModifiedTime: FileTime) {
+      files = files add (path to Pair(size,lastModifiedTime))
+    }
+
+    fun addSymlink(path: Path) {
+      symlinks = symlinks + path
     }
 
     fun asRoot(): Tree {
@@ -57,7 +67,8 @@ class TreeCollectorAdapter : FileTreeCollector {
 
     private fun asTree(): List<Tree> {
       return dirs.map { Tree.Directory(it.key, it.value.asTree()) } +
-          files.map { Tree.File(it.key, it.value) }
+          files.map { Tree.File(it.key, it.value.first, it.value.second) } +
+          symlinks.map { Tree.SymLink(it) }
     }
   }
 }

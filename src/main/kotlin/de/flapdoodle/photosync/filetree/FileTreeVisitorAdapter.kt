@@ -25,7 +25,11 @@ class FileTreeVisitorAdapter(
     require(!attributes.isDirectory) { "$path is a directory" }
     require(!attributes.isOther) { "$path is a other?" }
 
-    collector.add(path, attributes.isSymbolicLink)
+    if (attributes.isSymbolicLink) {
+      collector.addSymlink(path)
+    } else {
+      collector.add(path, attributes.size(), attributes.lastModifiedTime())
+    }
     return FileVisitResult.CONTINUE
   }
 
