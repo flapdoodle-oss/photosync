@@ -6,6 +6,7 @@ import java.nio.file.FileVisitor
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 
+@Deprecated("use Tree")
 class FileVisitorAdapter(
     private val collector: PathCollector
 ) : FileVisitor<Path> {

@@ -24,7 +24,8 @@ class TreeCollectorAdapter : FileTreeCollector {
     current.addSymlink(path)
   }
 
-  fun asTree(): Tree {
+  fun asTree(): Tree.Directory {
+    require(current === root) {"scanning in progress? $current != $root"}
     return root.asRoot()
   }
 
@@ -56,8 +57,8 @@ class TreeCollectorAdapter : FileTreeCollector {
       symlinks = symlinks + path
     }
 
-    fun asRoot(): Tree {
-      require(dirs.size <= 1) {"more than one entry: $dirs"}
+    fun asRoot(): Tree.Directory {
+      require(dirs.size == 1) {"more or less than one entry: $dirs"}
       require(files.isEmpty()) {"files not expected: $files"}
 
       val entry = dirs.entries.single()
