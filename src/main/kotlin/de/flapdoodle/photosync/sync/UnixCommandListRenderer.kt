@@ -8,7 +8,7 @@ object UnixCommandListRenderer : CommandExecutor {
       it.commands.forEach {
         when (it) {
           is Command.Copy -> printCommand("cp", it.src, it.dst)
-          is Command.Move -> printCommand("mv", it.src, it.dst)
+          is Command.Move -> printCommand("mv", it.dst, it.newDst)
           is Command.Remove -> {}
         }
       }
@@ -20,7 +20,7 @@ object UnixCommandListRenderer : CommandExecutor {
     commands.forEach {
       it.commands.forEach {
         when (it) {
-          is Command.Remove -> if (it.cause==Command.Cause.CopyRemovedFromSource) printCommand("rm", it.path)
+          is Command.Remove -> if (it.cause==Command.Cause.CopyRemovedFromSource) printCommand("rm", it.dst)
         }
       }
     }
@@ -31,7 +31,7 @@ object UnixCommandListRenderer : CommandExecutor {
     commands.forEach {
       it.commands.forEach {
         when (it) {
-          is Command.Remove -> if (it.cause==Command.Cause.DeletedEntry) printCommand("rm", it.path)
+          is Command.Remove -> if (it.cause==Command.Cause.DeletedEntry) printCommand("rm", it.dst)
         }
       }
     }

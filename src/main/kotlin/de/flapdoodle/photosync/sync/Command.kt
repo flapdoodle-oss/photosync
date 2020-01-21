@@ -7,7 +7,7 @@ sealed class Command() {
     DeletedEntry,
     CopyRemovedFromSource
   }
-  data class Move(val src: Path, val dst: Path) : Command()
+  data class Move(val dst: Path, val newDst: Path) : Command()
   data class Copy(val src: Path, val dst: Path) : Command()
-  data class Remove(val path: Path, val cause: Cause): Command()
+  data class Remove(val dst: Path, val cause: Cause): Command()
 }

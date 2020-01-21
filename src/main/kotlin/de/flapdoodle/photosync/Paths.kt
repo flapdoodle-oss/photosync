@@ -25,3 +25,7 @@ fun Path.replaceBase(base: Path, newBase: Path): Path {
 
   return newBase.parent.resolve(newBase.fileName.toString()+append)
 }
+
+fun Path.expectParent(): Path {
+  return this.parent ?: throw IllegalArgumentException("expected parent for $this is null")
+}
