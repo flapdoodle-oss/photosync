@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filetree
 
+import de.flapdoodle.photosync.FileTimes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -34,5 +35,22 @@ internal class TreeCollectorAdapterTest {
 
     assertThat(result.path).isEqualTo(path)
     assertThat(result.children).isEmpty()
+  }
+
+  @Test
+  fun `collect files`() {
+    val now = FileTimes.now()
+    
+    val path = Path.of("down")
+    testee.down(path)
+    testee.add(path.resolve("file"), 0, now)
+    testee.up(path)
+
+    val result = testee.asTree()
+
+    assertThat(result.path).isEqualTo(path)
+    assertThat(result.children).size().isEqualTo(1)
+        .returnToIterable()
+        .element(0).isEqualTo(Tree.File(path.resolve("file"),0, now))
   }
 }

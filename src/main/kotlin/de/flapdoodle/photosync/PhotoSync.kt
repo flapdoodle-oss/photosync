@@ -3,16 +3,16 @@ package de.flapdoodle.photosync
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
-import de.flapdoodle.photosync.collector.BlobCollector
-import de.flapdoodle.photosync.collector.FileVisitorAdapter
-import de.flapdoodle.photosync.collector.ProgressReportPathCollector
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
 import de.flapdoodle.photosync.filetree.FileTreeVisitorAdapter
 import de.flapdoodle.photosync.filetree.ProgressReportFileTreeCollector
+import de.flapdoodle.photosync.filetree.Tree
+import de.flapdoodle.photosync.filetree.mapFiles
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.sync.CommandListSimplifier
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
 import java.nio.file.Files
@@ -34,16 +34,25 @@ object PhotoSync {
     val dstPath = Path.of(args[1])
 
     val commands = Monitor.execute {
-      val src = Monitor.scope("scan") {
+      val srcTree = Monitor.scope("scan files") {
         Monitor.message(srcPath.toString())
-        scan(srcPath)
+        tree(srcPath)
+      }
+
+      val src = Monitor.scope("scan") {
+        scan(srcTree)
       }
 
       srcDiskSpaceUsed = src.diskSpaceUsed()
 
+      val dstTree = Monitor.scope("scan files") {
+        Monitor.message(dstPath.toString())
+        tree(dstPath)
+      }
+
       val dst = Monitor.scope("scan") {
         Monitor.message(dstPath.toString())
-        scan(dstPath)
+        scan(dstTree)
       }
 
       dstDiskSpaceUsed = dst.diskSpaceUsed()
@@ -53,38 +62,18 @@ object PhotoSync {
         ScanDiffAnalyzer.scan(src, dst, QuickHash)
       }
 
-      Diff2SyncCommands(src.path, dst.path).generate(diff)
+      val commands = Diff2SyncCommands(srcPath, dstPath).generate(diff)
+
+      CommandListSimplifier.rewrite(commands, srcTree, dstTree)
+
+      commands
     }
 
     println()
 
-    Monitor.execute {
-      val src = Monitor.scope("scan tree") {
-        Monitor.message(srcPath.toString())
-
-        val collector = TreeCollectorAdapter()
-        Files.walkFileTree(srcPath, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
-        collector.asTree()
-      }
-
-      val dst = Monitor.scope("scan tree") {
-        Monitor.message(dstPath.toString())
-
-        val collector = TreeCollectorAdapter()
-        Files.walkFileTree(dstPath, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
-        collector.asTree()
-      }
-
-      println("-----------------")
-      println(src)
-      println("-----------------")
-      println(dst)
-
-      //CommandListSimplifier.rewrite(commands, src.dirs, dst.dirs)
-    }
 
     println()
-    
+
     UnixCommandListRenderer.execute(commands)
 
     val end = LocalDateTime.now()
@@ -96,21 +85,25 @@ object PhotoSync {
   }
 
   private fun scan(
-      path: Path,
+      tree: Tree.Directory,
       hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) }
   ): Scan {
-    val blobCollector = BlobCollector()
-    Monitor.scope("collect") {
-      Files.walkFileTree(path, FileVisitorAdapter(blobCollector.andThen(ProgressReportPathCollector())))
-    }
+    val blobs = tree.mapFiles { Blob(it.path, it.size, it.lastModifiedTime) }
 
-    val groupMeta = GroupMetaData(blobCollector.blobs())
+    val groupMeta = GroupMetaData(blobs)
     val groupedByContent = GroupSameContent(
         blobs = groupMeta.baseBlobs(),
         hashStrategy = hashStrategy
     )
 
-    return Scan.of(path, groupedByContent, groupMeta)
+    return Scan.of(groupedByContent, groupMeta)
+  }
+
+  private fun tree(path: Path): Tree.Directory {
+    val collector = TreeCollectorAdapter()
+    Files.walkFileTree(path, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
+    return collector.asTree()
   }
 
 }
+

@@ -1,7 +1,18 @@
 package de.flapdoodle.photosync.filetree
 
+import de.flapdoodle.photosync.Blob
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
+
+fun Tree.Directory.mapFiles(mapper: (Tree.File) -> Blob): List<Blob> {
+  return this.children.flatMap { it ->
+    when (it) {
+      is Tree.File -> listOf(mapper(it))
+      is Tree.Directory -> it.mapFiles(mapper)
+      else -> emptyList()
+    }
+  }
+}
 
 sealed class Tree(
     open val path: Path

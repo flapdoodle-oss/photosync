@@ -15,8 +15,8 @@ internal class ScanDiffAnalyzerTest {
         BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
     ))
 
-    val src = Scan(Path.of("src"), listOf(srcGroup))
-    val dst = Scan(Path.of("dst"), emptyList())
+    val src = Scan(listOf(srcGroup))
+    val dst = Scan(emptyList())
 
     val hasher = MockedHasher()
         .addRule(Path.of("src", "bar"), 0, "hash")
@@ -37,8 +37,8 @@ internal class ScanDiffAnalyzerTest {
         BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now()))
     ))
 
-    val src = Scan(Path.of("src"), emptyList())
-    val dst = Scan(Path.of("dst"), listOf(dstGroup))
+    val src = Scan(emptyList())
+    val dst = Scan(listOf(dstGroup))
 
     val hasher = MockedHasher()
         .addRule(Path.of("dst", "bar"), 0, "hash")
@@ -63,8 +63,8 @@ internal class ScanDiffAnalyzerTest {
         BlobWithMeta(Blob(Path.of("dst", "baz"), 0, FileTimes.now()))
     ))
 
-    val src = Scan(Path.of("src"), listOf(srcGroup))
-    val dst = Scan(Path.of("dst"), listOf(dstGroup))
+    val src = Scan(listOf(srcGroup))
+    val dst = Scan(listOf(dstGroup))
 
     val hasher = MockedHasher()
         .addRule(Path.of("src", "bar"), 0, "hash")
