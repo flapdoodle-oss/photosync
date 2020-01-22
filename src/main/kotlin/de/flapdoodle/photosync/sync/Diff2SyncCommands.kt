@@ -12,7 +12,7 @@ class Diff2SyncCommands(
 
   fun generate(
       diff: List<DiffEntry>
-  ): List<CommandGroup> {
+  ): List<SyncCommandGroup> {
     return diff.flatMap {
       when (it) {
         is DiffEntry.Match -> sync(DiffMatchAnalyser(srcPath, dstPath).inspect(it))
@@ -23,7 +23,7 @@ class Diff2SyncCommands(
     }
   }
 
-  private fun sync(result: DiffMatchAnalyser.InspectedMatch): List<CommandGroup> {
+  private fun sync(result: DiffMatchAnalyser.InspectedMatch): List<SyncCommandGroup> {
     val syncCommands = result.matchingBlobs.map { (source, dest) ->
       sync(source, dest)
     }
@@ -35,61 +35,61 @@ class Diff2SyncCommands(
     val movedDestCommands = result.moveDestinations.map { (source, dest) ->
       val movedDest = dest.replaceBase(source.base.path.rewrite(srcPath, dstPath))
 
-      CommandGroup() +
-          Command.Move(dest.base.path, movedDest.base.path) +
-          CommandGroup(dest.meta.zip(movedDest.meta).map {
-            Command.Move(it.first.path, it.second.path)
+      SyncCommandGroup() +
+          SyncCommand.Move(dest.base.path, movedDest.base.path) +
+          SyncCommandGroup(dest.meta.zip(movedDest.meta).map {
+            SyncCommand.Move(it.first.path, it.second.path)
           }) +
           sync(source, movedDest)
     }
 
     val removeCommands = result.removeDestinations.map {
-      remove(it,Command.Cause.CopyRemovedFromSource)
+      remove(it,SyncCommand.Cause.CopyRemovedFromSource)
     }
 
     return syncCommands + createCommands + movedDestCommands + removeCommands
   }
 
-  private fun sync(source: BlobWithMeta, dest: BlobWithMeta): CommandGroup {
-    var commands = CommandGroup()
+  private fun sync(source: BlobWithMeta, dest: BlobWithMeta): SyncCommandGroup {
+    var commands = SyncCommandGroup()
 
     source.meta.forEach { sourceMeta ->
       val expectedDestination = sourceMeta.path.rewrite(srcPath, dstPath)
       val matchingDest = dest.meta.find { expectedDestination == it.path }
       if (matchingDest != null) {
         if (sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())) {
-          commands = commands + Command.Copy(sourceMeta.path, expectedDestination)
+          commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
         }
       } else {
-        commands = commands + Command.Copy(sourceMeta.path, expectedDestination)
+        commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
       }
     }
 
     return commands
   }
 
-  private fun newEntry(entry: DiffEntry.NewEntry): CommandGroup {
-    return entry.src.blobs.fold(CommandGroup()) { commandGroup, blobWithMeta ->
+  private fun newEntry(entry: DiffEntry.NewEntry): SyncCommandGroup {
+    return entry.src.blobs.fold(SyncCommandGroup()) { commandGroup, blobWithMeta ->
       commandGroup + create(blobWithMeta)
     }
   }
 
-  private fun deleteEntry(entry: DiffEntry.DeletedEntry): CommandGroup {
-    return entry.dst.blobs.fold(CommandGroup()) { commandGroup, blobWithMeta ->
-      commandGroup + remove(blobWithMeta, Command.Cause.DeletedEntry)
+  private fun deleteEntry(entry: DiffEntry.DeletedEntry): SyncCommandGroup {
+    return entry.dst.blobs.fold(SyncCommandGroup()) { commandGroup, blobWithMeta ->
+      commandGroup + remove(blobWithMeta, SyncCommand.Cause.DeletedEntry)
     }
   }
 
-  private fun create(blobWithMeta: BlobWithMeta): CommandGroup {
-    return CommandGroup(
-        listOf(Command.Copy(blobWithMeta.base.path, blobWithMeta.base.path.rewrite(srcPath, dstPath))) +
-            blobWithMeta.meta.map { Command.Copy(it.path, it.path.rewrite(srcPath, dstPath)) }
+  private fun create(blobWithMeta: BlobWithMeta): SyncCommandGroup {
+    return SyncCommandGroup(
+        listOf(SyncCommand.Copy(blobWithMeta.base.path, blobWithMeta.base.path.rewrite(srcPath, dstPath))) +
+            blobWithMeta.meta.map { SyncCommand.Copy(it.path, it.path.rewrite(srcPath, dstPath)) }
     )
   }
 
-  private fun remove(blobWithMeta: BlobWithMeta, cause: Command.Cause): CommandGroup {
-    return CommandGroup(
-        listOf(Command.Remove(blobWithMeta.base.path, cause=cause)) + blobWithMeta.meta.map { Command.Remove(it.path, cause=cause) }
+  private fun remove(blobWithMeta: BlobWithMeta, cause: SyncCommand.Cause): SyncCommandGroup {
+    return SyncCommandGroup(
+        listOf(SyncCommand.Remove(blobWithMeta.base.path, cause=cause)) + blobWithMeta.meta.map { SyncCommand.Remove(it.path, cause=cause) }
     )
   }
 }

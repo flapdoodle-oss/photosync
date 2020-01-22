@@ -34,9 +34,9 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.NewEntry(src)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Copy(path("src", "base"), path("dst", "base")) +
-            Command.Copy(path("src", "base.info"), path("dst", "base.info"))
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base"), path("dst", "base")) +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
 
@@ -53,9 +53,9 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.DeletedEntry(dst)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Remove(path("dst", "base"), Command.Cause.DeletedEntry) +
-            Command.Remove(path("dst", "base.info"), Command.Cause.DeletedEntry)
+        SyncCommandGroup() +
+            SyncCommand.Remove(path("dst", "base"), SyncCommand.Cause.DeletedEntry) +
+            SyncCommand.Remove(path("dst", "base.info"), SyncCommand.Cause.DeletedEntry)
     )
   }
 
@@ -84,8 +84,8 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.Match(src, dst)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Copy(path("src", "base.info"), path("dst", "base.info"))
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
 
@@ -119,11 +119,11 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.Match(src, dst)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Copy(path("src", "base.info"), path("dst", "base.info")),
-        CommandGroup() +
-            Command.Copy(path("src", "second"), path("dst", "second")) +
-            Command.Copy(path("src", "second.info"), path("dst", "second.info"))
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "second"), path("dst", "second")) +
+            SyncCommand.Copy(path("src", "second.info"), path("dst", "second.info"))
     )
   }
 
@@ -157,11 +157,11 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.Match(src, dst)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Copy(path("src", "base.info"), path("dst", "base.info")),
-        CommandGroup() +
-            Command.Remove(path("dst", "second"), Command.Cause.CopyRemovedFromSource) +
-            Command.Remove(path("dst", "second.info"), Command.Cause.CopyRemovedFromSource)
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
+        SyncCommandGroup() +
+            SyncCommand.Remove(path("dst", "second"), SyncCommand.Cause.CopyRemovedFromSource) +
+            SyncCommand.Remove(path("dst", "second.info"), SyncCommand.Cause.CopyRemovedFromSource)
     )
   }
 
@@ -188,8 +188,8 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.Match(src, dst)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Copy(path("src", "base.info"), path("dst", "base.info"))
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
 
@@ -219,10 +219,10 @@ internal class Diff2SyncCommandsTest {
     val result = testee.generate(listOf(DiffEntry.Match(src, dst)))
 
     assertThat(result).containsExactly(
-        CommandGroup() +
-            Command.Move(path("dst", "moved-base"), path("dst", "base")) +
-            Command.Move(path("dst", "moved-base.info"), path("dst", "base.info")) +
-            Command.Copy(path("src", "base.info"), path("dst", "base.info"))
+        SyncCommandGroup() +
+            SyncCommand.Move(path("dst", "moved-base"), path("dst", "base")) +
+            SyncCommand.Move(path("dst", "moved-base.info"), path("dst", "base.info")) +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
 

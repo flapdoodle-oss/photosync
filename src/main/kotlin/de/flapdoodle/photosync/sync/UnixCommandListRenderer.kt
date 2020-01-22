@@ -3,13 +3,13 @@ package de.flapdoodle.photosync.sync
 import java.nio.file.Path
 
 object UnixCommandListRenderer : CommandExecutor {
-  override fun execute(commands: List<CommandGroup>) {
+  override fun execute(commands: List<SyncCommandGroup>) {
     commands.forEach {
       it.commands.forEach {
         when (it) {
-          is Command.Copy -> printCommand("cp", it.src, it.dst)
-          is Command.Move -> printCommand("mv", it.dst, it.newDst)
-          is Command.Remove -> {}
+          is SyncCommand.Copy -> printCommand("cp", it.src, it.dst)
+          is SyncCommand.Move -> printCommand("mv", it.src, it.dst)
+          is SyncCommand.Remove -> {}
         }
       }
     }
@@ -20,7 +20,7 @@ object UnixCommandListRenderer : CommandExecutor {
     commands.forEach {
       it.commands.forEach {
         when (it) {
-          is Command.Remove -> if (it.cause==Command.Cause.CopyRemovedFromSource) printCommand("rm", it.dst)
+          is SyncCommand.Remove -> if (it.cause==SyncCommand.Cause.CopyRemovedFromSource) printCommand("rm", it.dst)
         }
       }
     }
@@ -31,16 +31,16 @@ object UnixCommandListRenderer : CommandExecutor {
     commands.forEach {
       it.commands.forEach {
         when (it) {
-          is Command.Remove -> if (it.cause==Command.Cause.DeletedEntry) printCommand("rm", it.dst)
+          is SyncCommand.Remove -> if (it.cause==SyncCommand.Cause.DeletedEntry) printCommand("rm", it.dst)
         }
       }
     }
   }
 
-  private fun asString(cause: Command.Cause): String {
+  private fun asString(cause: SyncCommand.Cause): String {
     return when (cause) {
-      Command.Cause.DeletedEntry -> "deleted"
-      Command.Cause.CopyRemovedFromSource -> "copy removed from source"
+      SyncCommand.Cause.DeletedEntry -> "deleted"
+      SyncCommand.Cause.CopyRemovedFromSource -> "copy removed from source"
     }
   }
 
