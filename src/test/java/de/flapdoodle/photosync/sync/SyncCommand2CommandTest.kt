@@ -5,7 +5,7 @@ import de.flapdoodle.photosync.filetree.Tree
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
-internal class SyncCommand2NativeCommandTest {
+internal class SyncCommand2CommandTest {
 
   @Test
   fun `simplify move commands if source dir and dest dir are the same and all files are moved`() {
@@ -26,6 +26,6 @@ internal class SyncCommand2NativeCommandTest {
         ))
     ))
 
-    SyncCommand2NativeCommand.rewrite(commands,srcTree,dstTree)
+    SyncCommand2Command.map(commands,srcTree,dstTree)
   }
 }

@@ -3,14 +3,14 @@ package de.flapdoodle.photosync.sync
 import java.nio.file.Path
 
 object UnixCommandListRenderer : CommandExecutor {
-  override fun execute(commands: List<SyncCommandGroup>) {
+  override fun execute(commands: List<Command>) {
     commands.forEach {
-      it.commands.forEach {
-        when (it) {
-          is SyncCommand.Copy -> printCommand("cp", it.src, it.dst)
-          is SyncCommand.Move -> printCommand("mv", it.src, it.dst)
-          is SyncCommand.Remove -> {}
-        }
+      when (it) {
+        is Command.Copy -> printCommand("cp", it.src, it.dst)
+        is Command.Move -> printCommand("mv", it.src, it.dst)
+        is Command.MkDir -> printCommand("mkdir", it.dst)
+        is Command.BulkMove -> printCommand("mv", it.src.resolve("*"), it.dst)
+        is Command.Remove -> { }
       }
     }
 
@@ -18,10 +18,8 @@ object UnixCommandListRenderer : CommandExecutor {
     println("unused image copies")
     println("---------------------------")
     commands.forEach {
-      it.commands.forEach {
-        when (it) {
-          is SyncCommand.Remove -> if (it.cause==SyncCommand.Cause.CopyRemovedFromSource) printCommand("rm", it.dst)
-        }
+      when (it) {
+        is Command.Remove -> if (it.cause == Command.Cause.CopyRemovedFromSource) printCommand("rm", it.dst)
       }
     }
 
@@ -29,18 +27,16 @@ object UnixCommandListRenderer : CommandExecutor {
     println("removed source images")
     println("---------------------------")
     commands.forEach {
-      it.commands.forEach {
-        when (it) {
-          is SyncCommand.Remove -> if (it.cause==SyncCommand.Cause.DeletedEntry) printCommand("rm", it.dst)
-        }
+      when (it) {
+        is Command.Remove -> if (it.cause == Command.Cause.DeletedEntry) printCommand("rm", it.dst)
       }
     }
   }
 
-  private fun asString(cause: SyncCommand.Cause): String {
+  private fun asString(cause: Command.Cause): String {
     return when (cause) {
-      SyncCommand.Cause.DeletedEntry -> "deleted"
-      SyncCommand.Cause.CopyRemovedFromSource -> "copy removed from source"
+      Command.Cause.DeletedEntry -> "deleted"
+      Command.Cause.CopyRemovedFromSource -> "copy removed from source"
     }
   }
 

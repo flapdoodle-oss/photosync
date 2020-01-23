@@ -12,7 +12,7 @@ import de.flapdoodle.photosync.filetree.ProgressReportFileTreeCollector
 import de.flapdoodle.photosync.filetree.Tree
 import de.flapdoodle.photosync.filetree.mapFiles
 import de.flapdoodle.photosync.progress.Monitor
-import de.flapdoodle.photosync.sync.SyncCommand2NativeCommand
+import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
 import java.nio.file.Files
@@ -62,11 +62,9 @@ object PhotoSync {
         ScanDiffAnalyzer.scan(src, dst, QuickHash)
       }
 
-      val commands = Diff2SyncCommands(srcPath, dstPath).generate(diff)
+      val syncCommands = Diff2SyncCommands(srcPath, dstPath).generate(diff)
 
-      SyncCommand2NativeCommand.rewrite(commands, srcTree, dstTree)
-
-      commands
+      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
     }
 
     println()

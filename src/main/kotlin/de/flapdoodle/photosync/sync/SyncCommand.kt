@@ -3,7 +3,7 @@ package de.flapdoodle.photosync.sync
 import de.flapdoodle.photosync.expectParent
 import java.nio.file.Path
 
-fun List<SyncCommand>.bulkMove():SyncCommand.Move? {
+fun List<SyncCommand>.bulkMove():Command.BulkMove? {
   if (isNotEmpty()) {
     val moveCommands = filterIsInstance<SyncCommand.Move>()
     if (moveCommands.size == size) {
@@ -11,7 +11,7 @@ fun List<SyncCommand>.bulkMove():SyncCommand.Move? {
       if (dirSet.size==1) {
         if (moveCommands.all { it.src.fileName == it.dst.fileName }) {
           val directories = dirSet.single()
-          return SyncCommand.Move(directories.first, directories.second)
+          return Command.BulkMove(directories.first, directories.second, cause = moveCommands)
         }
       }
     }
