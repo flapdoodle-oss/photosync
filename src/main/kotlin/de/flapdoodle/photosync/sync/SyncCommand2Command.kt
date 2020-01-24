@@ -5,6 +5,7 @@ import de.flapdoodle.photosync.filetree.Tree
 import de.flapdoodle.photosync.filetree.containsExactly
 import de.flapdoodle.photosync.filetree.find
 import de.flapdoodle.photosync.filetree.get
+import java.nio.file.Path
 
 object SyncCommand2Command {
 
@@ -24,7 +25,8 @@ object SyncCommand2Command {
 
     return if (bulkMove != null) {
       if (root.find(bulkMove.dst) == null) {
-        listOf(Command.MkDir(bulkMove.dst), bulkMove)
+        //listOf(Command.MkDir(bulkMove.dst), bulkMove)
+        listOf(bulkMove)
       } else {
         listOf(bulkMove)
       }
@@ -47,6 +49,21 @@ object SyncCommand2Command {
     return ret.filterNotNull()
   }
 
+  private fun createMissingDirectories(commands: List<Command>, dst: Tree.Directory): List<Command> {
+    val destinationDirectories = commands.flatMap {
+      when (it) {
+        is Command.Move -> listOf(it.dst.expectParent())
+        is Command.Copy -> listOf(it.dst.expectParent())
+        is Command.BulkMove -> listOf(it.dst)
+        else -> emptyList()
+      }
+    }.toSet()
+
+    val missingDirectories = destinationDirectories.filter { dst.find(it) == null }
+
+    return missingDirectories.map(Command::MkDir) + commands
+  }
+
   fun map(commands: List<SyncCommandGroup>, src: Tree.Directory, dst: Tree.Directory): List<Command> {
     val moveCommands = commands.flatMap { it.commands.filterIsInstance<SyncCommand.Move>() }
 
@@ -67,7 +84,7 @@ object SyncCommand2Command {
       map(commandGroup) { moveCommandsReplacedByBulkMove.contains(it) }
     }
 
-    return bulkMoves + result
+    return createMissingDirectories(bulkMoves + result, dst)
   }
 
 }
