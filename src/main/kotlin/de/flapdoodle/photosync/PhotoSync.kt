@@ -40,10 +40,12 @@ object PhotoSync {
     val filter: ((Path) -> Boolean)? = if (args.size>2) {
       val pattern: Pattern = Pattern.compile(args[2])
       val ret: ((Path) -> Boolean)? = { path: Path -> path.matches(pattern) }
+      println("path filter enabled: $pattern (${args[2]})")
       ret
     }
     else
       null
+
 
     val commands = Monitor.execute {
       val srcTree = Monitor.scope("scan files") {
