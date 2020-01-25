@@ -102,7 +102,7 @@ object PhotoSync {
       filter: ((Path) -> Boolean)? = null
   ): Scan {
     val filteredTree = if (filter!=null)
-      tree.filter(filter) ?: throw IllegalArgumentException("no result after filtering  with $filter -> $tree")
+      tree.filterChildren(filter)
     else
       tree
 

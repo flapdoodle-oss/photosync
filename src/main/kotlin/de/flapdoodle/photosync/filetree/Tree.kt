@@ -56,6 +56,8 @@ sealed class Tree(
     override fun filter(filter: (Path) -> Boolean) = if (filter(path)) {
       copy(children = children.mapNotNull { it.filter(filter) })
     } else null
+
+    fun filterChildren(filter: (Path) -> Boolean): Directory = copy(children = children.mapNotNull { it.filter(filter) })
   }
 
   data class File(
