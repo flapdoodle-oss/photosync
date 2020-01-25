@@ -1,6 +1,8 @@
 package de.flapdoodle.photosync
 
+import java.nio.file.LinkOption
 import java.nio.file.Path
+import java.util.regex.Pattern
 
 fun Path.startsWithOrIsEqualTo(basePath: Path): Boolean {
   return this.parent == basePath.parent
@@ -28,4 +30,8 @@ fun Path.replaceBase(base: Path, newBase: Path): Path {
 
 fun Path.expectParent(): Path {
   return this.parent ?: throw IllegalArgumentException("expected parent for $this is null")
+}
+
+fun Path.matches(pattern: Pattern): Boolean {
+  return pattern.asPredicate().test(toString())
 }

@@ -2,29 +2,30 @@ package de.flapdoodle.photosync
 
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
-import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.diff.Scan
+import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
 import de.flapdoodle.photosync.filetree.FileTreeVisitorAdapter
 import de.flapdoodle.photosync.filetree.ProgressReportFileTreeCollector
 import de.flapdoodle.photosync.filetree.Tree
+import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
 import de.flapdoodle.photosync.filetree.mapFiles
 import de.flapdoodle.photosync.progress.Monitor
-import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
+import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
 import java.time.LocalDateTime
+import java.util.regex.Pattern
 
 object PhotoSync {
 
   @JvmStatic
   fun main(vararg args: String) {
-    require(args.size > 1) { "usage: <src> <dst>" }
+    require(args.size > 1) { "usage: <src> <dst> <regex pattern?>" }
 
     val start = LocalDateTime.now()
     var srcDiskSpaceUsed = 0L
@@ -33,6 +34,17 @@ object PhotoSync {
     val srcPath = Path.of(args[0])
     val dstPath = Path.of(args[1])
 
+    require(srcPath.toFile().isDirectory) { "$srcPath is not a directory" }
+    require(dstPath.toFile().isDirectory) { "$dstPath is not a directory" }
+
+    val filter: ((Path) -> Boolean)? = if (args.size>2) {
+      val pattern: Pattern = Pattern.compile(args[2])
+      val ret: ((Path) -> Boolean)? = { path: Path -> path.matches(pattern) }
+      ret
+    }
+    else
+      null
+
     val commands = Monitor.execute {
       val srcTree = Monitor.scope("scan files") {
         Monitor.message(srcPath.toString())
@@ -40,7 +52,7 @@ object PhotoSync {
       }
 
       val src = Monitor.scope("scan") {
-        scan(srcTree)
+        scan(srcTree, filter = filter)
       }
 
       srcDiskSpaceUsed = src.diskSpaceUsed()
@@ -52,7 +64,7 @@ object PhotoSync {
 
       val dst = Monitor.scope("scan") {
         Monitor.message(dstPath.toString())
-        scan(dstTree)
+        scan(dstTree, filter = filter)
       }
 
       dstDiskSpaceUsed = dst.diskSpaceUsed()
@@ -84,9 +96,15 @@ object PhotoSync {
 
   private fun scan(
       tree: Tree.Directory,
-      hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) }
+      hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) },
+      filter: ((Path) -> Boolean)? = null
   ): Scan {
-    val blobs = tree.mapFiles { Blob(it.path, it.size, it.lastModifiedTime) }
+    val filteredTree = if (filter!=null)
+      tree.filter(filter) ?: throw IllegalArgumentException("no result after filtering  with $filter -> $tree")
+    else
+      tree
+
+    val blobs = filteredTree.mapFiles { Blob(it.path, it.size, it.lastModifiedTime) }
 
     val groupMeta = GroupMetaData(blobs)
     val groupedByContent = GroupSameContent(

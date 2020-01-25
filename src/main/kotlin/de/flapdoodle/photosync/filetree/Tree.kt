@@ -4,6 +4,7 @@ import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.findNotNull
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
+import java.util.regex.Pattern
 
 fun Tree.Directory.mapFiles(mapper: (Tree.File) -> Blob): List<Blob> {
   return this.children.flatMap { it ->
@@ -16,7 +17,7 @@ fun Tree.Directory.mapFiles(mapper: (Tree.File) -> Blob): List<Blob> {
 }
 
 fun Tree.Directory.find(path: Path): Tree.Directory? {
-  if (this.path==path) return this
+  if (this.path == path) return this
   if (path.startsWith(this.path)) {
     return this.children.findNotNull {
       if (it is Tree.Directory) it.find(path) else null
@@ -45,18 +46,29 @@ fun Tree.Directory.containsExactly(paths: List<Path>): Boolean {
 sealed class Tree(
     open val path: Path
 ) {
+
+  abstract fun filter(filter: (Path) -> Boolean): Tree?
+
   data class Directory(
       override val path: Path,
       val children: List<Tree>
-  ) : Tree(path)
+  ) : Tree(path) {
+    override fun filter(filter: (Path) -> Boolean) = if (filter(path)) {
+      copy(children = children.mapNotNull { it.filter(filter) })
+    } else null
+  }
 
   data class File(
       override val path: Path,
       val size: Long,
       val lastModifiedTime: FileTime
-  ) : Tree(path)
+  ) : Tree(path) {
+    override fun filter(filter: (Path) -> Boolean) = if (filter(path)) this else null
+  }
 
   data class SymLink(
       override val path: Path
-  ) : Tree(path)
+  ) : Tree(path) {
+    override fun filter(filter: (Path) -> Boolean) = if (filter(path)) this else null
+  }
 }
