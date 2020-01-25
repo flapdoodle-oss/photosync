@@ -5,7 +5,6 @@ import de.flapdoodle.photosync.filetree.Tree
 import de.flapdoodle.photosync.filetree.containsExactly
 import de.flapdoodle.photosync.filetree.find
 import de.flapdoodle.photosync.filetree.get
-import java.nio.file.Path
 
 object SyncCommand2Command {
 
@@ -20,19 +19,8 @@ object SyncCommand2Command {
     return null
   }
 
-  private fun map2BulkMove(commands: List<SyncCommand.Move>, root: Tree.Directory): List<Command> {
-    val bulkMove = bulkMove(commands, root)
-
-    return if (bulkMove != null) {
-      if (root.find(bulkMove.dst) == null) {
-        //listOf(Command.MkDir(bulkMove.dst), bulkMove)
-        listOf(bulkMove)
-      } else {
-        listOf(bulkMove)
-      }
-    } else {
-      emptyList()
-    }
+  private fun map2BulkMove(commands: List<SyncCommand.Move>, root: Tree.Directory): Command? {
+    return bulkMove(commands, root)
   }
 
   private fun map(group: SyncCommandGroup, removeCommand: (SyncCommand) -> Boolean): List<Command> {
@@ -67,14 +55,11 @@ object SyncCommand2Command {
   fun map(commands: List<SyncCommandGroup>, src: Tree.Directory, dst: Tree.Directory): List<Command> {
     val moveCommands = commands.flatMap { it.commands.filterIsInstance<SyncCommand.Move>() }
 
-//    println("move commands:")
-//    moveCommands.forEach { println("-> $it") }
-
     val movesForSameOrigin = moveCommands.groupBy {
       it.src.expectParent()
     }
 
-    val bulkMoves = movesForSameOrigin.entries.flatMap { (_, commands) ->
+    val bulkMoves = movesForSameOrigin.entries.mapNotNull { (_, commands) ->
       map2BulkMove(commands, dst)
     }
 
