@@ -6,7 +6,7 @@ object UnixCommandListRenderer : CommandExecutor {
   override fun execute(commands: List<Command>) {
     commands.forEach {
       when (it) {
-        is Command.Copy -> printCommand("cp", it.src, it.dst)
+        is Command.Copy -> printCommand("cp --preserve=timestamps", it.src, it.dst)
         is Command.Move -> printCommand("mv", it.src, it.dst)
         is Command.MkDir -> printCommand("mkdir", it.dst)
         is Command.BulkMove -> printCommand("mv", it.src.resolve("*"), it.dst)

@@ -25,8 +25,12 @@ class Diff2SyncCommands(
 
     fun isNewerOrHashIsEqual(hasher: Hasher<*>): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
       if (matchingDest != null) {
-        sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant()) ||
-            hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
+        val isNewer = sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())
+        val isOlder = sourceMeta.lastModifiedTime.toInstant().isBefore(matchingDest.lastModifiedTime.toInstant())
+        isNewer || (
+            isOlder &&
+                hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
+            )
       } else {
         true
       }
@@ -67,7 +71,7 @@ class Diff2SyncCommands(
     }
 
     val removeCommands = result.removeDestinations.map {
-      remove(it,SyncCommand.Cause.CopyRemovedFromSource)
+      remove(it, SyncCommand.Cause.CopyRemovedFromSource)
     }
 
     return syncCommands + createCommands + movedDestCommands + removeCommands
@@ -115,7 +119,7 @@ class Diff2SyncCommands(
 
   private fun remove(blobWithMeta: BlobWithMeta, cause: SyncCommand.Cause): SyncCommandGroup {
     return SyncCommandGroup(
-        listOf(SyncCommand.Remove(blobWithMeta.base.path, cause=cause)) + blobWithMeta.meta.map { SyncCommand.Remove(it.path, cause=cause) }
+        listOf(SyncCommand.Remove(blobWithMeta.base.path, cause = cause)) + blobWithMeta.meta.map { SyncCommand.Remove(it.path, cause = cause) }
     )
   }
 }
