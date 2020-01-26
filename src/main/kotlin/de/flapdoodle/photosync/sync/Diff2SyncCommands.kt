@@ -1,14 +1,37 @@
 package de.flapdoodle.photosync.sync
 
+import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
+import de.flapdoodle.photosync.filehash.Hasher
+import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.rewrite
 import java.nio.file.Path
 
 class Diff2SyncCommands(
     private val srcPath: Path,
-    private val dstPath: Path
+    private val dstPath: Path,
+    private val shouldCopyMeta: (Blob, Blob?) -> Boolean
 ) {
+
+  companion object {
+    fun isNewer(): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
+      if (matchingDest != null) {
+        sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())
+      } else {
+        true
+      }
+    }
+
+    fun isNewerOrHashIsEqual(hasher: Hasher<*>): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
+      if (matchingDest != null) {
+        sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant()) ||
+            hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
+      } else {
+        true
+      }
+    }
+  }
 
   fun generate(
       diff: List<DiffEntry>
@@ -56,13 +79,16 @@ class Diff2SyncCommands(
     source.meta.forEach { sourceMeta ->
       val expectedDestination = sourceMeta.path.rewrite(srcPath, dstPath)
       val matchingDest = dest.meta.find { expectedDestination == it.path }
-      if (matchingDest != null) {
-        if (sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())) {
-          commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
-        }
-      } else {
+      if (shouldCopyMeta(sourceMeta, matchingDest)) {
         commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
       }
+//      if (matchingDest != null) {
+//        if (sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())) {
+//          commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
+//        }
+//      } else {
+//        commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
+//      }
     }
 
     return commands

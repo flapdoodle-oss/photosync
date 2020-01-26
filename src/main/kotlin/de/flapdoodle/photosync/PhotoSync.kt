@@ -47,6 +47,8 @@ object PhotoSync {
       null
 
 
+    val hasher = QuickHash
+
     val commands = Monitor.execute {
       val srcTree = Monitor.scope("scan files") {
         Monitor.message(srcPath.toString())
@@ -73,10 +75,10 @@ object PhotoSync {
 
       val diff = Monitor.scope("diff") {
         Monitor.message("src: ${src.diskSpaceUsed()}, dst: ${dst.diskSpaceUsed()}")
-        ScanDiffAnalyzer.scan(src, dst, QuickHash)
+        ScanDiffAnalyzer.scan(src, dst, hasher)
       }
 
-      val syncCommands = Diff2SyncCommands(srcPath, dstPath).generate(diff)
+      val syncCommands = Diff2SyncCommands(srcPath, dstPath, Diff2SyncCommands.isNewerOrHashIsEqual(hasher)).generate(diff)
 
       SyncCommand2Command.map(syncCommands, srcTree, dstTree)
     }

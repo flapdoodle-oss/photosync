@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.MockedHasher
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.GroupedBlobs
@@ -12,7 +13,7 @@ import java.nio.file.Path
 
 internal class Diff2SyncCommandsTest {
 
-  private val testee = Diff2SyncCommands(path("src"), path("dst"))
+  private val testee = Diff2SyncCommands(path("src"), path("dst"), Diff2SyncCommands.isNewer())
 
   @Test
   fun `noop gives no commands`() {
