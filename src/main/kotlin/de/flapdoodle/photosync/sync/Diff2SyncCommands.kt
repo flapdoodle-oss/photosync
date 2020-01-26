@@ -86,13 +86,14 @@ class Diff2SyncCommands(
       if (shouldCopyMeta(sourceMeta, matchingDest)) {
         commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
       }
-//      if (matchingDest != null) {
-//        if (sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())) {
-//          commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
-//        }
-//      } else {
-//        commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
-//      }
+    }
+
+    dest.meta.forEach { destMeta ->
+      val expectedSource = destMeta.path.rewrite(dstPath, srcPath)
+      val matchingSource = source.meta.find { expectedSource == it.path }
+      if (matchingSource == null) {
+        commands = commands + SyncCommand.Remove(destMeta.path, cause = SyncCommand.Cause.CopyRemovedFromSource)
+      }
     }
 
     return commands
