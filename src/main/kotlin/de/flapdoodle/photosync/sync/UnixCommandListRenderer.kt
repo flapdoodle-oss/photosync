@@ -7,6 +7,7 @@ object UnixCommandListRenderer : CommandExecutor {
     commands.forEach {
       when (it) {
         is Command.Copy -> printCommand("cp --preserve=timestamps", it.src, it.dst)
+        is Command.CopyBack -> printCommand("#cp-back --preserve=timestamps", it.src, it.dst)
         is Command.Move -> printCommand("mv", it.src, it.dst)
         is Command.MkDir -> printCommand("mkdir", it.dst)
         is Command.BulkMove -> printCommand("mv", it.src.resolve("*"), it.dst)

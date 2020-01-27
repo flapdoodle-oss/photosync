@@ -2,7 +2,6 @@ package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.FileTimes
-import de.flapdoodle.photosync.MockedHasher
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.GroupedBlobs
@@ -13,7 +12,9 @@ import java.nio.file.Path
 
 internal class Diff2SyncCommandsTest {
 
-  private val testee = Diff2SyncCommands(path("src"), path("dst"), Diff2SyncCommands.isNewer())
+  private val testee = Diff2SyncCommands(path("src"), path("dst"),
+      sameContent = { _, _ -> true }
+  )
 
   @Test
   fun `noop gives no commands`() {
@@ -163,6 +164,49 @@ internal class Diff2SyncCommandsTest {
         SyncCommandGroup() +
             SyncCommand.Remove(path("dst", "second"), SyncCommand.Cause.CopyRemovedFromSource) +
             SyncCommand.Remove(path("dst", "second.info"), SyncCommand.Cause.CopyRemovedFromSource)
+    )
+  }
+
+  @Test
+  fun `match gives cp commands latest meta files`() {
+    val olderTimeStamp = FileTimes.now()
+    val newerTimeStamp = olderTimeStamp + 1
+
+    val src = GroupedBlobs(
+        listOf(BlobWithMeta(
+            base = Blob(path("src", "base"), 0, newerTimeStamp),
+            meta = listOf(
+                Blob(path("src", "base.info"), 0, newerTimeStamp)
+            )),
+            BlobWithMeta(
+                base = Blob(path("src", "second"), 0, olderTimeStamp),
+                meta = listOf(
+                    Blob(path("src", "second.info"), 0, olderTimeStamp)
+                ))
+        )
+    )
+
+    val dst = GroupedBlobs(
+        listOf(BlobWithMeta(
+            base = Blob(path("dst", "base"), 0, olderTimeStamp),
+            meta = listOf(
+                Blob(path("dst", "base.info"), 0, olderTimeStamp)
+            )),
+            BlobWithMeta(
+                base = Blob(path("dst", "second"), 0, newerTimeStamp),
+                meta = listOf(
+                    Blob(path("dst", "second.info"), 0, newerTimeStamp)
+                ))
+        )
+    )
+    val result = testee.copy(sameContent = { _, _ -> false })
+        .generate(listOf(DiffEntry.Match(src, dst)))
+
+    assertThat(result).containsExactly(
+        SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
+        SyncCommandGroup() +
+            SyncCommand.CopyBack(path("src", "second.info"), path("dst", "second.info"))
     )
   }
 

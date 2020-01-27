@@ -37,13 +37,12 @@ object PhotoSync {
     require(srcPath.toFile().isDirectory) { "$srcPath is not a directory" }
     require(dstPath.toFile().isDirectory) { "$dstPath is not a directory" }
 
-    val filter: ((Path) -> Boolean)? = if (args.size>2) {
+    val filter: ((Path) -> Boolean)? = if (args.size > 2) {
       val pattern: Pattern = Pattern.compile(args[2])
       val ret: ((Path) -> Boolean)? = { path: Path -> path.matches(pattern) }
       println("path filter enabled: $pattern (${args[2]})")
       ret
-    }
-    else
+    } else
       null
 
 
@@ -78,7 +77,9 @@ object PhotoSync {
         ScanDiffAnalyzer.scan(src, dst, hasher)
       }
 
-      val syncCommands = Diff2SyncCommands(srcPath, dstPath, Diff2SyncCommands.isNewerOrHashIsEqual(hasher)).generate(diff)
+      val syncCommands = Diff2SyncCommands(srcPath, dstPath,
+          sameContent = Diff2SyncCommands.sameContent(hasher)
+      ).generate(diff)
 
       SyncCommand2Command.map(syncCommands, srcTree, dstTree)
     }
@@ -103,7 +104,7 @@ object PhotoSync {
       hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) },
       filter: ((Path) -> Boolean)? = null
   ): Scan {
-    val filteredTree = if (filter!=null)
+    val filteredTree = if (filter != null)
       tree.filterChildren(filter)
     else
       tree

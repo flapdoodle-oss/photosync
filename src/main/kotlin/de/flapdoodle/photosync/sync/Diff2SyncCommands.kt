@@ -1,39 +1,23 @@
 package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
+import de.flapdoodle.photosync.Comparision
+import de.flapdoodle.photosync.compare
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.filehash.Hasher
-import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.rewrite
 import java.nio.file.Path
 
-class Diff2SyncCommands(
+data class Diff2SyncCommands(
     private val srcPath: Path,
     private val dstPath: Path,
-    private val shouldCopyMeta: (Blob, Blob?) -> Boolean
+    private val sameContent: (Blob, Blob?) -> Boolean
 ) {
 
   companion object {
-    fun isNewer(): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
-      if (matchingDest != null) {
-        sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())
-      } else {
-        true
-      }
-    }
-
-    fun isNewerOrHashIsEqual(hasher: Hasher<*>): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
-      if (matchingDest != null) {
-        val isNewer = sourceMeta.lastModifiedTime.toInstant().isAfter(matchingDest.lastModifiedTime.toInstant())
-        val isOlder = sourceMeta.lastModifiedTime.toInstant().isBefore(matchingDest.lastModifiedTime.toInstant())
-        isNewer || (
-            isOlder &&
-                hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
-            )
-      } else {
-        true
-      }
+    fun sameContent(hasher: Hasher<*>): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
+      matchingDest != null && hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
     }
   }
 
@@ -83,9 +67,18 @@ class Diff2SyncCommands(
     source.meta.forEach { sourceMeta ->
       val expectedDestination = sourceMeta.path.rewrite(srcPath, dstPath)
       val matchingDest = dest.meta.find { expectedDestination == it.path }
-      if (shouldCopyMeta(sourceMeta, matchingDest)) {
-        commands = commands + SyncCommand.Copy(sourceMeta.path, expectedDestination)
+
+      val command = when (sourceMeta.lastModifiedTime.compare(matchingDest?.lastModifiedTime)) {
+        Comparision.Bigger -> SyncCommand.Copy(sourceMeta.path, expectedDestination)
+        Comparision.Smaller -> if (sameContent(sourceMeta, matchingDest)) {
+          SyncCommand.Copy(sourceMeta.path, expectedDestination)
+        } else {
+          SyncCommand.CopyBack(sourceMeta.path, expectedDestination)
+        }
+        else -> SyncCommand.Copy(sourceMeta.path, expectedDestination)
       }
+
+      commands = commands + command
     }
 
     dest.meta.forEach { destMeta ->
