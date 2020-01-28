@@ -75,10 +75,11 @@ data class Diff2SyncCommands(
         } else {
           SyncCommand.CopyBack(sourceMeta.path, expectedDestination)
         }
-        else -> SyncCommand.Copy(sourceMeta.path, expectedDestination)
+        Comparision.Equal -> null
+        else -> SyncCommand.Copy(sourceMeta.path, expectedDestination) // nothing to compare
       }
 
-      commands = commands + command
+      if (command!=null) commands = commands + command
     }
 
     dest.meta.forEach { destMeta ->
