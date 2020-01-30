@@ -15,6 +15,9 @@ import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
+import de.flapdoodle.photosync.ui.PhotoSyncUI
+import javafx.application.Application
+import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
@@ -25,6 +28,9 @@ object PhotoSync {
 
   @JvmStatic
   fun main(vararg args: String) {
+    if (args.isEmpty()) {
+      launch<PhotoSyncUI>(*args)
+    }
     require(args.size > 1) { "usage: <src> <dst> <regex pattern?>" }
 
     val start = LocalDateTime.now()
