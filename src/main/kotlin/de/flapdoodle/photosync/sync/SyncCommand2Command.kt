@@ -5,6 +5,7 @@ import de.flapdoodle.photosync.filetree.Tree
 import de.flapdoodle.photosync.filetree.containsExactly
 import de.flapdoodle.photosync.filetree.find
 import de.flapdoodle.photosync.filetree.get
+import java.nio.file.Path
 
 object SyncCommand2Command {
 
@@ -48,9 +49,19 @@ object SyncCommand2Command {
       }
     }.toSet()
 
-    val missingDirectories = destinationDirectories.filter { dst.find(it) == null }
+    val missingDirectories = missingDirectories(destinationDirectories, dst)
 
     return missingDirectories.map(Command::MkDir) + commands
+  }
+
+  private fun missingDirectories(paths: Collection<Path>, dst: Tree.Directory): Set<Path> {
+    return paths.flatMap { missingDirectories(it, dst) }.toSet()
+  }
+
+  private fun missingDirectories(path: Path, dst: Tree.Directory) : List<Path>{
+    return if (dst.find(path)==null) {
+      return missingDirectories(path.expectParent(), dst) + setOf(path)
+    } else emptyList()
   }
 
   fun map(commands: List<SyncCommandGroup>, src: Tree.Directory, dst: Tree.Directory): List<Command> {
