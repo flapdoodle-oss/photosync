@@ -112,14 +112,14 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>playground</id>
+                        <id>fileinfo</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <classifier>playground</classifier>
+                            <classifier>fileinfo</classifier>
                             <mainClass>
-                                de.flapdoodle.photosync.PhotoSync
+                                de.flapdoodle.photosync.FileInfo
                             </mainClass>
                         </configuration>
                     </execution>
