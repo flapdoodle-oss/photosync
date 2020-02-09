@@ -100,11 +100,24 @@
                 <version>2.2.2.RELEASE</version>
                 <executions>
                     <execution>
+                        <id>photosync</id>
                         <goals>
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <classifier>spring-boot</classifier>
+                            <classifier>photosync</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.PhotoSync
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>playground</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>playground</classifier>
                             <mainClass>
                                 de.flapdoodle.photosync.PhotoSync
                             </mainClass>
