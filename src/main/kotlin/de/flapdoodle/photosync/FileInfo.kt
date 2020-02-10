@@ -12,10 +12,11 @@ object FileInfo {
     require(args.size >= 1) { "usage: <file>" }
 
     val detector = DefaultDetector()
-    Path.of(args[0]).toFile().inputStream().use {
+    Path.of(args[0]).toFile().inputStream().buffered().use {
       val metadata = Metadata()
       metadata.set(Metadata.RESOURCE_NAME_KEY, args[0]);
-      detector.detect(it, metadata)
+      val mimeType = detector.detect(it, metadata)
+      println("mimeType: $mimeType")
     }
   }
 }
