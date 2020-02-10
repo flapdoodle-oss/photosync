@@ -18,6 +18,16 @@ internal class PathsKtTest {
   }
 
   @Test
+  fun `meta can add version before file extension`() {
+    val meta = Path.of("foo", "bar_01.CR2.xmp")
+    val base = Path.of("foo", "bar.CR2")
+
+    assertThat(meta.isMetaOf(base)).isTrue()
+    assertThat(base.isMetaOf(base)).isFalse()
+    assertThat(base.isMetaOf(meta)).isFalse()
+  }
+
+  @Test
   fun `replace base`() {
     val meta = Path.of("foo", "bar.txt")
     val base = Path.of("foo", "bar")
