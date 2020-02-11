@@ -6,7 +6,7 @@ import de.flapdoodle.photosync.compare
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.filehash.Hasher
-import de.flapdoodle.photosync.rewrite
+import de.flapdoodle.photosync.paths.rewrite
 import java.nio.file.Path
 
 data class Diff2SyncCommands(

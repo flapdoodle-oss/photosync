@@ -11,12 +11,12 @@ import de.flapdoodle.photosync.filetree.ProgressReportFileTreeCollector
 import de.flapdoodle.photosync.filetree.Tree
 import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
 import de.flapdoodle.photosync.filetree.mapFiles
+import de.flapdoodle.photosync.paths.matches
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
 import de.flapdoodle.photosync.ui.PhotoSyncUI
-import javafx.application.Application
 import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path

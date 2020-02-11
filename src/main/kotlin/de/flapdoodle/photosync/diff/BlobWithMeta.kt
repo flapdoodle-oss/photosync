@@ -1,8 +1,7 @@
 package de.flapdoodle.photosync.diff
 
 import de.flapdoodle.photosync.Blob
-import de.flapdoodle.photosync.isMetaOf
-import de.flapdoodle.photosync.replaceBase
+import de.flapdoodle.photosync.paths.Meta
 import java.nio.file.Path
 
 data class BlobWithMeta(
@@ -12,7 +11,7 @@ data class BlobWithMeta(
 
   init {
     require(meta.all {
-      it.path.isMetaOf(base.path)
+      Meta.isMeta(it.path, base.path)
     }) {
       "invalid meta files: $base -> $meta"
     }
@@ -21,7 +20,7 @@ data class BlobWithMeta(
   fun replaceBase(newBasePath: Path): BlobWithMeta {
     return BlobWithMeta(
         base = base.copy(path = newBasePath),
-        meta = meta.map { it.copy(path = it.path.replaceBase(base.path, newBasePath)) }
+        meta = meta.map { it.copy(path = Meta.replaceBase(it.path, base.path, newBasePath)) }
     )
   }
 }

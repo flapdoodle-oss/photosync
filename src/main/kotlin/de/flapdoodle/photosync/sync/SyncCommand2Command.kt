@@ -1,6 +1,6 @@
 package de.flapdoodle.photosync.sync
 
-import de.flapdoodle.photosync.expectParent
+import de.flapdoodle.photosync.paths.expectParent
 import de.flapdoodle.photosync.filetree.Tree
 import de.flapdoodle.photosync.filetree.containsExactly
 import de.flapdoodle.photosync.filetree.find

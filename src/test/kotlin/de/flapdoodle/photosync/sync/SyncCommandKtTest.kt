@@ -14,21 +14,21 @@ internal class SyncCommandKtTest {
 
   @Test
   fun `single move is bulk move`() {
-    val commands = listOf<SyncCommand>(
+    val commands = listOf(
         SyncCommand.Move(Path.of("a", "sample.txt"), Path.of("b", "sample.txt"))
     )
     assertThat(commands.bulkMove())
-        .isEqualTo(SyncCommand.Move(Path.of("a"), Path.of("b")))
+        .isEqualTo(Command.BulkMove(Path.of("a"), Path.of("b"),commands))
   }
 
   @Test
   fun `multiple files are bulk move if src directory and destination directory matches`() {
-    val commands = listOf<SyncCommand>(
+    val commands = listOf(
         SyncCommand.Move(Path.of("a", "sample.txt"), Path.of("b", "sample.txt")),
         SyncCommand.Move(Path.of("a", "other.txt"), Path.of("b", "other.txt"))
     )
     assertThat(commands.bulkMove())
-        .isEqualTo(SyncCommand.Move(Path.of("a"), Path.of("b")))
+        .isEqualTo(Command.BulkMove(Path.of("a"), Path.of("b"),commands))
   }
 
   @Test

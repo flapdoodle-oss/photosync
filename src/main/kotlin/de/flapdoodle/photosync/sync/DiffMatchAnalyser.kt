@@ -3,7 +3,7 @@ package de.flapdoodle.photosync.sync
 import de.flapdoodle.photosync.associateByNotNull
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
-import de.flapdoodle.photosync.rewrite
+import de.flapdoodle.photosync.paths.rewrite
 import java.nio.file.Path
 
 class DiffMatchAnalyser(

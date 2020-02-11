@@ -1,6 +1,6 @@
 package de.flapdoodle.photosync.sync
 
-import de.flapdoodle.photosync.expectParent
+import de.flapdoodle.photosync.paths.expectParent
 import java.nio.file.Path
 
 fun List<SyncCommand>.bulkMove():Command.BulkMove? {

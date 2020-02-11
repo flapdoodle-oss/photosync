@@ -1,7 +1,7 @@
 package de.flapdoodle.photosync.analyze
 
 import de.flapdoodle.photosync.Blob
-import de.flapdoodle.photosync.isMetaOf
+import de.flapdoodle.photosync.paths.Meta
 import java.nio.file.Path
 
 class GroupMetaData(blobs: List<Blob>) {
@@ -10,13 +10,13 @@ class GroupMetaData(blobs: List<Blob>) {
 
   companion object {
     internal fun groupByBasePath(paths: List<Path>): Map<Path, List<Path>> {
-      val baseFiles = paths.filter { thisPath -> paths.none { thisPath.isMetaOf(it) } }
+      val baseFiles = paths.filter { thisPath -> paths.none { Meta.isMeta(thisPath, it) } }
       val metaFiles = paths.filter { !baseFiles.contains(it) }
 
       return baseFiles.map {
         it to emptyList<Path>()
       }.toMap() + metaFiles.groupBy { thisPath ->
-        baseFiles.find { thisPath.isMetaOf(it) }
+        baseFiles.find { Meta.isMeta(thisPath, it) }
             ?: throw IllegalArgumentException("basePath not found: $thisPath - $paths")
       }
     }
