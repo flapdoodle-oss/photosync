@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.diff
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -19,8 +20,8 @@ internal class BlobWithMetaTest {
 
     assertThatThrownBy {
       BlobWithMeta(
-          Blob(base, 0, FileTimes.now()),
-          listOf(Blob(meta, 0, FileTimes.now()))
+          Blob(base, 0, LastModified.now()),
+          listOf(Blob(meta, 0, LastModified.now()))
       )
     }.isInstanceOf(IllegalArgumentException::class.java)
   }
@@ -32,16 +33,16 @@ internal class BlobWithMetaTest {
 
     assertThatThrownBy {
       BlobWithMeta(
-          Blob(base, 0, FileTimes.now()),
-          listOf(Blob(meta, 0, FileTimes.now()))
+          Blob(base, 0, LastModified.now()),
+          listOf(Blob(meta, 0, LastModified.now()))
       )
     }.isInstanceOf(IllegalArgumentException::class.java)
   }
 
   @Test
   fun `replace path must replace path in each blob`() {
-    val blob = BlobWithMeta(Blob(Path.of("a", "base"), 0, FileTimes.now()),
-        listOf(Blob(Path.of("a", "base.meta"), 0, FileTimes.now()))
+    val blob = BlobWithMeta(Blob(Path.of("a", "base"), 0, LastModified.now()),
+        listOf(Blob(Path.of("a", "base.meta"), 0, LastModified.now()))
     )
 
     val result = blob.replaceBase(Path.of("new","other"))

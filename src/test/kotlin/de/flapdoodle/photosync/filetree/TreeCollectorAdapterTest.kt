@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filetree
 
 import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -39,7 +40,7 @@ internal class TreeCollectorAdapterTest {
 
   @Test
   fun `collect files`() {
-    val now = FileTimes.now()
+    val now = LastModified.now()
     
     val path = Path.of("down")
     testee.down(path)

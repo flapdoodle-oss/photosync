@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.diff
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.MockedHasher
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -12,7 +13,7 @@ internal class ScanDiffAnalyzerTest {
   @Test
   fun `src contains all, dst nothing - create entry`() {
     val srcGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("src", "bar"), 0, LastModified.now()))
     ))
 
     val src = Scan(listOf(srcGroup))
@@ -34,7 +35,7 @@ internal class ScanDiffAnalyzerTest {
   @Test
   fun `dst contains all, src nothing - delete entry`() {
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, LastModified.now()))
     ))
 
     val src = Scan(emptyList())
@@ -56,11 +57,11 @@ internal class ScanDiffAnalyzerTest {
   @Test
   fun `src contains same as dst`() {
     val srcGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("src", "bar"), 0, LastModified.now()))
     ))
 
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "baz"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "baz"), 0, LastModified.now()))
     ))
 
     val src = Scan(listOf(srcGroup))

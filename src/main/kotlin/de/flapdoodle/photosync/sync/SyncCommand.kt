@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.sync
 
+import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.paths.expectParent
 import java.nio.file.Path
 
@@ -26,7 +27,7 @@ sealed class SyncCommand {
   }
   // only in destination
   data class Move(val src: Path, val dst: Path) : SyncCommand()
-  data class Copy(val src: Path, val dst: Path) : SyncCommand()
+  data class Copy(val src: Path, val dst: Path, val sameContent: Boolean = false) : SyncCommand()
   data class CopyBack(val src: Path, val dst: Path) : SyncCommand()
   // only in destination
   data class Remove(val dst: Path, val cause: Cause): SyncCommand()

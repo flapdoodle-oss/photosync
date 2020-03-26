@@ -71,7 +71,7 @@ data class Diff2SyncCommands(
       val command = when (sourceMeta.lastModifiedTime.compare(matchingDest?.lastModifiedTime)) {
         Comparision.Bigger -> SyncCommand.Copy(sourceMeta.path, expectedDestination)
         Comparision.Smaller -> if (sameContent(sourceMeta, matchingDest)) {
-          SyncCommand.Copy(sourceMeta.path, expectedDestination)
+          SyncCommand.Copy(sourceMeta.path, expectedDestination, sameContent = true)
         } else {
           SyncCommand.CopyBack(sourceMeta.path, expectedDestination)
         }
@@ -79,7 +79,7 @@ data class Diff2SyncCommands(
         else -> SyncCommand.Copy(sourceMeta.path, expectedDestination) // nothing to compare
       }
 
-      if (command!=null) commands = commands + command
+      if (command != null) commands = commands + command
     }
 
     dest.meta.forEach { destMeta ->

@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.GroupedBlobs
@@ -16,11 +17,11 @@ internal class DiffMatchAnalyserTest {
   @Test
   fun `one source matches one dest`() {
     val srcGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("src", "bar"), 0, LastModified.now()))
     ))
 
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, LastModified.now()))
     ))
 
     val result = testee.inspect(DiffEntry.Match(srcGroup, dstGroup))
@@ -35,15 +36,15 @@ internal class DiffMatchAnalyserTest {
   fun `one source matches one dest with metafile on source side only`() {
     val srcGroup = GroupedBlobs(listOf(
         BlobWithMeta(
-            Blob(Path.of("src", "bar"), 0, FileTimes.now()),
+            Blob(Path.of("src", "bar"), 0, LastModified.now()),
             listOf(
-                Blob(Path.of("src", "bar.info"), 0, FileTimes.now())
+                Blob(Path.of("src", "bar.info"), 0, LastModified.now())
             )
         )
     ))
 
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, LastModified.now()))
     ))
 
     val result = testee.inspect(DiffEntry.Match(srcGroup, dstGroup))
@@ -57,11 +58,11 @@ internal class DiffMatchAnalyserTest {
   @Test
   fun `one source matches dest, but path does not match`() {
     val srcGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("src", "bar"), 0, LastModified.now()))
     ))
 
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "baz"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "baz"), 0, LastModified.now()))
     ))
 
     val result = testee.inspect(DiffEntry.Match(srcGroup, dstGroup))
@@ -75,12 +76,12 @@ internal class DiffMatchAnalyserTest {
   @Test
   fun `one source, but two destinations`() {
     val srcGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("src", "bar"), 0, LastModified.now()))
     ))
 
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now())),
-        BlobWithMeta(Blob(Path.of("dst", "second"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, LastModified.now())),
+        BlobWithMeta(Blob(Path.of("dst", "second"), 0, LastModified.now()))
     ))
 
     val result = testee.inspect(DiffEntry.Match(srcGroup, dstGroup))
@@ -94,12 +95,12 @@ internal class DiffMatchAnalyserTest {
   @Test
   fun `two sources, but one destination`() {
     val srcGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("src", "bar"), 0, FileTimes.now())),
-        BlobWithMeta(Blob(Path.of("src", "second"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("src", "bar"), 0, LastModified.now())),
+        BlobWithMeta(Blob(Path.of("src", "second"), 0, LastModified.now()))
     ))
 
     val dstGroup = GroupedBlobs(listOf(
-        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, FileTimes.now()))
+        BlobWithMeta(Blob(Path.of("dst", "bar"), 0, LastModified.now()))
     ))
 
     val result = testee.inspect(DiffEntry.Match(srcGroup, dstGroup))

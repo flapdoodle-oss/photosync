@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filetree
 
+import de.flapdoodle.photosync.LastModified
 import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
@@ -28,7 +29,7 @@ class FileTreeVisitorAdapter(
     if (attributes.isSymbolicLink) {
       collector.addSymlink(path)
     } else {
-      collector.add(path, attributes.size(), attributes.lastModifiedTime())
+      collector.add(path, attributes.size(), LastModified.from(attributes.lastModifiedTime()))
     }
     return FileVisitResult.CONTINUE
   }

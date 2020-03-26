@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filehash
 
 import de.flapdoodle.photosync.Blob
+import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -64,7 +65,7 @@ class HashStrategyTest {
     }
   }
 
-  private fun now(): FileTime {
-    return FileTime.from(Instant.now())
+  private fun now(): LastModified {
+    return LastModified.now()
   }
 }

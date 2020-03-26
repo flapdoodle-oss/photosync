@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.analyze
 
 import de.flapdoodle.photosync.Blob
+import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
@@ -54,7 +55,7 @@ internal class GroupMetaDataTest {
     assertThat(a.fileName.toString().startsWith(b.fileName.toString())).isTrue()
   }
 
-  private fun now(): FileTime {
-    return FileTime.from(Instant.now())
+  private fun now(): LastModified {
+    return LastModified.now()
   }
 }

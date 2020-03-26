@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filetree
 
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.add
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
@@ -16,7 +17,7 @@ class TreeCollectorAdapter : FileTreeCollector {
     current = current.up(path)
   }
 
-  override fun add(path: Path, size: Long, lastModifiedTime: FileTime) {
+  override fun add(path: Path, size: Long, lastModifiedTime: LastModified) {
     current.add(path,size,lastModifiedTime)
   }
 
@@ -34,7 +35,7 @@ class TreeCollectorAdapter : FileTreeCollector {
       private val dirPath: Path? = null
   ) {
     private var dirs: Map<Path, Dir> = emptyMap()
-    private var files: Map<Path, Pair<Long, FileTime>> = emptyMap()
+    private var files: Map<Path, Pair<Long, LastModified>> = emptyMap()
     private var symlinks: Set<Path> = emptySet()
 
     fun down(path: Path): Dir {
@@ -49,7 +50,7 @@ class TreeCollectorAdapter : FileTreeCollector {
       return parent
     }
 
-    fun add(path: Path,size: Long, lastModifiedTime: FileTime) {
+    fun add(path: Path,size: Long, lastModifiedTime: LastModified) {
       files = files add (path to Pair(size,lastModifiedTime))
     }
 

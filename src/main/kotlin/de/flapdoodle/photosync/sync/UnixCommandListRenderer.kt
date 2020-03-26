@@ -14,7 +14,12 @@ object UnixCommandListRenderer : CommandExecutor {
 
     moveAndCopy.forEach {
       when (it) {
-        is Command.Copy -> printCommand("cp --preserve=timestamps", it.src, it.dst)
+        is Command.Copy -> {
+          if (!it.sameContent) {
+            printCommand("cp --preserve=timestamps", it.src, it.dst)
+          }
+          printCommand("touch -r", it.src, it.dst)
+        }
 //        is Command.CopyBack -> {}
         is Command.Move -> printCommand("mv", it.src, it.dst)
         is Command.MkDir -> printCommand("mkdir", it.dst)

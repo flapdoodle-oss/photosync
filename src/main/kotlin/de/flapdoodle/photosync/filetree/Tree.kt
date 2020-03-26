@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filetree
 
 import de.flapdoodle.photosync.Blob
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.findNotNull
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
@@ -63,7 +64,7 @@ sealed class Tree(
   data class File(
       override val path: Path,
       val size: Long,
-      val lastModifiedTime: FileTime
+      val lastModifiedTime: LastModified
   ) : Tree(path) {
     override fun filter(filter: (Path) -> Boolean) = if (filter(path)) this else null
   }

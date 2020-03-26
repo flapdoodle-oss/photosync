@@ -1,11 +1,10 @@
 package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
-import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.GroupedBlobs
-import de.flapdoodle.photosync.plus
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -27,9 +26,9 @@ internal class Diff2SyncCommandsTest {
   fun `new entry gives cp commands`() {
     val src = GroupedBlobs(
         listOf(BlobWithMeta(
-            base = Blob(path("src", "base"), 0, FileTimes.now()),
+            base = Blob(path("src", "base"), 0, LastModified.now()),
             meta = listOf(
-                Blob(path("src", "base.info"), 0, FileTimes.now())
+                Blob(path("src", "base.info"), 0, LastModified.now())
             )
         ))
     )
@@ -46,9 +45,9 @@ internal class Diff2SyncCommandsTest {
   fun `removed entry gives remove commands`() {
     val dst = GroupedBlobs(
         listOf(BlobWithMeta(
-            base = Blob(path("dst", "base"), 0, FileTimes.now()),
+            base = Blob(path("dst", "base"), 0, LastModified.now()),
             meta = listOf(
-                Blob(path("dst", "base.info"), 0, FileTimes.now())
+                Blob(path("dst", "base.info"), 0, LastModified.now())
             )
         ))
     )
@@ -63,7 +62,7 @@ internal class Diff2SyncCommandsTest {
 
   @Test
   fun `match gives cp commands for meta files`() {
-    val dstTimeStamp = FileTimes.now()
+    val dstTimeStamp = LastModified.now()
     val sourceTimeStamp = dstTimeStamp + 1
 
     val src = GroupedBlobs(
@@ -93,7 +92,7 @@ internal class Diff2SyncCommandsTest {
 
   @Test
   fun `match gives cp commands for new entries and for meta files`() {
-    val dstTimeStamp = FileTimes.now()
+    val dstTimeStamp = LastModified.now()
     val sourceTimeStamp = dstTimeStamp + 1
 
     val src = GroupedBlobs(
@@ -131,7 +130,7 @@ internal class Diff2SyncCommandsTest {
 
   @Test
   fun `match gives cp commands for meta files and remove commands for deleted entries`() {
-    val dstTimeStamp = FileTimes.now()
+    val dstTimeStamp = LastModified.now()
     val sourceTimeStamp = dstTimeStamp + 1
 
     val src = GroupedBlobs(
@@ -169,7 +168,7 @@ internal class Diff2SyncCommandsTest {
 
   @Test
   fun `match gives cp commands latest meta files`() {
-    val olderTimeStamp = FileTimes.now()
+    val olderTimeStamp = LastModified.now()
     val newerTimeStamp = olderTimeStamp + 1
 
     val src = GroupedBlobs(
@@ -212,7 +211,7 @@ internal class Diff2SyncCommandsTest {
 
   @Test
   fun `match gives cp commands for missing meta files`() {
-    val dstTimeStamp = FileTimes.now()
+    val dstTimeStamp = LastModified.now()
     val sourceTimeStamp = dstTimeStamp + 1
 
     val src = GroupedBlobs(
@@ -241,7 +240,7 @@ internal class Diff2SyncCommandsTest {
 
   @Test
   fun `match gives move commands for moved dest and cp commands for meta files`() {
-    val dstTimeStamp = FileTimes.now()
+    val dstTimeStamp = LastModified.now()
     val sourceTimeStamp = dstTimeStamp + 1
 
     val src = GroupedBlobs(

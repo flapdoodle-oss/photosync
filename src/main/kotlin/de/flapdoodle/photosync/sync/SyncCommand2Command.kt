@@ -28,7 +28,7 @@ object SyncCommand2Command {
     val ret = group.commands.map {
       when (it) {
         is SyncCommand.Move -> if (!removeCommand(it)) Command.Move(it.src,it.dst) else null
-        is SyncCommand.Copy -> Command.Copy(it.src, it.dst)
+        is SyncCommand.Copy -> Command.Copy(it.src, it.dst, it.sameContent)
         is SyncCommand.CopyBack -> Command.CopyBack(it.src, it.dst)
         is SyncCommand.Remove -> Command.Remove(it.dst, when(it.cause) {
           SyncCommand.Cause.DeletedEntry -> Command.Cause.DeletedEntry

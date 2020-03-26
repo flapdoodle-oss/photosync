@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.filetree.Tree
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -21,8 +22,8 @@ internal class SyncCommand2CommandTest {
     val srcTree = Tree.Directory(srcDir, emptyList())
     val dstTree = Tree.Directory(dstDir, listOf(
         Tree.Directory(dstDir.resolve("name"), listOf(
-            Tree.File(dstDir.resolve("name").resolve("one"), 0, FileTimes.now()),
-            Tree.File(dstDir.resolve("name").resolve("two"), 0, FileTimes.now())
+            Tree.File(dstDir.resolve("name").resolve("one"), 0, LastModified.now()),
+            Tree.File(dstDir.resolve("name").resolve("two"), 0, LastModified.now())
         ))
     ))
 

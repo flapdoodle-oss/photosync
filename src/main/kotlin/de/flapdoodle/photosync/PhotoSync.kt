@@ -95,10 +95,9 @@ object PhotoSync {
 
     println()
 
+    println("- - - - - - - - - - - - - - - - -")
     UnixCommandListRenderer.execute(commands)
-
     val end = LocalDateTime.now()
-
     println("- - - - - - - - - - - - - - - - -")
     println("Speed: ${Duration.between(start, end).toSeconds()}s")
     println("Source: ${srcDiskSpaceUsed / (1024 * 1024)} MB")

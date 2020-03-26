@@ -1,12 +1,13 @@
 package de.flapdoodle.photosync.filetree
 
+import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
 
 interface FileTreeCollector {
   fun down(path: Path)
   fun up(path: Path)
-  fun add(path: Path, size: Long, lastModifiedTime: FileTime)
+  fun add(path: Path, size: Long, lastModifiedTime: LastModified)
   fun addSymlink(path: Path)
 
   fun andThen(other: FileTreeCollector): FileTreeCollector {
@@ -22,7 +23,7 @@ interface FileTreeCollector {
         other.up(path)
       }
 
-      override fun add(path: Path, size: Long, lastModifiedTime: FileTime) {
+      override fun add(path: Path, size: Long, lastModifiedTime: LastModified) {
         that.add(path, size,lastModifiedTime)
         other.add(path, size, lastModifiedTime)
       }
