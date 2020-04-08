@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
+import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.filehash.HashStrategy
@@ -42,8 +43,12 @@ object PhotoSync {
       }
     }
 
-    val searchInDestination by option(
-        "-s", "--search-in-dest", help = "only search in destination"
+    val noDeleted by option(
+        "-d", "--no-delete", help = "no deleted"
+    ).flag(default = false)
+
+    val noAdded by option(
+        "-a","--no-added", help = "no added"
     ).flag(default = false)
 
     val source by argument("source")
@@ -75,12 +80,26 @@ object PhotoSync {
 
       val filter = pattern?.let { asFilter(it) }
 
-      sync(source, destination, filter)
+      val diffFilter: (List<DiffEntry>) -> List<DiffEntry> = { list ->
+        println("filter diff: noAdded=$noAdded, noDeleted=$noDeleted")
+        when {
+          noAdded && noDeleted -> list.filter { it is DiffEntry.Match }
+          noAdded -> list.filter { !(it is DiffEntry.NewEntry) }
+          noDeleted -> list.filter { !(it is DiffEntry.DeletedEntry) }
+          else -> list
+        }
+      }
+
+      sync(source, destination, filter, diffFilter)
     }
   }
 
   @JvmStatic
   fun main(vararg args: String) {
+    if (false) {
+      launch<PhotoSyncUI>(*args)
+    }
+
     Args().main(args.toList())
 //    if (true) {
 //      return
@@ -110,7 +129,12 @@ object PhotoSync {
     return { path: Path -> path.matches(pattern) }
   }
 
-  private fun sync(srcPath: Path, dstPath: Path, filter: ((Path) -> Boolean)?) {
+  private fun sync(
+      srcPath: Path,
+      dstPath: Path,
+      filter: ((Path) -> Boolean)?,
+      diffFilter: (List<DiffEntry>) -> List<DiffEntry> = { it }
+  ) {
     val start = LocalDateTime.now()
     var srcDiskSpaceUsed = 0L
     var dstDiskSpaceUsed = 0L
@@ -146,9 +170,11 @@ object PhotoSync {
         ScanDiffAnalyzer.scan(src, dst, hasher)
       }
 
+      val filteredDiff = diffFilter(diff)
+
       val syncCommands = Diff2SyncCommands(srcPath, dstPath,
           sameContent = Diff2SyncCommands.sameContent(hasher)
-      ).generate(diff)
+      ).generate(filteredDiff)
 
       SyncCommand2Command.map(syncCommands, srcTree, dstTree)
     }
