@@ -1,5 +1,13 @@
 package de.flapdoodle.photosync
 
+import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.context
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.validate
+import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.diff.Scan
@@ -26,31 +34,86 @@ import java.util.regex.Pattern
 
 object PhotoSync {
 
+  // see https://ajalt.github.io/clikt/quickstart/
+  class Args : CliktCommand() {
+    init {
+      context {
+        allowInterspersedArgs = false
+      }
+    }
+
+    val searchInDestination by option(
+        "-s", "--search-in-dest", help = "only search in destination"
+    ).flag(default = false)
+
+    val source by argument("source")
+        .path(
+            mustExist = true,
+            canBeFile = false,
+            canBeDir = true
+        ).validate {
+          require(it.toFile().isDirectory) { "is not a directory" }
+        }
+
+    val destination by argument("destination")
+        .path(
+            mustExist = true,
+            canBeFile = false,
+            canBeDir = true
+        ).validate {
+          require(it.toFile().isDirectory) { "is not a directory" }
+        }
+
+    val pattern by option(help = "file pattern regex").convert {
+      Pattern.compile(it)
+    }
+
+    override fun run() {
+//      echo("done")
+//      echo("search in destination: $searchInDestination")
+//      echo("$source -- $destination ($pattern)")
+
+      val filter = pattern?.let { asFilter(it) }
+
+      sync(source, destination, filter)
+    }
+  }
+
   @JvmStatic
   fun main(vararg args: String) {
-    if (args.isEmpty()) {
-      launch<PhotoSyncUI>(*args)
-    }
-    require(args.size > 1) { "usage: <src> <dst> <regex pattern?>" }
+    Args().main(args.toList())
+//    if (true) {
+//      return
+//    }
+//
+//    if (args.isEmpty()) {
+//      launch<PhotoSyncUI>(*args)
+//    }
+//    require(args.size > 1) { "usage: <src> <dst> <regex pattern?>" }
+//
+//
+//    val srcPath = Path.of(args[0])
+//    val dstPath = Path.of(args[1])
+//
+//    require(srcPath.toFile().isDirectory) { "$srcPath is not a directory" }
+//    require(dstPath.toFile().isDirectory) { "$dstPath is not a directory" }
+//
+//    val filter: ((Path) -> Boolean)? = if (args.size > 2) {
+//      asFilter(Pattern.compile(args[2]))
+//    } else
+//      null
+//
+//    sync(srcPath, dstPath, filter)
+  }
 
+  private fun asFilter(pattern: Pattern): ((Path) -> Boolean)? {
+    return { path: Path -> path.matches(pattern) }
+  }
+
+  private fun sync(srcPath: Path, dstPath: Path, filter: ((Path) -> Boolean)?) {
     val start = LocalDateTime.now()
     var srcDiskSpaceUsed = 0L
     var dstDiskSpaceUsed = 0L
-
-    val srcPath = Path.of(args[0])
-    val dstPath = Path.of(args[1])
-
-    require(srcPath.toFile().isDirectory) { "$srcPath is not a directory" }
-    require(dstPath.toFile().isDirectory) { "$dstPath is not a directory" }
-
-    val filter: ((Path) -> Boolean)? = if (args.size > 2) {
-      val pattern: Pattern = Pattern.compile(args[2])
-      val ret: ((Path) -> Boolean)? = { path: Path -> path.matches(pattern) }
-      println("path filter enabled: $pattern (${args[2]})")
-      ret
-    } else
-      null
-
 
     val hasher = QuickHash
 
