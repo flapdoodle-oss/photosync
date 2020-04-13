@@ -48,7 +48,11 @@ object PhotoSync {
     ).flag(default = false)
 
     val noAdded by option(
-        "-a","--no-added", help = "no added"
+        "-a", "--no-added", help = "no added"
+    ).flag(default = false)
+
+    val ignoreLastModified by option(
+        "-i", "--ignore-lastmodified", help = "ignore lastmodified"
     ).flag(default = false)
 
     val source by argument("source")
@@ -90,7 +94,15 @@ object PhotoSync {
         }
       }
 
-      sync(source, destination, filter, diffFilter)
+      val lastModifiedComparision: (LastModified, LastModified?) -> Comparision? =
+          if (ignoreLastModified) { a, b ->
+            if (b != null) Comparision.Equal else null
+          }
+          else { a, b ->
+            a.compare(b)
+          }
+
+      sync(source, destination, filter, diffFilter, lastModifiedComparision)
     }
   }
 
@@ -133,7 +145,8 @@ object PhotoSync {
       srcPath: Path,
       dstPath: Path,
       filter: ((Path) -> Boolean)?,
-      diffFilter: (List<DiffEntry>) -> List<DiffEntry> = { it }
+      diffFilter: (List<DiffEntry>) -> List<DiffEntry> = { it },
+      lastModifiedComparision: (LastModified, LastModified?) -> Comparision? = { a, b -> a.compare(b) }
   ) {
     val start = LocalDateTime.now()
     var srcDiskSpaceUsed = 0L
@@ -173,7 +186,8 @@ object PhotoSync {
       val filteredDiff = diffFilter(diff)
 
       val syncCommands = Diff2SyncCommands(srcPath, dstPath,
-          sameContent = Diff2SyncCommands.sameContent(hasher)
+          sameContent = Diff2SyncCommands.sameContent(hasher),
+          lastModifiedComparision = lastModifiedComparision
       ).generate(filteredDiff)
 
       SyncCommand2Command.map(syncCommands, srcTree, dstTree)

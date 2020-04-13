@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.Comparision
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.compare
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry
@@ -12,7 +13,10 @@ import java.nio.file.Path
 data class Diff2SyncCommands(
     private val srcPath: Path,
     private val dstPath: Path,
-    private val sameContent: (Blob, Blob?) -> Boolean
+    private val sameContent: (Blob, Blob?) -> Boolean,
+
+    private val lastModifiedComparision: (LastModified, LastModified?) -> Comparision? =
+        { a, b -> a.compare(b) }
 ) {
 
   companion object {
@@ -68,7 +72,7 @@ data class Diff2SyncCommands(
       val expectedDestination = sourceMeta.path.rewrite(srcPath, dstPath)
       val matchingDest = dest.meta.find { expectedDestination == it.path }
 
-      val command = when (sourceMeta.lastModifiedTime.compare(matchingDest?.lastModifiedTime)) {
+      val command = when (lastModifiedComparision(sourceMeta.lastModifiedTime, matchingDest?.lastModifiedTime)) {
         Comparision.Bigger -> SyncCommand.Copy(sourceMeta.path, expectedDestination)
         Comparision.Smaller -> if (sameContent(sourceMeta, matchingDest)) {
           SyncCommand.Copy(sourceMeta.path, expectedDestination, sameContent = true)
