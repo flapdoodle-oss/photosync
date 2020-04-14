@@ -10,17 +10,11 @@ import de.flapdoodle.photosync.filehash.Hasher
 import de.flapdoodle.photosync.paths.rewrite
 import java.nio.file.Path
 
-data class Diff2SyncCommands(
+data class Diff2CopySourceCommands(
     private val srcPath: Path,
     private val dstPath: Path,
     private val sameContent: (Blob, Blob?) -> Boolean
 ) {
-
-  companion object {
-    fun sameContent(hasher: Hasher<*>): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
-      matchingDest != null && hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
-    }
-  }
 
   fun generate(
       diff: List<DiffEntry>
@@ -29,7 +23,7 @@ data class Diff2SyncCommands(
       when (it) {
         is DiffEntry.Match -> sync(DiffMatchAnalyser(srcPath, dstPath).inspect(it))
         is DiffEntry.NewEntry -> listOf(newEntry(it))
-        is DiffEntry.DeletedEntry -> listOf(deleteEntry(it))
+        is DiffEntry.DeletedEntry -> emptyList()
         is DiffEntry.Noop -> emptyList()
       }
     }
@@ -79,22 +73,23 @@ data class Diff2SyncCommands(
         Comparision.Smaller -> if (sameContent(sourceMeta, matchingDest)) {
           SyncCommand.Copy(sourceMeta.path, expectedDestination, sameContent = true)
         } else {
-          SyncCommand.CopyBack(sourceMeta.path, expectedDestination)
+          //SyncCommand.CopyBack(sourceMeta.path, expectedDestination)
+          null
         }
         Comparision.Equal -> null
         else -> SyncCommand.Copy(sourceMeta.path, expectedDestination) // nothing to compare
       }
 
-      if (command != null) commands = commands + command
+      commands = commands + command
     }
 
-    dest.meta.forEach { destMeta ->
-      val expectedSource = destMeta.path.rewrite(dstPath, srcPath)
-      val matchingSource = source.meta.find { expectedSource == it.path }
-      if (matchingSource == null) {
-        commands = commands + SyncCommand.Remove(destMeta.path, cause = SyncCommand.Cause.CopyRemovedFromSource)
-      }
-    }
+//    dest.meta.forEach { destMeta ->
+//      val expectedSource = destMeta.path.rewrite(dstPath, srcPath)
+//      val matchingSource = source.meta.find { expectedSource == it.path }
+//      if (matchingSource == null) {
+//        commands = commands + SyncCommand.Remove(destMeta.path, cause = SyncCommand.Cause.CopyRemovedFromSource)
+//      }
+//    }
 
     return commands
   }
@@ -102,12 +97,6 @@ data class Diff2SyncCommands(
   private fun newEntry(entry: DiffEntry.NewEntry): SyncCommandGroup {
     return entry.src.blobs.fold(SyncCommandGroup()) { commandGroup, blobWithMeta ->
       commandGroup + create(blobWithMeta)
-    }
-  }
-
-  private fun deleteEntry(entry: DiffEntry.DeletedEntry): SyncCommandGroup {
-    return entry.dst.blobs.fold(SyncCommandGroup()) { commandGroup, blobWithMeta ->
-      commandGroup + remove(blobWithMeta, SyncCommand.Cause.DeletedEntry)
     }
   }
 

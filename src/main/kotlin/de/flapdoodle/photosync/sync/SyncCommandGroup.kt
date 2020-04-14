@@ -8,7 +8,10 @@ data class SyncCommandGroup(
     return SyncCommandGroup(this.commands + other.commands)
   }
 
-  operator fun plus(command: SyncCommand): SyncCommandGroup {
-    return SyncCommandGroup(this.commands + command)
+  operator fun plus(command: SyncCommand?): SyncCommandGroup {
+    return if (command!=null)
+      SyncCommandGroup(this.commands + command)
+    else
+      this
   }
 }

@@ -4,6 +4,8 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.validate
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
+import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -22,6 +24,7 @@ import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
 import de.flapdoodle.photosync.filetree.mapFiles
 import de.flapdoodle.photosync.paths.matches
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.sync.Diff2CopySourceCommands
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
@@ -36,6 +39,11 @@ import java.util.regex.Pattern
 object PhotoSync {
 
   // see https://ajalt.github.io/clikt/quickstart/
+  sealed class Mode(name: String) : OptionGroup(name) {
+    class Merge : Mode("options for merge mode")
+    class CopySource : Mode("options for copy source mode")
+  }
+
   class Args : CliktCommand() {
     init {
       context {
@@ -43,17 +51,12 @@ object PhotoSync {
       }
     }
 
-    val noDeleted by option(
-        "-d", "--no-delete", help = "no deleted"
-    ).flag(default = false)
-
-    val noAdded by option(
-        "-a", "--no-added", help = "no added"
-    ).flag(default = false)
-
-    val ignoreLastModified by option(
-        "-i", "--ignore-lastmodified", help = "ignore lastmodified"
-    ).flag(default = false)
+    val mode by option(
+        "-m", "--mode", help = "mode (default is merge)"
+    ).groupChoice(
+        "merge" to Mode.Merge(),
+        "copy-source" to Mode.CopySource()
+    )
 
     val source by argument("source")
         .path(
@@ -84,25 +87,12 @@ object PhotoSync {
 
       val filter = pattern?.let { asFilter(it) }
 
-      val diffFilter: (List<DiffEntry>) -> List<DiffEntry> = { list ->
-        println("filter diff: noAdded=$noAdded, noDeleted=$noDeleted")
-        when {
-          noAdded && noDeleted -> list.filter { it is DiffEntry.Match }
-          noAdded -> list.filter { !(it is DiffEntry.NewEntry) }
-          noDeleted -> list.filter { !(it is DiffEntry.DeletedEntry) }
-          else -> list
-        }
-      }
-
-      val lastModifiedComparision: (LastModified, LastModified?) -> Comparision? =
-          if (ignoreLastModified) { a, b ->
-            if (b != null) Comparision.Equal else null
-          }
-          else { a, b ->
-            a.compare(b)
-          }
-
-      sync(source, destination, filter, diffFilter, lastModifiedComparision)
+      sync(
+          source,
+          destination,
+          filter = filter,
+          mode = mode ?: Mode.Merge()
+      )
     }
   }
 
@@ -145,8 +135,7 @@ object PhotoSync {
       srcPath: Path,
       dstPath: Path,
       filter: ((Path) -> Boolean)?,
-      diffFilter: (List<DiffEntry>) -> List<DiffEntry> = { it },
-      lastModifiedComparision: (LastModified, LastModified?) -> Comparision? = { a, b -> a.compare(b) }
+      mode: Mode = Mode.Merge()
   ) {
     val start = LocalDateTime.now()
     var srcDiskSpaceUsed = 0L
@@ -183,14 +172,30 @@ object PhotoSync {
         ScanDiffAnalyzer.scan(src, dst, hasher)
       }
 
-      val filteredDiff = diffFilter(diff)
+      when (mode) {
+        is Mode.Merge -> {
+          val syncCommands = Diff2SyncCommands(srcPath, dstPath,
+              sameContent = Diff2SyncCommands.sameContent(hasher)
+          ).generate(diff)
 
-      val syncCommands = Diff2SyncCommands(srcPath, dstPath,
-          sameContent = Diff2SyncCommands.sameContent(hasher),
-          lastModifiedComparision = lastModifiedComparision
-      ).generate(filteredDiff)
+          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+        }
+        is Mode.CopySource -> {
+          val syncCommands = Diff2CopySourceCommands(srcPath, dstPath,
+              sameContent = Diff2SyncCommands.sameContent(hasher)
+          ).generate(diff)
 
-      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+        }
+      }
+//      val filteredDiff = diffFilter(diff)
+//
+//      val syncCommands = Diff2SyncCommands(srcPath, dstPath,
+//          sameContent = Diff2SyncCommands.sameContent(hasher),
+//          lastModifiedComparision = lastModifiedComparision
+//      ).generate(filteredDiff)
+//
+//      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
     }
 
     println()
