@@ -7,29 +7,21 @@ import com.github.ajalt.clikt.parameters.arguments.validate
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.convert
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
-import de.flapdoodle.photosync.diff.DiffEntry
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.filetree.FileTreeVisitorAdapter
-import de.flapdoodle.photosync.filetree.ProgressReportFileTreeCollector
-import de.flapdoodle.photosync.filetree.Tree
-import de.flapdoodle.photosync.filetree.TreeCollectorAdapter
-import de.flapdoodle.photosync.filetree.mapFiles
+import de.flapdoodle.photosync.filetree.*
 import de.flapdoodle.photosync.paths.matches
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.sync.Diff2CopySourceCommands
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
-import de.flapdoodle.photosync.ui.PhotoSyncUI
-import tornadofx.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
@@ -98,10 +90,6 @@ object PhotoSync {
 
   @JvmStatic
   fun main(vararg args: String) {
-    if (false) {
-      launch<PhotoSyncUI>(*args)
-    }
-
     Args().main(args.toList())
 //    if (true) {
 //      return

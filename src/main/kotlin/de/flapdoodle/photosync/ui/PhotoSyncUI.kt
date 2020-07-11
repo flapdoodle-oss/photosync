@@ -11,7 +11,7 @@ import javafx.stage.Stage
 import tornadofx.*
 
 
-class PhotoSyncUI : App(Hello::class) {
+class PhotoSyncUI : App(StartView::class) {
 
   init {
     FX.layoutDebuggerShortcut = KeyCodeCombination(
@@ -19,9 +19,10 @@ class PhotoSyncUI : App(Hello::class) {
     )
   }
 
-//  override fun start(stage: Stage) {
-//    val scene = Scene(StackPane(Label("what")), 640.0, 480.0)
-//    stage.scene = scene
-//    stage.show()
-//  }
+  companion object {
+    @JvmStatic
+    fun main(vararg args: String) {
+      launch<PhotoSyncUI>(*args)
+    }
+  }
 }

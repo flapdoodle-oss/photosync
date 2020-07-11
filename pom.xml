@@ -195,7 +195,7 @@
                         <option>--add-exports</option>
                         <option>javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED</option>
                     </options>
-                    <mainClass>de.flapdoodle.photosync.PhotoSync</mainClass>
+                    <mainClass>de.flapdoodle.photosync.ui.PhotoSyncUI</mainClass>
                 </configuration>
             </plugin>
         </plugins>
