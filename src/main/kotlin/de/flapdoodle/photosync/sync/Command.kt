@@ -16,7 +16,7 @@ sealed class Command {
   data class MkDir(val dst: Path) : Command()
 
   data class Copy(val src: Path, val dst: Path, val sameContent: Boolean) : Command()
-  data class CopyBack(val src: Path, val dst: Path) : Command()
+  data class CopyBack(val src: Path, val dst: Path, val sameContent: Boolean) : Command()
   // only in destination
   data class Remove(val dst: Path, val cause: Cause): Command()
 }

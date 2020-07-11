@@ -34,7 +34,12 @@ object UnixCommandListRenderer : CommandExecutor {
       println("---------------------------")
       copyBackCommands.forEach {
         when (it) {
-          is Command.CopyBack -> printCommand("cp --preserve=timestamps", it.dst, it.src)
+          is Command.CopyBack -> {
+            if (!it.sameContent) {
+              printCommand("cp --preserve=timestamps", it.dst, it.src)
+            }
+            printCommand("touch -r", it.dst, it.src)
+          }
         }
       }
     }

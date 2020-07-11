@@ -67,7 +67,9 @@ data class Diff2SyncCommands(
 
     commands = commands + when (source.base.lastModifiedTime.compare(dest.base.lastModifiedTime)) {
       Comparision.Equal -> null
-      else -> SyncCommand.Copy(source.base.path, dest.base.path, sameContent = true)
+      Comparision.Bigger -> SyncCommand.Copy(source.base.path, dest.base.path, sameContent = true)
+      Comparision.Smaller -> SyncCommand.CopyBack(source.base.path, dest.base.path, sameContent = true)
+      else -> throw IllegalArgumentException("should not happen $source - $dest")
     }
 
     source.meta.forEach { sourceMeta ->
@@ -77,7 +79,7 @@ data class Diff2SyncCommands(
       val command = when (sourceMeta.lastModifiedTime.compare(matchingDest?.lastModifiedTime)) {
         Comparision.Bigger -> SyncCommand.Copy(sourceMeta.path, expectedDestination)
         Comparision.Smaller -> if (sameContent(sourceMeta, matchingDest)) {
-          SyncCommand.Copy(sourceMeta.path, expectedDestination, sameContent = true)
+          SyncCommand.CopyBack(sourceMeta.path, expectedDestination, sameContent = true)
         } else {
           SyncCommand.CopyBack(sourceMeta.path, expectedDestination)
         }

@@ -28,7 +28,7 @@ sealed class SyncCommand {
   // only in destination
   data class Move(val src: Path, val dst: Path) : SyncCommand()
   data class Copy(val src: Path, val dst: Path, val sameContent: Boolean = false) : SyncCommand()
-  data class CopyBack(val src: Path, val dst: Path) : SyncCommand()
+  data class CopyBack(val src: Path, val dst: Path, val sameContent: Boolean = false) : SyncCommand()
   // only in destination
   data class Remove(val dst: Path, val cause: Cause): SyncCommand()
 }

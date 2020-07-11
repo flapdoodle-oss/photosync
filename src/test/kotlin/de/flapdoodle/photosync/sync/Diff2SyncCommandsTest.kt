@@ -86,7 +86,8 @@ internal class Diff2SyncCommandsTest {
 
     assertThat(result).containsExactly(
         SyncCommandGroup() +
-            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
+                SyncCommand.Copy(path("src", "base"), path("dst", "base"), true) +
+                SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
 
@@ -121,7 +122,8 @@ internal class Diff2SyncCommandsTest {
 
     assertThat(result).containsExactly(
         SyncCommandGroup() +
-            SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
+                SyncCommand.Copy(path("src", "base"), path("dst", "base"), true) +
+                SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
         SyncCommandGroup() +
             SyncCommand.Copy(path("src", "second"), path("dst", "second")) +
             SyncCommand.Copy(path("src", "second.info"), path("dst", "second.info"))
@@ -159,6 +161,7 @@ internal class Diff2SyncCommandsTest {
 
     assertThat(result).containsExactly(
         SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base"), path("dst", "base"), true) +
             SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
         SyncCommandGroup() +
             SyncCommand.Remove(path("dst", "second"), SyncCommand.Cause.CopyRemovedFromSource) +
@@ -203,8 +206,10 @@ internal class Diff2SyncCommandsTest {
 
     assertThat(result).containsExactly(
         SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base"), path("dst", "base"), true) +
             SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info")),
         SyncCommandGroup() +
+            SyncCommand.CopyBack(path("src", "second"), path("dst", "second"), true) +
             SyncCommand.CopyBack(path("src", "second.info"), path("dst", "second.info"))
     )
   }
@@ -233,6 +238,7 @@ internal class Diff2SyncCommandsTest {
 
     assertThat(result).containsExactly(
         SyncCommandGroup() +
+            SyncCommand.Copy(path("src", "base"), path("dst", "base"), true) +
             SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
@@ -266,6 +272,7 @@ internal class Diff2SyncCommandsTest {
         SyncCommandGroup() +
             SyncCommand.Move(path("dst", "moved-base"), path("dst", "base")) +
             SyncCommand.Move(path("dst", "moved-base.info"), path("dst", "base.info")) +
+            SyncCommand.Copy(path("src", "base"), path("dst", "base"), true) +
             SyncCommand.Copy(path("src", "base.info"), path("dst", "base.info"))
     )
   }
