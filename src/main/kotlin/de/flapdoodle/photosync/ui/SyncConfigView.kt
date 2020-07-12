@@ -6,6 +6,7 @@ import de.flapdoodle.fx.lazy.bindFrom
 import de.flapdoodle.fx.lazy.mapToList
 import de.flapdoodle.photosync.ui.config.SyncConfig
 import de.flapdoodle.photosync.ui.config.SyncEntry
+import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.geometry.VPos
 import javafx.scene.Node
@@ -52,6 +53,11 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
 
             children += Button("New")
                     .withPosition(ACTION_COLUMN, 0, horizontalPosition = HPos.CENTER)
+                    .apply {
+                        action {
+                            AddSyncConfigView.openModal()
+                        }
+                    }
 
             children.bindFrom(configs,
                     keyOf = { it.id },
