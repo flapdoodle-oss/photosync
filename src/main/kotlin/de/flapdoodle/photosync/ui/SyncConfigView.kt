@@ -17,6 +17,22 @@ import tornadofx.*
 
 class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Config") {
 
+    companion object {
+        const val SOURCE_COLUMN=0
+        const val DST_COLUMN=1
+        const val ACTION_COLUMN=2
+
+        private fun <T : Node> T.withPosition(
+                column: Int,
+                row: Int,
+                horizontalPosition: HPos? = null,
+                verticalPosition: VPos? = null
+        ): T {
+            WeightGridPane.setPosition(this, column, row, horizontalPosition, verticalPosition)
+            return this
+        }
+    }
+
     private val configs = currentConfig.mapToList { it.entries }
 
     override val root = vbox {
@@ -30,16 +46,19 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                 borderWidth += box(1.0.px)
                 borderColor += box(Color.BLUE)
             }
-            setColumnWeight(0, 1.0)
-            setColumnWeight(1, 1.0)
-            setColumnWeight(2, 0.0)
+            setColumnWeight(SOURCE_COLUMN, 1.0)
+            setColumnWeight(DST_COLUMN, 1.0)
+            setColumnWeight(ACTION_COLUMN, 0.0)
+
+            children += Button("New")
+                    .withPosition(ACTION_COLUMN, 0, horizontalPosition = HPos.CENTER)
 
             children.bindFrom(configs,
                     keyOf = { it.id },
                     extract = SyncConfigNodes::nodes) { index, source, mapped ->
                 mapped?.apply {
-                    update(index, source)
-                } ?: SyncConfigNodes.map(index, source)
+                    update(index + 1, source)
+                } ?: SyncConfigNodes.map(index + 1, source)
             }
         }
     }
@@ -47,11 +66,11 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
     class SyncConfigNodes(var index: Int, var mapping: SyncEntry) {
 
         private val source =  Label(mapping.src)
-                .withPosition(0, index, horizontalPosition = HPos.LEFT)
+                .withPosition(SOURCE_COLUMN, index, horizontalPosition = HPos.LEFT)
         private val dst =  Label(mapping.dst)
-                .withPosition(1, index, horizontalPosition = HPos.LEFT)
+                .withPosition(DST_COLUMN, index, horizontalPosition = HPos.LEFT)
         private val delete =  Button("delete")
-                .withPosition(2, index, horizontalPosition = HPos.LEFT)
+                .withPosition(ACTION_COLUMN, index, horizontalPosition = HPos.CENTER)
 
         fun nodes(): List<Node> {
             return listOf(source, dst, delete);
@@ -69,16 +88,6 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
         companion object {
             internal fun <T : Node> T.updateRow(row: Int) {
                 WeightGridPane.updatePosition(this) { it.copy(row = row) }
-            }
-
-            private fun <T : Node> T.withPosition(
-                    column: Int,
-                    row: Int,
-                    horizontalPosition: HPos? = null,
-                    verticalPosition: VPos? = null
-            ): T {
-                WeightGridPane.setPosition(this, column, row, horizontalPosition, verticalPosition)
-                return this
             }
 
             fun map(
