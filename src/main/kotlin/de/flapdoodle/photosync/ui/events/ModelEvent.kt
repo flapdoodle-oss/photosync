@@ -3,14 +3,19 @@ package de.flapdoodle.photosync.ui.events
 import de.flapdoodle.photosync.ui.config.SyncConfig
 import de.flapdoodle.photosync.ui.config.SyncEntry
 import tornadofx.FXEvent
+import java.util.*
 
 data class ModelEvent(
         val data: EventData
 ) : FXEvent() {
 
     companion object {
-        fun addConfig(node: SyncEntry): ModelEvent {
-            return EventData.AddConfig(node).asEvent()
+        fun addConfig(entry: SyncEntry): ModelEvent {
+            return EventData.AddConfig(entry).asEvent()
+        }
+
+        fun deleteConfig(id: UUID): ModelEvent {
+            return EventData.DeleteConfig(id).asEvent()
         }
     }
 
@@ -26,6 +31,15 @@ data class ModelEvent(
         ) : EventData() {
             override fun applyTo(model: SyncConfig): SyncConfig {
                 return model.copy(entries = model.entries + config)
+            }
+        }
+
+        data class DeleteConfig(
+                val id: UUID
+        ) : EventData() {
+            override fun applyTo(model: SyncConfig): SyncConfig {
+                require(model.entries.any { it.id == id }) { "could not find $id in $model"}
+                return model.copy(entries = model.entries.filter { it.id != id })
             }
         }
     }

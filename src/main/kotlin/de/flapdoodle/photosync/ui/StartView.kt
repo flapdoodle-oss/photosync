@@ -20,9 +20,12 @@ class StartView : View("PhotoSync") {
                 is ModelEvent.EventData.AddConfig -> {
                     currentConfig.value(event.data.applyTo(currentConfig.value()))
                 }
-//                else -> {
-//                    throw IllegalArgumentException("unknown event: ${event}")
-//                }
+                is ModelEvent.EventData.DeleteConfig -> {
+                    currentConfig.value(event.data.applyTo(currentConfig.value()))
+                }
+                else -> {
+                    throw IllegalArgumentException("unknown event: ${event}")
+                }
             }
         }
 

@@ -1,11 +1,13 @@
 package de.flapdoodle.photosync.ui
 
+import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.layout.weightgrid.WeightGridPane
 import de.flapdoodle.fx.lazy.LazyValue
 import de.flapdoodle.fx.lazy.bindFrom
 import de.flapdoodle.fx.lazy.mapToList
 import de.flapdoodle.photosync.ui.config.SyncConfig
 import de.flapdoodle.photosync.ui.config.SyncEntry
+import de.flapdoodle.photosync.ui.events.ModelEvent
 import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.geometry.VPos
@@ -69,7 +71,7 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
         }
     }
 
-    class SyncConfigNodes(var index: Int, var mapping: SyncEntry) {
+    class SyncConfigNodes(index: Int, var mapping: SyncEntry) {
 
         private val source =  Label(mapping.src)
                 .withPosition(SOURCE_COLUMN, index, horizontalPosition = HPos.LEFT)
@@ -77,14 +79,22 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                 .withPosition(DST_COLUMN, index, horizontalPosition = HPos.LEFT)
         private val delete =  Button("delete")
                 .withPosition(ACTION_COLUMN, index, horizontalPosition = HPos.CENTER)
+                .apply {
+                    action {
+                        ModelEvent.deleteConfig(mapping.id).fire()
+                    }
+                }
 
         fun nodes(): List<Node> {
             return listOf(source, dst, delete);
         }
 
         fun update(index: Int, mapping: SyncEntry?) {
-            source.text = mapping?.src ?: "?"
-            dst.text = mapping?.dst ?: "?"
+            require(mapping!=null) {"mapping is null"}
+
+            this.mapping = mapping
+            source.text = mapping.src
+            dst.text = mapping.dst
             
             source.updateRow(index);
             dst.updateRow(index);
