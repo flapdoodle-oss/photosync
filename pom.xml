@@ -206,6 +206,8 @@
                         <option>javafx.graphics/com.sun.javafx.scene.traversal=ALL-UNNAMED</option>
                         <option>--add-exports</option>
                         <option>javafx.graphics/com.sun.javafx.scene=ALL-UNNAMED</option>
+                        <option>--add-exports</option>
+                        <option>javafx.graphics/com.sun.glass.ui=ALL-UNNAMED</option>
                     </options>
                     <mainClass>de.flapdoodle.photosync.ui.PhotoSyncUI</mainClass>
                 </configuration>
