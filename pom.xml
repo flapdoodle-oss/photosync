@@ -164,6 +164,18 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>photosync-ui</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>photosync-ui</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.ui.PhotoSyncUI
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>fileinfo</id>
                         <goals>
                             <goal>repackage</goal>

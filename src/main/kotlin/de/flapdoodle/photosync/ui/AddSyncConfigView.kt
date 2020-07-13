@@ -10,38 +10,40 @@ import tornadofx.*
 import java.nio.file.Paths
 
 class AddSyncConfigView : View("Add SyncConfig") {
-    private val source = SimpleStringProperty()
-    private val destination = SimpleStringProperty()
+    private val model = SyncConfigModel(MutableSyncConfig())
 
     override val root = borderpane {
         center {
             form {
                 fieldset {
                     label("Source")
-                    textfield(source) {
-                        hgrow = Priority.ALWAYS
-//                        validator {
-//                            if (it.isNullOrBlank()) error("not set") else null
-//                        }
-                    }
-                    button("?") {
-                        action {
-                            source.value = chooseDirectory("Source", source.value)
+                    hbox {
+                        textfield(model.src) {
+                            hgrow = Priority.ALWAYS
+                            
+                            validator {
+                                if (it.isNullOrBlank()) error("not set") else null
+                            }
+                        }
+                        button("?") {
+                            action {
+                                model.src.value = chooseDirectory("Source", model.src.value)
+                            }
                         }
                     }
                 }
                 fieldset {
                     label("Destination")
                     hbox {
-                        textfield(destination) {
+                        textfield(model.dst) {
                             hgrow = Priority.ALWAYS
-//                            validator {
-//                                if (it.isNullOrBlank()) error("not set") else null
-//                            }
+                            validator {
+                                if (it.isNullOrBlank()) error("not set") else null
+                            }
                         }
                         button("?") {
                             action {
-                                destination.value = chooseDirectory("Source", destination.value)
+                                model.dst.value = chooseDirectory("Source", model.dst.value)
                             }
                         }
                     }
@@ -50,10 +52,13 @@ class AddSyncConfigView : View("Add SyncConfig") {
                     button {
                         text = "Add"
                         action {
-                            if (!source.value.isNullOrBlank() && !destination.value.isNullOrBlank()) {
-                                ModelEvent.addConfig(SyncEntry(src = source.value, dst = destination.value)).fire()
+                            if (model.commit()) {
+                                val config = model.item
+                                ModelEvent.addConfig(SyncEntry(src = config.src!!, dst = config.dst!!)).fire()
                                 close()
                             }
+//                            if (!model.src.value.isNullOrBlank() && !model.dst.value.isNullOrBlank()) {
+//                            }
                         }
                     }
                 }
@@ -69,8 +74,7 @@ class AddSyncConfigView : View("Add SyncConfig") {
     }
 
     private fun clearInputs() {
-        source.set("")
-        destination.set("")
+        model.item = MutableSyncConfig()
     }
 
     companion object {
@@ -93,5 +97,12 @@ class AddSyncConfigView : View("Add SyncConfig") {
 //                    FileChooser.ExtensionFilter("Tab File", "*.tab")
 //            )
         }
+    }
+
+    class MutableSyncConfig(var src: String? = null, var dst: String? = null)
+
+    class SyncConfigModel(initialValue: MutableSyncConfig) : ItemViewModel<MutableSyncConfig>(initialValue) {
+        val src = bind(MutableSyncConfig::src)
+        val dst = bind(MutableSyncConfig::dst)
     }
 }
