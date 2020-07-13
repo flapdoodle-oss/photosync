@@ -313,5 +313,22 @@
             <artifactId>easybind</artifactId>
             <version>1.0.3</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.squareup.moshi</groupId>
+            <artifactId>moshi</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.squareup.moshi</groupId>-->
+<!--            <artifactId>moshi-kotlin-codegen</artifactId>-->
+<!--            <version>1.9.2</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>com.squareup.moshi</groupId>
+            <artifactId>moshi-kotlin</artifactId>
+            <version>1.9.2</version>
+        </dependency>
+
     </dependencies>
 </project>
