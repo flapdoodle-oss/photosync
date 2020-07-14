@@ -95,7 +95,7 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                         ModelEvent.deleteConfig(mapping.id).fire()
                     }
                 }
-        private val startSync = Button("sync")
+        private val startSync = Button("Sync")
                 .withPosition(SYNC_COLUMN, index, horizontalPosition = HPos.CENTER)
                 .apply {
                     subscribeEvent<ActionEvent> {event ->
@@ -103,6 +103,25 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                             is ActionEvent.Action.SyncFinished -> {
                                 if (event.action.id == mapping.id) {
                                     text = "Done"
+                                    action {
+                                        ActionEvent.startSync(mapping.id).fire()
+                                    }
+                                }
+                            }
+                            is ActionEvent.Action.SyncStarted -> {
+                                if (event.action.id == mapping.id) {
+                                    text = "..."
+                                    action {
+                                        ActionEvent.stopSync(mapping.id).fire()
+                                    }
+                                }
+                            }
+                            is ActionEvent.Action.SyncAborted -> {
+                                if (event.action.id == mapping.id) {
+                                    text = "Sync Again"
+                                    action {
+                                        ActionEvent.startSync(mapping.id).fire()
+                                    }
                                 }
                             }
                         }
