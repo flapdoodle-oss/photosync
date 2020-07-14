@@ -10,4 +10,8 @@ class ChangeableValue<T : Any>(
     current = value
     changeListener.forEach { it.hasChanged(this) }
   }
+
+  fun value(reducer: (T) -> T) {
+    value(reducer(value()))
+  }
 }

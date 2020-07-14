@@ -4,11 +4,11 @@ import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.extensions.subscribeEvent
 import de.flapdoodle.fx.lazy.ChangeableValue
 import de.flapdoodle.photosync.ui.config.SyncConfig
-import de.flapdoodle.photosync.ui.config.SyncEntry
 import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.ui.events.IOEvent
 import de.flapdoodle.photosync.ui.events.ModelEvent
 import de.flapdoodle.photosync.ui.io.SyncConfigIO
+import de.flapdoodle.photosync.ui.tasks.TaskList
 import javafx.application.Platform
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
@@ -21,7 +21,8 @@ import java.util.*
 class StartView : View("PhotoSync") {
 
     private val currentConfig = ChangeableValue(SyncConfig())
-    private var runningTasks = emptyMap<UUID, Task<String>>()
+
+    private val taskList = TaskList()
 
     override val root = borderpane {
         subscribeEvent<ModelEvent> { event ->
@@ -43,50 +44,48 @@ class StartView : View("PhotoSync") {
 
             when (event.action) {
                 is ActionEvent.Action.StartSync -> {
-                    val task: Task<String> = runAsync {
-                        val result = startSync(currentConfig.value(), event.action.id)
+                    taskList.startSync(event.action.id) { id -> startSync(currentConfig.value(), id)}
 
-                        (0..100L).forEach {
-                            if (!isCancelled) {
-                                updateMessage("running")
-                                updateProgress(it, 100)
-                                Thread.sleep(30)
-                            }
-                        }
-
-                        result
-                    } success {
-                        runningTasks = runningTasks - event.action.id
-                        println("result for ${event.action.id} -> $it")
-
-                        ActionEvent.syncFinished(event.action.id).fire()
-                    } fail {
-                        runningTasks = runningTasks - event.action.id
-
-                        val alert = Alert(Alert.AlertType.ERROR, it.message)
-                        alert.headerText = "Error Loading Images"
-                        alert.showAndWait()
-
-                        ActionEvent.syncAborted(event.action.id).fire()
-                    } cancel {
-                        runningTasks = runningTasks - event.action.id
-
-                        val alert = Alert(Alert.AlertType.INFORMATION, "Operation Cancelled")
-                        alert.headerText = "Loading Images"
-                        alert.showAndWait()
-
-                        ActionEvent.syncAborted(event.action.id).fire()
-                    }
-
-                    runningTasks = runningTasks + (event.action.id to task)
-                    ActionEvent.syncStarted(event.action.id).fire()
+//                    val task: Task<String> = runAsync {
+//                        val result = startSync(currentConfig.value(), event.action.id)
+//
+//                        (0..100L).forEach {
+//                            if (!isCancelled) {
+//                                updateMessage("running")
+//                                updateProgress(it, 100)
+//                                Thread.sleep(30)
+//                            }
+//                        }
+//
+//                        result
+//                    } success {
+//                        runningTasks = runningTasks - event.action.id
+//                        println("result for ${event.action.id} -> $it")
+//
+//                        ActionEvent.syncFinished(event.action.id).fire()
+//                    } fail {
+//                        runningTasks = runningTasks - event.action.id
+//
+//                        val alert = Alert(Alert.AlertType.ERROR, it.message)
+//                        alert.headerText = "Error Loading Images"
+//                        alert.showAndWait()
+//
+//                        ActionEvent.syncAborted(event.action.id).fire()
+//                    } cancel {
+//                        runningTasks = runningTasks - event.action.id
+//
+//                        val alert = Alert(Alert.AlertType.INFORMATION, "Operation Cancelled")
+//                        alert.headerText = "Loading Images"
+//                        alert.showAndWait()
+//
+//                        ActionEvent.syncAborted(event.action.id).fire()
+//                    }
+//
+//                    runningTasks = runningTasks + (event.action.id to task)
+//                    ActionEvent.syncStarted(event.action.id).fire()
                 }
                 is ActionEvent.Action.StopSync -> {
-                    val task = runningTasks[event.action.id]
-                    runningTasks = runningTasks - event.action.id
-                    if (task!=null && task.isRunning) {
-                        task.cancel()
-                    }
+                    taskList.stopSync(event.action.id)
                 }
             }
         }
@@ -147,6 +146,10 @@ class StartView : View("PhotoSync") {
         }
 
         center = SyncConfigView(currentConfig).root
+
+        bottom {
+            this += taskList
+        }
 
     }
 
