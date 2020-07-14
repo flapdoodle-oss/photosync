@@ -2,26 +2,34 @@ package de.flapdoodle.photosync.ui.tasks
 
 import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.lazy.ChangeableValue
+import de.flapdoodle.fx.lazy.bindFrom
+import de.flapdoodle.fx.lazy.mapToList
 import de.flapdoodle.photosync.ui.config.SyncConfig
 import de.flapdoodle.photosync.ui.events.ActionEvent
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
+import javafx.scene.control.ProgressBar
 import tornadofx.*
 import java.util.*
+import kotlin.collections.LinkedHashMap
 
 class TaskList : Fragment() {
 
-    val runningTasks = ChangeableValue(emptyMap<UUID, Task<out Any>>())
+    val runningTasks = ChangeableValue<Map<UUID, Task<out Any>>>(LinkedHashMap<UUID, Task<out Any>>())
+    val tasks = runningTasks.mapToList { it.values.toList() }
 
-    override val root = hbox {
+    override val root = vbox {
         button("TaskList") {
             
         }
+
+        children.bindFrom(tasks) { RunningTask(it).root}
     }
 
-    class RunningTask : Fragment() {
-        override val root = vbox {
-            button("running...")
+    class RunningTask(task: Task<out Any>) : Fragment() {
+        override val root = hbox {
+            label(task.messageProperty())
+            progressbar(property = task.progressProperty())
         }
     }
 
