@@ -19,11 +19,17 @@ class SyncModalView : View("Sync") {
             end = LocalDateTime.now()
     ))
 
-    private val timeUsedInSeconds = result.map { "${Duration.between(it.start, it.end).toSeconds()}s" }
+    private val timeUsedInSeconds = result.map { "Scanned in ${Duration.between(it.start, it.end).toSeconds()}s" }
+
 
     override val root = borderpane {
         top {
-            label(timeUsedInSeconds.asBinding())
+            hbox {
+                label(timeUsedInSeconds.asBinding())
+                label(result.map {
+                    "Diskspace used: ${it.srcDiskSpaceUsed / (1024 * 1024)} MB - ${it.dstDiskSpaceUsed / (1024 * 1024)} MB"
+                }.asBinding())
+            }
         }
         center {
 
@@ -41,11 +47,7 @@ class SyncModalView : View("Sync") {
         fun openModalWith(result: Scanner.Result<List<SyncCommandGroup>>) {
             val view = find(SyncModalView::class)
             view.result.value(result)
-            val stage = view.openModal(stageStyle = javafx.stage.StageStyle.DECORATED)
-//            if (stage!=null) {
-//                stage.width = 800.0
-//                stage.height = 600.0
-//            }
+            view.openModal(stageStyle = javafx.stage.StageStyle.DECORATED)
         }
     }
 }
