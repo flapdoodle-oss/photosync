@@ -19,10 +19,6 @@ class TaskList : Fragment() {
     val tasks = runningTasks.mapToList { it.values.toList() }
 
     override val root = vbox {
-        button("TaskList") {
-            
-        }
-
         children.bindFrom(tasks) { RunningTask(it).root}
     }
 

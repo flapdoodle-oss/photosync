@@ -160,22 +160,37 @@ object PhotoSync {
         ScanDiffAnalyzer.scan(src, dst, hasher)
       }
 
-      when (mode) {
+      val syncCommands = when (mode) {
         is Mode.Merge -> {
-          val syncCommands = Diff2SyncCommands(srcPath, dstPath,
-              sameContent = Diff2SyncCommands.sameContent(hasher)
+          Diff2SyncCommands(srcPath, dstPath,
+                  sameContent = Diff2SyncCommands.sameContent(hasher)
           ).generate(diff)
-
-          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
         }
         is Mode.CopySource -> {
-          val syncCommands = Diff2CopySourceCommands(srcPath, dstPath,
-              sameContent = Diff2SyncCommands.sameContent(hasher)
+          Diff2CopySourceCommands(srcPath, dstPath,
+                  sameContent = Diff2SyncCommands.sameContent(hasher)
           ).generate(diff)
-
-          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
         }
       }
+
+      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+
+//      when (mode) {
+//        is Mode.Merge -> {
+//          val syncCommands = Diff2SyncCommands(srcPath, dstPath,
+//              sameContent = Diff2SyncCommands.sameContent(hasher)
+//          ).generate(diff)
+//
+//          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+//        }
+//        is Mode.CopySource -> {
+//          val syncCommands = Diff2CopySourceCommands(srcPath, dstPath,
+//              sameContent = Diff2SyncCommands.sameContent(hasher)
+//          ).generate(diff)
+//
+//          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+//        }
+//      }
 //      val filteredDiff = diffFilter(diff)
 //
 //      val syncCommands = Diff2SyncCommands(srcPath, dstPath,
