@@ -24,6 +24,11 @@ class StartView : View("PhotoSync") {
 
     private val taskList = TaskList()
 
+    init {
+        primaryStage.width = 1024.0
+        primaryStage.height = 768.0
+    }
+
     override val root = borderpane {
         subscribeEvent<ModelEvent> { event ->
             when (event.data) {
@@ -45,46 +50,10 @@ class StartView : View("PhotoSync") {
             when (event.action) {
                 is ActionEvent.Action.StartSync -> {
                     val config = currentConfig.value().entry(event.action.id);
-
                     taskList.startSync(config)
-
-//                    val task: Task<String> = runAsync {
-//                        val result = startSync(currentConfig.value(), event.action.id)
-//
-//                        (0..100L).forEach {
-//                            if (!isCancelled) {
-//                                updateMessage("running")
-//                                updateProgress(it, 100)
-//                                Thread.sleep(30)
-//                            }
-//                        }
-//
-//                        result
-//                    } success {
-//                        runningTasks = runningTasks - event.action.id
-//                        println("result for ${event.action.id} -> $it")
-//
-//                        ActionEvent.syncFinished(event.action.id).fire()
-//                    } fail {
-//                        runningTasks = runningTasks - event.action.id
-//
-//                        val alert = Alert(Alert.AlertType.ERROR, it.message)
-//                        alert.headerText = "Error Loading Images"
-//                        alert.showAndWait()
-//
-//                        ActionEvent.syncAborted(event.action.id).fire()
-//                    } cancel {
-//                        runningTasks = runningTasks - event.action.id
-//
-//                        val alert = Alert(Alert.AlertType.INFORMATION, "Operation Cancelled")
-//                        alert.headerText = "Loading Images"
-//                        alert.showAndWait()
-//
-//                        ActionEvent.syncAborted(event.action.id).fire()
-//                    }
-//
-//                    runningTasks = runningTasks + (event.action.id to task)
-//                    ActionEvent.syncStarted(event.action.id).fire()
+                }
+                is ActionEvent.Action.SyncFinished -> {
+                    SyncModalView.openModalWith(event.action.data);
                 }
                 is ActionEvent.Action.StopSync -> {
                     taskList.stopSync(event.action.id)
