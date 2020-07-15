@@ -44,7 +44,9 @@ class StartView : View("PhotoSync") {
 
             when (event.action) {
                 is ActionEvent.Action.StartSync -> {
-                    taskList.startSync(event.action.id) { id -> startSync(currentConfig.value(), id)}
+                    val config = currentConfig.value().entry(event.action.id);
+
+                    taskList.startSync(config)
 
 //                    val task: Task<String> = runAsync {
 //                        val result = startSync(currentConfig.value(), event.action.id)

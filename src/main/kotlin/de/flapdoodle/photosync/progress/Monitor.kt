@@ -1,5 +1,8 @@
 package de.flapdoodle.photosync.progress
 
+import de.flapdoodle.fx.lazy.ChangedListener
+import de.flapdoodle.fx.lazy.LazyValue
+
 object Monitor {
 
   private val threadReporter = ThreadLocal<Reporter>()
@@ -79,6 +82,16 @@ object Monitor {
 
   interface Reporter {
     fun report(message: String)
+
+    companion object {
+      inline operator fun invoke(crossinline delegate: (String) -> Unit): Reporter {
+        return object : Reporter {
+          override fun report(message: String) {
+            delegate(message)
+          }
+        }
+      }
+    }
   }
 
   class ConsoleReporter : Reporter {

@@ -4,7 +4,6 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.validate
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
@@ -29,12 +28,6 @@ import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 object PhotoSync {
-
-  // see https://ajalt.github.io/clikt/quickstart/
-  sealed class Mode(name: String) : OptionGroup(name) {
-    class Merge : Mode("options for merge mode")
-    class CopySource : Mode("options for copy source mode")
-  }
 
   class Args : CliktCommand() {
     init {
@@ -125,81 +118,60 @@ object PhotoSync {
       filter: ((Path) -> Boolean)?,
       mode: Mode = Mode.Merge()
   ) {
-    val start = LocalDateTime.now()
-    var srcDiskSpaceUsed = 0L
-    var dstDiskSpaceUsed = 0L
 
-    val hasher = QuickHash
+    val result = Scanner(srcPath, dstPath, filter, SyncCommand2Command::map, mode)
+            .sync()
 
-    val commands = Monitor.execute {
-      val srcTree = Monitor.scope("scan files") {
-        Monitor.message(srcPath.toString())
-        tree(srcPath)
-      }
-
-      val src = Monitor.scope("scan") {
-        scan(srcTree, filter = filter)
-      }
-
-      srcDiskSpaceUsed = src.diskSpaceUsed()
-
-      val dstTree = Monitor.scope("scan files") {
-        Monitor.message(dstPath.toString())
-        tree(dstPath)
-      }
-
-      val dst = Monitor.scope("scan") {
-        Monitor.message(dstPath.toString())
-        scan(dstTree, filter = filter)
-      }
-
-      dstDiskSpaceUsed = dst.diskSpaceUsed()
-
-      val diff = Monitor.scope("diff") {
-        Monitor.message("src: ${src.diskSpaceUsed()}, dst: ${dst.diskSpaceUsed()}")
-        ScanDiffAnalyzer.scan(src, dst, hasher)
-      }
-
-      val syncCommands = when (mode) {
-        is Mode.Merge -> {
-          Diff2SyncCommands(srcPath, dstPath,
-                  sameContent = Diff2SyncCommands.sameContent(hasher)
-          ).generate(diff)
-        }
-        is Mode.CopySource -> {
-          Diff2CopySourceCommands(srcPath, dstPath,
-                  sameContent = Diff2SyncCommands.sameContent(hasher)
-          ).generate(diff)
-        }
-      }
-
-      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
-
-//      when (mode) {
-//        is Mode.Merge -> {
-//          val syncCommands = Diff2SyncCommands(srcPath, dstPath,
-//              sameContent = Diff2SyncCommands.sameContent(hasher)
-//          ).generate(diff)
+//    val start = LocalDateTime.now()
+//    var srcDiskSpaceUsed = 0L
+//    var dstDiskSpaceUsed = 0L
 //
-//          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
+//    val hasher = QuickHash
+//
+//    val commands = Monitor.execute {
+//      val srcTree = Monitor.scope("scan files") {
+//        Monitor.message(srcPath.toString())
+//        tree(srcPath)
+//      }
+//
+//      val src = Monitor.scope("scan") {
+//        scan(srcTree, filter = filter)
+//      }
+//
+//      srcDiskSpaceUsed = src.diskSpaceUsed()
+//
+//      val dstTree = Monitor.scope("scan files") {
+//        Monitor.message(dstPath.toString())
+//        tree(dstPath)
+//      }
+//
+//      val dst = Monitor.scope("scan") {
+//        Monitor.message(dstPath.toString())
+//        scan(dstTree, filter = filter)
+//      }
+//
+//      dstDiskSpaceUsed = dst.diskSpaceUsed()
+//
+//      val diff = Monitor.scope("diff") {
+//        Monitor.message("src: ${src.diskSpaceUsed()}, dst: ${dst.diskSpaceUsed()}")
+//        ScanDiffAnalyzer.scan(src, dst, hasher)
+//      }
+//
+//      val syncCommands = when (mode) {
+//        is Mode.Merge -> {
+//          Diff2SyncCommands(srcPath, dstPath,
+//                  sameContent = Diff2SyncCommands.sameContent(hasher)
+//          ).generate(diff)
 //        }
 //        is Mode.CopySource -> {
-//          val syncCommands = Diff2CopySourceCommands(srcPath, dstPath,
-//              sameContent = Diff2SyncCommands.sameContent(hasher)
+//          Diff2CopySourceCommands(srcPath, dstPath,
+//                  sameContent = Diff2SyncCommands.sameContent(hasher)
 //          ).generate(diff)
-//
-//          SyncCommand2Command.map(syncCommands, srcTree, dstTree)
 //        }
 //      }
-//      val filteredDiff = diffFilter(diff)
-//
-//      val syncCommands = Diff2SyncCommands(srcPath, dstPath,
-//          sameContent = Diff2SyncCommands.sameContent(hasher),
-//          lastModifiedComparision = lastModifiedComparision
-//      ).generate(filteredDiff)
 //
 //      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
-    }
+//    }
 
     println()
 
@@ -207,40 +179,40 @@ object PhotoSync {
     println()
 
     println("- - - - - - - - - - - - - - - - -")
-    UnixCommandListRenderer.execute(commands)
-    val end = LocalDateTime.now()
+    UnixCommandListRenderer.execute(result.result)
+//    val end = LocalDateTime.now()
     println("- - - - - - - - - - - - - - - - -")
-    println("Speed: ${Duration.between(start, end).toSeconds()}s")
-    println("Source: ${srcDiskSpaceUsed / (1024 * 1024)} MB")
-    println("Backup: ${dstDiskSpaceUsed / (1024 * 1024)} MB")
+    println("Speed: ${Duration.between(result.start, result.end).toSeconds()}s")
+    println("Source: ${result.srcDiskSpaceUsed / (1024 * 1024)} MB")
+    println("Backup: ${result.dstDiskSpaceUsed / (1024 * 1024)} MB")
   }
 
-  private fun scan(
-      tree: Tree.Directory,
-      hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) },
-      filter: ((Path) -> Boolean)? = null
-  ): Scan {
-    val filteredTree = if (filter != null)
-      tree.filterChildren(filter)
-    else
-      tree
-
-    val blobs = filteredTree.mapFiles { Blob(it.path, it.size, it.lastModifiedTime) }
-
-    val groupMeta = GroupMetaData(blobs)
-    val groupedByContent = GroupSameContent(
-        blobs = groupMeta.baseBlobs(),
-        hashStrategy = hashStrategy
-    )
-
-    return Scan.of(groupedByContent, groupMeta)
-  }
-
-  private fun tree(path: Path): Tree.Directory {
-    val collector = TreeCollectorAdapter()
-    Files.walkFileTree(path, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
-    return collector.asTree()
-  }
+//  private fun scan(
+//      tree: Tree.Directory,
+//      hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) },
+//      filter: ((Path) -> Boolean)? = null
+//  ): Scan {
+//    val filteredTree = if (filter != null)
+//      tree.filterChildren(filter)
+//    else
+//      tree
+//
+//    val blobs = filteredTree.mapFiles { Blob(it.path, it.size, it.lastModifiedTime) }
+//
+//    val groupMeta = GroupMetaData(blobs)
+//    val groupedByContent = GroupSameContent(
+//        blobs = groupMeta.baseBlobs(),
+//        hashStrategy = hashStrategy
+//    )
+//
+//    return Scan.of(groupedByContent, groupMeta)
+//  }
+//
+//  private fun tree(path: Path): Tree.Directory {
+//    val collector = TreeCollectorAdapter()
+//    Files.walkFileTree(path, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
+//    return collector.asTree()
+//  }
 
 }
 

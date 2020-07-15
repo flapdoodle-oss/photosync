@@ -5,12 +5,16 @@ import de.flapdoodle.fx.lazy.ChangeableValue
 import de.flapdoodle.fx.lazy.bindFrom
 import de.flapdoodle.fx.lazy.mapToList
 import de.flapdoodle.photosync.ui.config.SyncConfig
+import de.flapdoodle.photosync.ui.config.SyncEntry
 import de.flapdoodle.photosync.ui.events.ActionEvent
+import de.flapdoodle.photosync.Scanner
+import de.flapdoodle.photosync.progress.Monitor
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
 import javafx.scene.control.ProgressBar
 import tornadofx.*
-import java.util.*
+import java.nio.file.Paths
+import java.util.UUID
 import kotlin.collections.LinkedHashMap
 
 class TaskList : Fragment() {
@@ -24,22 +28,32 @@ class TaskList : Fragment() {
 
     class RunningTask(task: Task<out Any>) : Fragment() {
         override val root = hbox {
-            label(task.messageProperty())
             progressbar(property = task.progressProperty())
+            label(task.messageProperty())
         }
     }
 
-    fun startSync(id: UUID, startSync: (UUID) -> String) {
-        val task: Task<String> = runAsync {
-            val result = startSync(id)
+    fun startSync(config: SyncEntry) {
+        val id = config.id
+        val srcPath = Paths.get(config.src)
+        val dstPath = Paths.get(config.dst)
+        val scanner = Scanner(srcPath, dstPath, filter = null, map = { commands, _, _ -> commands })
 
-            (0..100L).forEach {
-                if (!isCancelled) {
-                    updateMessage("running")
-                    updateProgress(it, 100)
-                    Thread.sleep(30)
-                }
-            }
+        val task = runAsync {
+            val result = scanner.sync(
+                    reporter = Monitor.Reporter { updateMessage(it) },
+                    abort = { isCancelled },
+                    progress = { current, max -> updateProgress(current.toLong(), max.toLong())}
+            )
+//            val result = startSync(id)
+//
+//            (0..100L).forEach {
+//                if (!isCancelled) {
+//                    updateMessage("running")
+//                    updateProgress(it, 100)
+//                    Thread.sleep(30)
+//                }
+//            }
 
             result
         } success {
