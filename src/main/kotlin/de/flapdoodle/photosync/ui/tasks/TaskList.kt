@@ -12,6 +12,8 @@ import de.flapdoodle.photosync.progress.Monitor
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
 import javafx.scene.control.ProgressBar
+import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
 import tornadofx.*
 import java.nio.file.Paths
 import java.util.UUID
@@ -28,8 +30,12 @@ class TaskList : Fragment() {
 
     class RunningTask(task: Task<out Any>) : Fragment() {
         override val root = hbox {
-            progressbar(property = task.progressProperty())
-            label(task.messageProperty())
+            val thisBox = this
+
+            val bar = progressbar(property = task.progressProperty())
+            label(task.messageProperty()) {
+                prefWidthProperty().bind(thisBox.widthProperty().minus(bar.prefWidthProperty()))
+            }
         }
     }
 
