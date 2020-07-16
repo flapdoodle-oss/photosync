@@ -8,10 +8,9 @@ import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.ui.events.IOEvent
 import de.flapdoodle.photosync.ui.events.ModelEvent
 import de.flapdoodle.photosync.ui.io.SyncConfigIO
+import de.flapdoodle.photosync.ui.sync.SyncModalView
 import de.flapdoodle.photosync.ui.tasks.TaskList
 import javafx.application.Platform
-import javafx.concurrent.Task
-import javafx.scene.control.Alert
 import javafx.stage.FileChooser
 import tornadofx.*
 import java.nio.file.Files

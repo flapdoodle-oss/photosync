@@ -1,5 +1,8 @@
 package de.flapdoodle.fx.extensions
 
+import de.flapdoodle.fx.lazy.LazyValue
+import de.flapdoodle.fx.lazy.bindFrom
+import javafx.collections.ObservableList
 import javafx.scene.Node
 import javafx.scene.Parent
 import kotlin.reflect.KClass
@@ -72,4 +75,20 @@ fun Node.heightLimits(): Pair<Double, Double> {
   } else {
     Pair(minH, minH)
   }
+}
+
+interface LazyNodeContainer<S: Any> {
+  fun nodes(): List<Node>
+}
+
+interface LazyNodeFactory<S: Any, M: LazyNodeContainer<S>> {
+  fun create(index: Int, source: S, old: M?): M
+}
+
+fun <S : Any, K: Any, M: LazyNodeContainer<S>> ObservableList<Node>.bindFromFactory(
+        src: LazyValue<List<S>>,
+        keyOf: (source: S) -> K,
+        factory: LazyNodeFactory<S, M>
+) {
+  this.bindFrom(src, keyOf, LazyNodeContainer<S>::nodes, factory::create);
 }

@@ -28,6 +28,7 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
         const val ACTION_COLUMN = 2
         const val SYNC_COLUMN = 3
 
+        @Deprecated("use ext")
         private fun <T : Node> T.withPosition(
                 column: Int,
                 row: Int,
@@ -150,6 +151,7 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
         }
 
         companion object {
+            @Deprecated("use ext")
             internal fun <T : Node> T.updateRow(row: Int) {
                 WeightGridPane.updatePosition(this) { it.copy(row = row) }
             }
