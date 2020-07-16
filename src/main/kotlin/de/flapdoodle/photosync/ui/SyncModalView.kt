@@ -5,14 +5,14 @@ import de.flapdoodle.fx.lazy.asBinding
 import de.flapdoodle.fx.lazy.map
 import de.flapdoodle.photosync.Scanner
 import de.flapdoodle.photosync.sync.SyncCommandGroup
-import javafx.beans.property.SimpleStringProperty
+import de.flapdoodle.photosync.ui.sync.SyncList
 import tornadofx.*
 import java.time.Duration
 import java.time.LocalDateTime
 
 class SyncModalView : View("Sync") {
-    private val result = ChangeableValue<Scanner.Result<List<SyncCommandGroup>>>(Scanner.Result(
-            result = emptyList(),
+    private val result = ChangeableValue<SyncList>(SyncList(
+            groups = emptyList(),
             dstDiskSpaceUsed = 0L,
             srcDiskSpaceUsed = 0L,
             start = LocalDateTime.now(),
@@ -21,6 +21,7 @@ class SyncModalView : View("Sync") {
 
     private val timeUsedInSeconds = result.map { "Scanned in ${Duration.between(it.start, it.end).toSeconds()}s" }
 
+    private val syncCommandGroups = result.map { it.groups }
 
     override val root = borderpane {
         top {
@@ -32,7 +33,7 @@ class SyncModalView : View("Sync") {
             }
         }
         center {
-
+            //children.bindFrom()
         }
     }
 
@@ -44,10 +45,11 @@ class SyncModalView : View("Sync") {
     }
 
     companion object {
-        fun openModalWith(result: Scanner.Result<List<SyncCommandGroup>>) {
+        fun openModalWith(result: SyncList) {
             val view = find(SyncModalView::class)
             view.result.value(result)
             view.openModal(stageStyle = javafx.stage.StageStyle.DECORATED)
         }
     }
+
 }

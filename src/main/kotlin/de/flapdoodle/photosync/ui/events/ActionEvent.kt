@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.ui.events
 
 import de.flapdoodle.photosync.Scanner
 import de.flapdoodle.photosync.sync.SyncCommandGroup
+import de.flapdoodle.photosync.ui.sync.SyncList
 import tornadofx.FXEvent
 import java.util.UUID
 
@@ -12,7 +13,7 @@ data class ActionEvent(val action: Action) : FXEvent() {
         fun stopSync(id: UUID) = ActionEvent(Action.StopSync(id))
         fun syncStarted(id: UUID) = ActionEvent(Action.SyncStarted(id))
         fun syncAborted(id: UUID) = ActionEvent(Action.SyncAborted(id))
-        fun syncFinished(id: UUID, data: Scanner.Result<List<SyncCommandGroup>>) = ActionEvent(Action.SyncFinished(id, data))
+        fun syncFinished(id: UUID, data: SyncList) = ActionEvent(Action.SyncFinished(id, data))
     }
 
     sealed class Action {
@@ -21,6 +22,6 @@ data class ActionEvent(val action: Action) : FXEvent() {
 
         data class SyncStarted(val id: UUID) : Action()
         data class SyncAborted(val id: UUID) : Action()
-        data class SyncFinished(val id: UUID, val data: Scanner.Result<List<SyncCommandGroup>>) : Action()
+        data class SyncFinished(val id: UUID, val data: SyncList) : Action()
     }
 }

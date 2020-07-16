@@ -10,6 +10,7 @@ import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.Scanner
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.ui.SyncModalView
+import de.flapdoodle.photosync.ui.sync.SyncList
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
 import javafx.scene.control.ProgressBar
@@ -52,7 +53,7 @@ class TaskList : Fragment() {
                     abort = { isCancelled },
                     progress = { current, max -> updateProgress(current.toLong(), max.toLong())}
             )
-            result
+            SyncList.map(result)
         } success {
             runningTasks.value { it - id }
             println("result for ${id} -> $it")
