@@ -8,6 +8,7 @@ import de.flapdoodle.photosync.ui.config.SyncEntry
 import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.Scanner
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.ui.sync.SyncGroup
 import de.flapdoodle.photosync.ui.sync.SyncList
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
@@ -36,7 +37,25 @@ class TaskList : Fragment() {
         }
     }
 
-    fun startSync(config: SyncEntry) {
+    fun startSync(config: SyncList) {
+        val task = runAsync {
+            config.groups.forEachIndexed { index, syncGroup ->
+                Thread.sleep(100)
+                updateMessage("process ${syncGroup.id}")
+                syncGroup.commands.forEach {
+                    runLater {
+                        ActionEvent.synced(syncGroup.id,it.command, SyncGroup.Status.Failed).fire()
+                    }
+                }
+            }
+        } success {
+            ActionEvent.syncDone().fire()
+        } fail {
+            ActionEvent.syncDone().fire()
+        }
+    }
+
+    fun startScan(config: SyncEntry) {
         val id = config.id
         val srcPath = Paths.get(config.src)
         val dstPath = Paths.get(config.dst)
@@ -53,7 +72,7 @@ class TaskList : Fragment() {
             runningTasks.value { it - id }
             println("result for ${id} -> $it")
 
-            ActionEvent.syncFinished(id, it).fire()
+            ActionEvent.scanFinished(id, it).fire()
         } fail {
             runningTasks.value { it - id }
 
@@ -61,7 +80,7 @@ class TaskList : Fragment() {
             alert.headerText = "sync"
             alert.showAndWait()
 
-            ActionEvent.syncAborted(id).fire()
+            ActionEvent.scanAborted(id).fire()
         } cancel {
             runningTasks.value { it - id }
 
@@ -69,15 +88,15 @@ class TaskList : Fragment() {
             alert.headerText = "sync"
             alert.showAndWait()
 
-            ActionEvent.syncAborted(id).fire()
+            ActionEvent.scanAborted(id).fire()
         }
 
         runningTasks.value { it + (id to task) }
-        ActionEvent.syncStarted(id).fire()
+        ActionEvent.scanStarted(id).fire()
 
     }
 
-    fun stopSync(id: UUID) {
+    fun stopScan(id: UUID) {
         val task = runningTasks.value()[id]
         runningTasks.value { it - id }
         if (task!=null && task.isRunning) {

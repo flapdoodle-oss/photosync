@@ -1,7 +1,7 @@
 package de.flapdoodle.photosync.ui.events
 
-import de.flapdoodle.photosync.Scanner
-import de.flapdoodle.photosync.sync.SyncCommandGroup
+import de.flapdoodle.photosync.sync.SyncCommand
+import de.flapdoodle.photosync.ui.sync.SyncGroup
 import de.flapdoodle.photosync.ui.sync.SyncList
 import tornadofx.FXEvent
 import java.util.UUID
@@ -9,19 +9,27 @@ import java.util.UUID
 data class ActionEvent(val action: Action) : FXEvent() {
 
     companion object {
-        fun startSync(id: UUID) = ActionEvent(Action.StartSync(id))
-        fun stopSync(id: UUID) = ActionEvent(Action.StopSync(id))
-        fun syncStarted(id: UUID) = ActionEvent(Action.SyncStarted(id))
-        fun syncAborted(id: UUID) = ActionEvent(Action.SyncAborted(id))
-        fun syncFinished(id: UUID, data: SyncList) = ActionEvent(Action.SyncFinished(id, data))
+        fun startScan(id: UUID) = ActionEvent(Action.StartScan(id))
+        fun stopScan(id: UUID) = ActionEvent(Action.StopScan(id))
+        fun scanStarted(id: UUID) = ActionEvent(Action.ScanStarted(id))
+        fun scanAborted(id: UUID) = ActionEvent(Action.ScanAborted(id))
+        fun scanFinished(id: UUID, data: SyncList) = ActionEvent(Action.ScanFinished(id, data))
+
+        fun sync(data: SyncList) = ActionEvent(Action.Sync(data))
+        fun synced(id: UUID, command: SyncCommand, status: SyncGroup.Status) = ActionEvent(Action.Synced(id, command, status))
+        fun syncDone() = ActionEvent(Action.SyncDone)
     }
 
     sealed class Action {
-        data class StartSync(val id: UUID) : Action()
-        data class StopSync(val id: UUID) : Action()
+        data class StartScan(val id: UUID) : Action()
+        data class StopScan(val id: UUID) : Action()
 
-        data class SyncStarted(val id: UUID) : Action()
-        data class SyncAborted(val id: UUID) : Action()
-        data class SyncFinished(val id: UUID, val data: SyncList) : Action()
+        data class ScanStarted(val id: UUID) : Action()
+        data class ScanAborted(val id: UUID) : Action()
+        data class ScanFinished(val id: UUID, val data: SyncList) : Action()
+
+        data class Sync(val data: SyncList): Action()
+        data class Synced(val id: UUID, val command: SyncCommand, val status: SyncGroup.Status): Action()
+        object SyncDone: Action()
     }
 }

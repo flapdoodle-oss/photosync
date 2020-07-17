@@ -47,15 +47,18 @@ class StartView : View("PhotoSync") {
             println("Action found: $event")
 
             when (event.action) {
-                is ActionEvent.Action.StartSync -> {
-                    val config = currentConfig.value().entry(event.action.id);
-                    taskList.startSync(config)
+                is ActionEvent.Action.StartScan -> {
+                    val config = currentConfig.value().entry(event.action.id)
+                    taskList.startScan(config)
                 }
-                is ActionEvent.Action.SyncFinished -> {
-                    SyncModalView.openModalWith(event.action.data);
+                is ActionEvent.Action.ScanFinished -> {
+                    SyncModalView.openModalWith(event.action.data)
                 }
-                is ActionEvent.Action.StopSync -> {
-                    taskList.stopSync(event.action.id)
+                is ActionEvent.Action.StopScan -> {
+                    taskList.stopScan(event.action.id)
+                }
+                is ActionEvent.Action.Sync -> {
+                    taskList.startSync(event.action.data)
                 }
             }
         }

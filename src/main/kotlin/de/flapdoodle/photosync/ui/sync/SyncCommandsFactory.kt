@@ -45,6 +45,8 @@ class SyncCommandsFactory : LazyNodeFactory<SyncGroup.SyncEntry, SyncCommandsFac
 
         private val status = Label().apply {
             textProperty().bind(current.map { it.status.name }.asBinding())
+
+            // see tornadofx stylesheet and change class instead
             style {
                 this.backgroundColor = multi(current.map { when(it.status) {
                     SyncGroup.Status.Failed -> Color.DARKRED

@@ -101,27 +101,27 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                 .apply {
                     subscribeEvent<ActionEvent> {event ->
                         when (event.action) {
-                            is ActionEvent.Action.SyncFinished -> {
+                            is ActionEvent.Action.ScanFinished -> {
                                 if (event.action.id == mapping.id) {
                                     text = "Done"
                                     action {
-                                        ActionEvent.startSync(mapping.id).fire()
+                                        ActionEvent.startScan(mapping.id).fire()
                                     }
                                 }
                             }
-                            is ActionEvent.Action.SyncStarted -> {
+                            is ActionEvent.Action.ScanStarted -> {
                                 if (event.action.id == mapping.id) {
                                     text = "..."
                                     action {
-                                        ActionEvent.stopSync(mapping.id).fire()
+                                        ActionEvent.stopScan(mapping.id).fire()
                                     }
                                 }
                             }
-                            is ActionEvent.Action.SyncAborted -> {
+                            is ActionEvent.Action.ScanAborted -> {
                                 if (event.action.id == mapping.id) {
                                     text = "Sync Again"
                                     action {
-                                        ActionEvent.startSync(mapping.id).fire()
+                                        ActionEvent.startScan(mapping.id).fire()
                                     }
                                 }
                             }
@@ -129,7 +129,7 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                     }
                     minWidth = Region.USE_PREF_SIZE
                     action {
-                        ActionEvent.startSync(mapping.id).fire()
+                        ActionEvent.startScan(mapping.id).fire()
                     }
                 }
 
