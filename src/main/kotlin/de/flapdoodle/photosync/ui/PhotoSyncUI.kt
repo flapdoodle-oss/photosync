@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.ui
 
+import de.flapdoodle.photosync.ui.sync.LabelStyles
 import javafx.application.Application
 import javafx.scene.Scene
 import javafx.scene.control.Label
@@ -11,7 +12,7 @@ import javafx.stage.Stage
 import tornadofx.*
 
 
-class PhotoSyncUI : App(StartView::class) {
+class PhotoSyncUI : App(StartView::class, LabelStyles::class) {
 
   init {
     FX.layoutDebuggerShortcut = KeyCodeCombination(

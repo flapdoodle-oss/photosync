@@ -45,15 +45,11 @@ class SyncCommandsFactory : LazyNodeFactory<SyncGroup.SyncEntry, SyncCommandsFac
 
         private val status = Label().apply {
             textProperty().bind(current.map { it.status.name }.asBinding())
-
-            // see tornadofx stylesheet and change class instead
-            style {
-                this.backgroundColor = multi(current.map { when(it.status) {
-                    SyncGroup.Status.Failed -> Color.DARKRED
-                    SyncGroup.Status.Successful -> Color.DARKGREEN
-                    else -> Color.TRANSPARENT
-                } }.value())
-            }
+            bindClass(current.map { when(it.status) {
+                SyncGroup.Status.Failed -> LabelStyles.failed
+                SyncGroup.Status.Successful -> LabelStyles.success
+                else -> LabelStyles.unknown
+            } }.asBinding())
         }
                 .withPosition(STATUS_COLUMN, row)
                 .minWithFromPrefered()

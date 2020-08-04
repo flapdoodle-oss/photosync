@@ -10,26 +10,21 @@ import de.flapdoodle.photosync.ui.events.ActionEvent
 import tornadofx.*
 import java.time.Duration
 import java.time.LocalDateTime
+import java.util.*
 
 class SyncModalView : View("Sync") {
-    private val result = ChangeableValue(SyncList(
-            groups = emptyList(),
-            dstDiskSpaceUsed = 0L,
-            srcDiskSpaceUsed = 0L,
-            start = LocalDateTime.now(),
-            end = LocalDateTime.now()
-    ))
+    private val result = ChangeableValue<Optional<SyncList>>(Optional.empty())
 
-    private val timeUsedInSeconds = result.map { "Scanned in ${Duration.between(it.start, it.end).toSeconds()}s" }
+    private val timeUsedInSeconds = result.map { it.map { "Scanned in ${Duration.between(it.start, it.end).toSeconds()}s" }.orElse("") }
 
-    private val syncCommandGroups = result.map { it.groups }
+    private val syncCommandGroups = result.map { it.map { it.groups.filter { it.commands.isNotEmpty() } }.orElse(emptyList()) }
 
     override val root = borderpane {
         top {
             hbox {
                 label(timeUsedInSeconds.asBinding())
                 label(result.map {
-                    "Diskspace used: ${it.srcDiskSpaceUsed / (1024 * 1024)} MB - ${it.dstDiskSpaceUsed / (1024 * 1024)} MB"
+                    it.map { "Diskspace used: ${it.srcDiskSpaceUsed / (1024 * 1024)} MB - ${it.dstDiskSpaceUsed / (1024 * 1024)} MB" }.orElse("")
                 }.asBinding())
 
                 button("execute") {
@@ -38,12 +33,14 @@ class SyncModalView : View("Sync") {
                             isDisable = false
                         }
                         if (event.action is ActionEvent.Action.Synced) {
-                            result.value { update(it, event.action) }
+                            result.value { it.map { update(it, event.action) } }
                         }
                     }
                     action {
                         isDisable = true
-                        ActionEvent.sync(result.value()).fire()
+                        result.value().ifPresent {
+                            ActionEvent.sync(it).fire()
+                        }
                     }
                 }
             }
@@ -75,7 +72,7 @@ class SyncModalView : View("Sync") {
     companion object {
         fun openModalWith(result: SyncList) {
             val view = find(SyncModalView::class)
-            view.result.value(result)
+            view.result.value(Optional.of(result))
             view.openModal(stageStyle = javafx.stage.StageStyle.DECORATED)
         }
     }

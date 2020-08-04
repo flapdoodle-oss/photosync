@@ -67,7 +67,7 @@ class TaskList : Fragment() {
                     abort = { isCancelled },
                     progress = { current, max -> updateProgress(current.toLong(), max.toLong())}
             )
-            SyncList.map(result)
+            SyncList.map(srcPath, dstPath, result)
         } success {
             runningTasks.value { it - id }
             println("result for ${id} -> $it")
