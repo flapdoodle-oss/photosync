@@ -8,6 +8,8 @@ import de.flapdoodle.photosync.ui.config.SyncEntry
 import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.Scanner
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.sync.NIOSynchronizer
+import de.flapdoodle.photosync.sync.Synchronizer
 import de.flapdoodle.photosync.ui.sync.SyncGroup
 import de.flapdoodle.photosync.ui.sync.SyncList
 import javafx.concurrent.Task
@@ -22,8 +24,10 @@ class TaskList : Fragment() {
     val runningTasks = ChangeableValue<Map<UUID, Task<out Any>>>(LinkedHashMap<UUID, Task<out Any>>())
     val tasks = runningTasks.mapToList { it.values.toList() }
 
+    private val synchronizer: Synchronizer = NIOSynchronizer()
+
     override val root = vbox {
-        children.bindFrom(tasks) { RunningTask(it).root}
+        children.bindFrom(tasks) { RunningTask(it).root }
     }
 
     class RunningTask(task: Task<out Any>) : Fragment() {
@@ -39,15 +43,25 @@ class TaskList : Fragment() {
 
     fun startSync(config: SyncList) {
         val task = runAsync {
-            config.groups.forEachIndexed { index, syncGroup ->
-                Thread.sleep(100)
-                updateMessage("process ${syncGroup.id}")
-                syncGroup.commands.forEach {
-                    runLater {
-                        ActionEvent.synced(syncGroup.id,it.command, SyncGroup.Status.Failed).fire()
+            synchronizer.sync(config,
+                    listener = { id, command, status ->
+                        runLater {
+                            ActionEvent.synced(id, command, status).fire()
+                        }
+                    },
+                    progressListener = { progress ->
+                        updateProgress(progress.current, progress.max)
                     }
-                }
-            }
+            )
+//            config.groups.forEachIndexed { index, syncGroup ->
+//                Thread.sleep(100)
+//                updateMessage("process ${syncGroup.id}")
+//                syncGroup.commands.forEach {
+//                    runLater {
+//                        ActionEvent.synced(syncGroup.id, it.command, SyncGroup.Status.Failed).fire()
+//                    }
+//                }
+//            }
         } success {
             ActionEvent.syncDone().fire()
         } fail {
@@ -65,7 +79,7 @@ class TaskList : Fragment() {
             val result = scanner.sync(
                     reporter = Monitor.Reporter { updateMessage(it) },
                     abort = { isCancelled },
-                    progress = { current, max -> updateProgress(current.toLong(), max.toLong())}
+                    progress = { current, max -> updateProgress(current.toLong(), max.toLong()) }
             )
             SyncList.map(srcPath, dstPath, result)
         } success {
@@ -99,7 +113,7 @@ class TaskList : Fragment() {
     fun stopScan(id: UUID) {
         val task = runningTasks.value()[id]
         runningTasks.value { it - id }
-        if (task!=null && task.isRunning) {
+        if (task != null && task.isRunning) {
             task.cancel()
         }
     }

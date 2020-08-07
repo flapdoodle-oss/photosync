@@ -4,7 +4,7 @@ import de.flapdoodle.photosync.sync.SyncCommand
 import java.util.*
 
 data class SyncGroup(
-        val id: UUID = UUID.randomUUID(),
+        val id: SyncGroupID = SyncGroupID(),
         val commands: List<SyncEntry>
 ) {
 
