@@ -82,7 +82,7 @@ class SyncCommandsFactory : LazyNodeFactory<SyncGroup.SyncEntry, SyncCommandsFac
         }
 
         override fun nodes(): List<Node> {
-            return listOf(commandType, src, dst, hint, status)
+            return listOf(status, commandType, hint, src, dst)
         }
 
         fun update(index: Int, source: SyncGroup.SyncEntry) {
@@ -98,11 +98,11 @@ class SyncCommandsFactory : LazyNodeFactory<SyncGroup.SyncEntry, SyncCommandsFac
     }
 
     companion object {
-        const val NAME_COLUMN = 0
-        const val SRC_COLUMN = 1
-        const val DST_COLUMN = 2
-        const val HINT_COLUMN = 3
-        const val STATUS_COLUMN = 4
+        const val STATUS_COLUMN = 0
+        const val NAME_COLUMN = 1
+        const val HINT_COLUMN = 2
+        const val SRC_COLUMN = 3
+        const val DST_COLUMN = 4
 
         fun render(src: LazyValue<List<SyncGroup.SyncEntry>>): WeightGridPane {
             return WeightGridPane().apply {

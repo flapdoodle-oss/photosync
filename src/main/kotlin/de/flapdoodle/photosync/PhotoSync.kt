@@ -21,6 +21,7 @@ import de.flapdoodle.photosync.sync.Diff2CopySourceCommands
 import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
+import de.flapdoodle.photosync.ui.sync.SyncList
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
@@ -122,59 +123,7 @@ object PhotoSync {
     val result = Scanner(srcPath, dstPath, filter, SyncCommand2Command::map, mode)
             .sync()
 
-//    val start = LocalDateTime.now()
-//    var srcDiskSpaceUsed = 0L
-//    var dstDiskSpaceUsed = 0L
-//
-//    val hasher = QuickHash
-//
-//    val commands = Monitor.execute {
-//      val srcTree = Monitor.scope("scan files") {
-//        Monitor.message(srcPath.toString())
-//        tree(srcPath)
-//      }
-//
-//      val src = Monitor.scope("scan") {
-//        scan(srcTree, filter = filter)
-//      }
-//
-//      srcDiskSpaceUsed = src.diskSpaceUsed()
-//
-//      val dstTree = Monitor.scope("scan files") {
-//        Monitor.message(dstPath.toString())
-//        tree(dstPath)
-//      }
-//
-//      val dst = Monitor.scope("scan") {
-//        Monitor.message(dstPath.toString())
-//        scan(dstTree, filter = filter)
-//      }
-//
-//      dstDiskSpaceUsed = dst.diskSpaceUsed()
-//
-//      val diff = Monitor.scope("diff") {
-//        Monitor.message("src: ${src.diskSpaceUsed()}, dst: ${dst.diskSpaceUsed()}")
-//        ScanDiffAnalyzer.scan(src, dst, hasher)
-//      }
-//
-//      val syncCommands = when (mode) {
-//        is Mode.Merge -> {
-//          Diff2SyncCommands(srcPath, dstPath,
-//                  sameContent = Diff2SyncCommands.sameContent(hasher)
-//          ).generate(diff)
-//        }
-//        is Mode.CopySource -> {
-//          Diff2CopySourceCommands(srcPath, dstPath,
-//                  sameContent = Diff2SyncCommands.sameContent(hasher)
-//          ).generate(diff)
-//        }
-//      }
-//
-//      SyncCommand2Command.map(syncCommands, srcTree, dstTree)
-//    }
-
-    println()
-
+//    SyncList.map(srcPath, dstPath, result)
 
     println()
 

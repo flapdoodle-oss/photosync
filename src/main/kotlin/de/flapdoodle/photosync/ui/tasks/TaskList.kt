@@ -41,9 +41,11 @@ class TaskList : Fragment() {
         }
     }
 
-    fun startSync(config: SyncList) {
+    fun startSync(config: SyncList, enableCopyBack: Boolean = false, enableRemove: Boolean = false) {
         val task = runAsync {
             synchronizer.sync(config,
+                    enableCopyBack = enableCopyBack,
+                    enableRemove = enableRemove,
                     listener = { id, command, status ->
                         runLater {
                             ActionEvent.synced(id, command, status).fire()
@@ -53,18 +55,10 @@ class TaskList : Fragment() {
                         updateProgress(progress.current, progress.max)
                     }
             )
-//            config.groups.forEachIndexed { index, syncGroup ->
-//                Thread.sleep(100)
-//                updateMessage("process ${syncGroup.id}")
-//                syncGroup.commands.forEach {
-//                    runLater {
-//                        ActionEvent.synced(syncGroup.id, it.command, SyncGroup.Status.Failed).fire()
-//                    }
-//                }
-//            }
         } success {
             ActionEvent.syncDone().fire()
         } fail {
+            it.printStackTrace()
             ActionEvent.syncDone().fire()
         }
     }

@@ -58,7 +58,7 @@ class StartView : View("PhotoSync") {
                     taskList.stopScan(event.action.id)
                 }
                 is ActionEvent.Action.Sync -> {
-                    taskList.startSync(event.action.data)
+                    taskList.startSync(event.action.data, event.action.enableCopyBack, event.action.enableRemove)
                 }
             }
         }

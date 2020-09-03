@@ -7,6 +7,7 @@ data class SyncGroup(
         val id: SyncGroupID = SyncGroupID(),
         val commands: List<SyncEntry>
 ) {
+    fun isEmpty() = commands.isEmpty()
 
     enum class Status {
         NotExcuted,

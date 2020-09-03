@@ -15,6 +15,8 @@ data class SyncList(
         val end: LocalDateTime
 ) {
 
+    fun isEmpty() = groups.all { it.isEmpty() }
+
     companion object {
         fun map(
                 srcPath: Path,

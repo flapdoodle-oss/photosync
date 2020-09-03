@@ -16,7 +16,7 @@ data class ActionEvent(val action: Action) : FXEvent() {
         fun scanAborted(id: UUID) = ActionEvent(Action.ScanAborted(id))
         fun scanFinished(id: UUID, data: SyncList) = ActionEvent(Action.ScanFinished(id, data))
 
-        fun sync(data: SyncList) = ActionEvent(Action.Sync(data))
+        fun sync(data: SyncList, enableCopyBack: Boolean = false, enableRemove: Boolean = false) = ActionEvent(Action.Sync(data, enableCopyBack, enableRemove))
         fun synced(id: SyncGroupID, command: SyncCommand, status: SyncGroup.Status) = ActionEvent(Action.Synced(id, command, status))
         fun syncDone() = ActionEvent(Action.SyncDone)
     }
@@ -29,8 +29,13 @@ data class ActionEvent(val action: Action) : FXEvent() {
         data class ScanAborted(val id: UUID) : Action()
         data class ScanFinished(val id: UUID, val data: SyncList) : Action()
 
-        data class Sync(val data: SyncList): Action()
-        data class Synced(val id: SyncGroupID, val command: SyncCommand, val status: SyncGroup.Status): Action()
-        object SyncDone: Action()
+        data class Sync(
+                val data: SyncList,
+                val enableCopyBack: Boolean = false,
+                val enableRemove: Boolean = false
+        ) : Action()
+
+        data class Synced(val id: SyncGroupID, val command: SyncCommand, val status: SyncGroup.Status) : Action()
+        object SyncDone : Action()
     }
 }
