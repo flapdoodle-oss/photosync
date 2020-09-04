@@ -2,6 +2,8 @@ package de.flapdoodle.photosync.ui
 
 import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.extensions.subscribeEvent
+import de.flapdoodle.fx.layout.weightflex.WeightFlexPaneSampler
+import de.flapdoodle.fx.layout.weightgrid.WeightGridPaneSampler
 import de.flapdoodle.fx.lazy.ChangeableValue
 import de.flapdoodle.photosync.ui.config.SyncConfig
 import de.flapdoodle.photosync.ui.events.ActionEvent
@@ -121,7 +123,19 @@ class StartView : View("PhotoSync") {
         center = SyncConfigView(currentConfig).root
 
         bottom {
-            this += taskList
+            hbox {
+                this += taskList
+                button("wgrid") {
+                    action {
+                        WeightGridPaneSampler.open()
+                    }
+                }
+                button("wflex") {
+                    action {
+                        WeightFlexPaneSampler.open()
+                    }
+                }
+            }
         }
 
     }

@@ -67,6 +67,17 @@ fun Node.widthLimits(): Pair<Double, Double> {
   }
 }
 
+fun Node.widthDimensions(): Triple<Double, Double, Double> {
+  val minW = this.minWidth(-1.0)
+  val pref = this.prefWidth(-1.0)
+  return if (isResizable) {
+    val maxW = maxWidth(-1.0)
+    Triple(minW, if (maxW>0.0) maxW else Double.MAX_VALUE, pref)
+  } else {
+    Triple(minW, minW, pref)
+  }
+}
+
 fun Node.heightLimits(): Pair<Double, Double> {
   val minH = minHeight(-1.0)
   return if (isResizable) {
@@ -74,6 +85,17 @@ fun Node.heightLimits(): Pair<Double, Double> {
     Pair(minH, if (maxH>0.0) maxH else Double.MAX_VALUE)
   } else {
     Pair(minH, minH)
+  }
+}
+
+fun Node.heightDimensions(): Triple<Double, Double, Double> {
+  val minH = minHeight(-1.0)
+  val prefH = prefHeight(-1.0)
+  return if (isResizable) {
+    val maxH = maxHeight(-1.0)
+    Triple(minH, if (maxH>0.0) maxH else Double.MAX_VALUE, prefH)
+  } else {
+    Triple(minH, minH, prefH)
   }
 }
 
