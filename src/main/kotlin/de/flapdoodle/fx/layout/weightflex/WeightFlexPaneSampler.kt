@@ -5,6 +5,30 @@ import tornadofx.*
 
 class WeightFlexPaneSampler : View("Weighted Grid Pane") {
   override val root = borderpane {
+    top {
+      this += WeightFlexPane().apply {
+        setColumnWeight(0, 1.0)
+        setColumnWeight(1, 4.0)
+        setColumnWeight(2, 1.0)
+
+        label("label") {
+          WeightFlexPane.setPosition(this, 0, 1)
+        }
+        textfield("text") {
+          WeightFlexPane.setPosition(this, 1, 1)
+        }
+        button("change") {
+          WeightFlexPane.setPosition(this, 2, 1)
+          action {
+            println("v=${horizontalSpaceProperty().value}")
+            horizontalSpaceProperty().value = 10.0
+          }
+        }
+        label("... all ...") {
+          WeightFlexPane.setPosition(this, Area.of(Range.of(0,2), Range.of(0)), horizontalPosition = HPos.CENTER)
+        }
+      }
+    }
     center {
 //      style {
 //        borderWidth += box(1.0.px)

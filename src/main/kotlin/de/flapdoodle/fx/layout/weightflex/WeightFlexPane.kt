@@ -37,13 +37,24 @@ class WeightFlexPane : Control() {
 
   companion object {
     fun setPosition(
-        node: Node,
-        column: Int,
-        row: Int,
-        horizontalPosition: HPos? = null,
-        verticalPosition: VPos? = null
+            node: Node,
+            column: Int,
+            row: Int,
+            horizontalPosition: HPos? = null,
+            verticalPosition: VPos? = null
     ) {
       node.constraint[Area::class] = Area.of(column, row)
+      node.constraint[HPos::class] = horizontalPosition
+      node.constraint[VPos::class] = verticalPosition
+    }
+
+    fun setPosition(
+            node: Node,
+            pos: Area,
+            horizontalPosition: HPos? = null,
+            verticalPosition: VPos? = null
+    ) {
+      node.constraint[Area::class] = pos
       node.constraint[HPos::class] = horizontalPosition
       node.constraint[VPos::class] = verticalPosition
     }
