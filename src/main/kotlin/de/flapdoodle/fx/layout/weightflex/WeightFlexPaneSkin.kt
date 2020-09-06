@@ -92,6 +92,16 @@ class WeightFlexPaneSkin(
         return ret + topInset + bottomInset
     }
 
+    override fun computeMaxWidth(height: Double, topInset: Double, rightInset: Double, bottomInset: Double, leftInset: Double): Double {
+        val width = columnSizes().sumWithSpaceBetween(horizontalSpace()) { it.max }
+        return width + leftInset + rightInset
+    }
+
+    override fun computeMaxHeight(width: Double, topInset: Double, rightInset: Double, bottomInset: Double, leftInset: Double): Double {
+        val ret = rowSizes().sumWithSpaceBetween(verticalSpace()) { it.max }
+        return ret + topInset + bottomInset
+    }
+
     override fun computePrefWidth(height: Double, topInset: Double, rightInset: Double, bottomInset: Double, leftInset: Double): Double {
         val ret = columnSizes().sumWithSpaceBetween(horizontalSpace()) { it.prefered }
 //    val ret = flexMap.mapColumns { _, list ->
@@ -109,7 +119,7 @@ class WeightFlexPaneSkin(
     }
 
     override fun layoutChildren(contentX: Double, contentY: Double, contentWidth: Double, contentHeight: Double) {
-        println("-------------------------")
+//        println("-------------------------")
 
 //      println("hspace: ${horizontalSpace.value}")
         val columnSizes = columnSizes()
@@ -118,19 +128,19 @@ class WeightFlexPaneSkin(
         val hSpaces = if (columnSizes.isEmpty()) 0.0 else (columnSizes.size - 1) * horizontalSpace()
         val vSpaces = if (rowSizes.isEmpty()) 0.0 else (rowSizes.size - 1) * verticalSpace()
 
-        println("columns")
-        columnSizes.forEach { println(it) }
-        println("rows")
-        rowSizes.forEach { println(it) }
+//        println("columns")
+//        columnSizes.forEach { println(it) }
+//        println("rows")
+//        rowSizes.forEach { println(it) }
 
         val colWidths = WeightedSizeCalculator.distribute(contentWidth - hSpaces, columnSizes)
         val rowHeights = WeightedSizeCalculator.distribute(contentHeight - vSpaces, rowSizes)
 
-        println("widths: $colWidths")
-        println("heights: $rowHeights")
-        println("-------------------------")
+//        println("widths: $colWidths")
+//        println("heights: $rowHeights")
+//        println("-------------------------")
 
-        println("container ($contentX x $contentY -> $contentWidth, $contentHeight)")
+//        println("container ($contentX x $contentY -> $contentWidth, $contentHeight)")
         flexMap.forEach { node, area ->
             val c_idx = area.column.start
             val r_idx = area.row.start
@@ -146,9 +156,9 @@ class WeightFlexPaneSkin(
                 val hPos = node.constraint[HPos::class] ?: HPos.CENTER
                 val vPos = node.constraint[VPos::class] ?: VPos.CENTER
 
-                println("-----")
-                println("node: $node -> $area")
-                println("($areaX x $areaY -> $areaW, $areaH)")
+//                println("-----")
+//                println("node: $node -> $area")
+//                println("($areaX x $areaY -> $areaW, $areaH)")
                 layoutInArea(node, areaX, areaY, areaW, areaH, -1.0, hPos, vPos)
             }
         }
