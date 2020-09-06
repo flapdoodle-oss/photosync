@@ -21,7 +21,7 @@ class SyncModalView : View("Sync") {
 
     private val timeUsedInSeconds = result.map { it.map { "Scanned in ${Duration.between(it.start, it.end).toSeconds()}s" }.orElse("") }
 
-    private val syncCommandGroups = result.map { it.map { it.groups.filter { it.commands.isNotEmpty() } }.orElse(emptyList()) }
+    private val syncCommandGroups: LazyValue<List<SyncGroup>> = result.map { it.map { it.groups.filter { it.commands.isNotEmpty() } }.orElse(emptyList()) }
 
     override val root = borderpane {
         top {
@@ -65,6 +65,7 @@ class SyncModalView : View("Sync") {
                 vbox {
                     children.bindFromFactory(syncCommandGroups, SyncGroup::id, SyncGroupFactory())
                 }
+//                this += SyncGroupCommandsFactory.render(syncCommandGroups)
             }
         }
     }
