@@ -34,33 +34,33 @@ object WeightedSizeCalculator {
         var spaceUsedInMin = 0.0
 
         do {
-        val limitReachedCount = sizedItems.limitReachedCount()
+            val limitReachedCount = sizedItems.limitReachedCount()
 
-        val spaceToGrow = space - spaceUsedInMax - spaceUsedInMin
+            val spaceToGrow = space - spaceUsedInMax - spaceUsedInMin
 
             var sumOfWeights = sizedItems.sumOfWeights()
-        sizedItems.values
-                .filter { !it.limitReached() }
-                .forEach {
-                    val spaceNeeded = spaceToGrow * it.src.weight / sumOfWeights
-                    if (it.src.max <= spaceNeeded) {
-                        it.setSize(it.src.max, true)
-                        spaceUsedInMax = spaceUsedInMax + it.src.max
+            sizedItems.values
+                    .filter { !it.limitReached() }
+                    .forEach {
+                        val spaceNeeded = spaceToGrow * it.src.weight / sumOfWeights
+                        if (it.src.max <= spaceNeeded) {
+                            it.setSize(it.src.max, true)
+                            spaceUsedInMax = spaceUsedInMax + it.src.max
+                        }
                     }
-                }
 
-        val spaceToShrink = space - spaceUsedInMax - spaceUsedInMin
+            val spaceToShrink = space - spaceUsedInMax - spaceUsedInMin
             sumOfWeights = sizedItems.sumOfWeights()
 
-        sizedItems.values
-                .filter { !it.limitReached() }
-                .forEach {
-                    val spaceNeeded = spaceToShrink * it.src.weight / sumOfWeights
-                    if (it.src.min >= spaceNeeded) {
-                        it.setSize(it.src.min, true)
-                        spaceUsedInMin = spaceUsedInMin + it.src.min
+            sizedItems.values
+                    .filter { !it.limitReached() }
+                    .forEach {
+                        val spaceNeeded = spaceToShrink * it.src.weight / sumOfWeights
+                        if (it.src.min >= spaceNeeded) {
+                            it.setSize(it.src.min, true)
+                            spaceUsedInMin = spaceUsedInMin + it.src.min
+                        }
                     }
-                }
 
             var spaceUsed = 0.0
 
@@ -76,9 +76,8 @@ object WeightedSizeCalculator {
                     }
 
 
-
             val spaceLeft = space - spaceUsedInMax - spaceUsedInMin - spaceUsed
-        val limitReachedCountAfter = sizedItems.limitReachedCount()
+            val limitReachedCountAfter = sizedItems.limitReachedCount()
 
         } while ((spaceLeft > 0.0) && (limitReachedCount != limitReachedCountAfter))
 

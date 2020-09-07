@@ -20,6 +20,9 @@ data class FlexMap<T : Any>(
 
             val positionLimits = map.entries.flatMap { entry ->
                 val limits = limitsOf(entry.key)
+//                println("-limits---")
+//                println(""+entry.key+" -> "+limits)
+//                println("----------")
 
                 val weightMap = entry.value
                         .map { it -> it to (weights[it] ?: Weight(0.0)) }
@@ -28,7 +31,7 @@ data class FlexMap<T : Any>(
                         .foldRight(Weight(0.0), { a, b -> a + b })
 
                 weightMap.map { (column, weight) ->
-                    val factor = weight.partOf(weightSum)
+                    val factor = if (weightSum.value>0.0) weight.partOf(weightSum) else 1.0
                     column to Dimension(limits.first * factor, limits.second * factor, limits.third * factor)
                 }
             }

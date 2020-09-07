@@ -62,10 +62,12 @@ class SyncModalView : View("Sync") {
         }
         center {
             scrollpane {
-                vbox {
-                    children.bindFromFactory(syncCommandGroups, SyncGroup::id, SyncGroupFactory())
+                if (false) {
+                    vbox {
+                        children.bindFromFactory(syncCommandGroups, SyncGroup::id, SyncGroupFactory())
+                    }
                 }
-//                this += SyncGroupCommandsFactory.render(syncCommandGroups)
+                this += SyncGroupCommandsFactory.render(syncCommandGroups)
             }
         }
     }

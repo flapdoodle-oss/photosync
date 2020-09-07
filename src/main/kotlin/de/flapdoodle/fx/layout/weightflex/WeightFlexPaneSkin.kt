@@ -118,29 +118,32 @@ class WeightFlexPaneSkin(
         return ret + topInset + bottomInset
     }
 
-    override fun layoutChildren(contentX: Double, contentY: Double, contentWidth: Double, contentHeight: Double) {
-//        println("-------------------------")
+    val debug = false
 
-//      println("hspace: ${horizontalSpace.value}")
+    override fun layoutChildren(contentX: Double, contentY: Double, contentWidth: Double, contentHeight: Double) {
+        if (debug) println("-------------------------")
+
+        if (debug) println("hspace: ${horizontalSpace()}")
+
         val columnSizes = columnSizes()
         val rowSizes = rowSizes()
 
         val hSpaces = if (columnSizes.isEmpty()) 0.0 else (columnSizes.size - 1) * horizontalSpace()
         val vSpaces = if (rowSizes.isEmpty()) 0.0 else (rowSizes.size - 1) * verticalSpace()
 
-//        println("columns")
-//        columnSizes.forEach { println(it) }
-//        println("rows")
-//        rowSizes.forEach { println(it) }
+        if (debug) println("columns")
+        if (debug) columnSizes.forEach { println(it) }
+        if (debug) println("rows")
+        if (debug) rowSizes.forEach { println(it) }
 
         val colWidths = WeightedSizeCalculator.distribute(contentWidth - hSpaces, columnSizes)
         val rowHeights = WeightedSizeCalculator.distribute(contentHeight - vSpaces, rowSizes)
 
-//        println("widths: $colWidths")
-//        println("heights: $rowHeights")
-//        println("-------------------------")
+        if (debug) println("widths: $colWidths")
+        if (debug) println("heights: $rowHeights")
+        if (debug) println("-------------------------")
 
-//        println("container ($contentX x $contentY -> $contentWidth, $contentHeight)")
+        if (debug) println("container ($contentX x $contentY -> $contentWidth, $contentHeight)")
         flexMap.forEach { node, area ->
             val c_idx = area.column.start
             val r_idx = area.row.start
@@ -156,9 +159,9 @@ class WeightFlexPaneSkin(
                 val hPos = node.constraint[HPos::class] ?: HPos.CENTER
                 val vPos = node.constraint[VPos::class] ?: VPos.CENTER
 
-//                println("-----")
-//                println("node: $node -> $area")
-//                println("($areaX x $areaY -> $areaW, $areaH)")
+                if (debug) println("-----")
+                if (debug) println("node: $node -> $area")
+                if (debug) println("($areaX x $areaY -> $areaW, $areaH)")
                 layoutInArea(node, areaX, areaY, areaW, areaH, -1.0, hPos, vPos)
             }
         }

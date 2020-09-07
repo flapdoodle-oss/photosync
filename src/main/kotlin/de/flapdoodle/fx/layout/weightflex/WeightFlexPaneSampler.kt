@@ -1,40 +1,53 @@
 package de.flapdoodle.fx.layout.weightflex
 
+import de.flapdoodle.fx.lazy.ChangeableValue
+import de.flapdoodle.photosync.sync.SyncCommand
+import de.flapdoodle.photosync.ui.sync.SyncGroup
+import de.flapdoodle.photosync.ui.sync.SyncGroupCommandsFactory
 import javafx.geometry.HPos
 import tornadofx.*
+import java.nio.file.Path
 
 class WeightFlexPaneSampler : View("Weighted Grid Pane") {
   override val root = borderpane {
     top {
-      this += WeightFlexPane().apply {
-        setColumnWeight(0, 1.0)
-        setColumnWeight(1, 4.0)
-        setColumnWeight(2, 1.0)
+      if (false) {
+        this += WeightFlexPane().apply {
+          setColumnWeight(0, 1.0)
+          setColumnWeight(1, 4.0)
+          setColumnWeight(2, 1.0)
 
-        label("label") {
-          WeightFlexPane.setPosition(this, 0, 1)
-        }
-        textfield("text") {
-          WeightFlexPane.setPosition(this, 1, 1)
-        }
-        button("change") {
-          WeightFlexPane.setPosition(this, 2, 1)
-          action {
-            println("v=${horizontalSpaceProperty().value}")
-            horizontalSpaceProperty().value = 10.0
+          label("label") {
+            WeightFlexPane.setPosition(this, 0, 1)
+          }
+          textfield("text") {
+            WeightFlexPane.setPosition(this, 1, 1)
+          }
+          button("change") {
+            WeightFlexPane.setPosition(this, 2, 1)
+            action {
+              println("v=${horizontalSpaceProperty().value}")
+              horizontalSpaceProperty().value = 10.0
+            }
+          }
+          label("... all ...") {
+            WeightFlexPane.setPosition(this, Area.of(Range.of(0, 2), Range.of(0)), horizontalPosition = HPos.CENTER)
           }
         }
-        label("... all ...") {
-          WeightFlexPane.setPosition(this, Area.of(Range.of(0,2), Range.of(0)), horizontalPosition = HPos.CENTER)
-        }
       }
+
+      val sample: List<SyncGroup> = listOf(SyncGroup(commands = listOf(
+              SyncGroup.SyncEntry(SyncCommand.Copy(Path.of("src"), Path.of("dst")),SyncGroup.Status.NotExcuted),
+              SyncGroup.SyncEntry(SyncCommand.Copy(Path.of("a"), Path.of("b")),SyncGroup.Status.Failed)
+      )))
+      this += SyncGroupCommandsFactory.render(ChangeableValue(sample))
     }
     center {
 //      style {
 //        borderWidth += box(1.0.px)
 //        borderColor += box(Color.RED)
 //      }
-      if (true) {
+      if (false) {
         this += WeightFlexPane().apply {
           stylesheet {
             WeightFlexPaneStyle.clazz {
@@ -62,7 +75,7 @@ class WeightFlexPaneSampler : View("Weighted Grid Pane") {
         }
       }
     }
-    if (true) {
+    if (false) {
       bottom {
         this += WeightFlexPane().apply {
           setColumnWeight(0, 1.0)

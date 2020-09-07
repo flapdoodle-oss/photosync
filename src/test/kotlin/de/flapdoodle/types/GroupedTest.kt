@@ -32,9 +32,9 @@ internal class GroupedTest : WithAssertions {
 
         assertThat(result).size().isEqualTo(5)
         assertThat(result[0]).isEqualTo(Grouped.Parent<SyncGroup,SyncGroup.SyncEntry>(firstGroup))
-        assertThat(result[1]).isEqualTo(Grouped.Child<SyncGroup,SyncGroup.SyncEntry>(firstGroup, first))
-        assertThat(result[2]).isEqualTo(Grouped.Child<SyncGroup,SyncGroup.SyncEntry>(firstGroup, second))
+        assertThat(result[1]).isEqualTo(Grouped.Child(firstGroup, first))
+        assertThat(result[2]).isEqualTo(Grouped.Child(firstGroup, second))
         assertThat(result[3]).isEqualTo(Grouped.Parent<SyncGroup,SyncGroup.SyncEntry>(secondGroup))
-        assertThat(result[4]).isEqualTo(Grouped.Child<SyncGroup,SyncGroup.SyncEntry>(secondGroup, third))
+        assertThat(result[4]).isEqualTo(Grouped.Child(secondGroup, third))
     }
 }

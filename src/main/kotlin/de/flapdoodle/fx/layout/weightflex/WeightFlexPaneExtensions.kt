@@ -15,6 +15,16 @@ fun <T : Node> T.withPosition(
     return this
 }
 
+fun <T : Node> T.withPosition(
+        column: Int,
+        row: Int,
+        horizontalPosition: HPos? = null,
+        verticalPosition: VPos? = null
+): T {
+    WeightFlexPane.setPosition(this, Area.of(column, row), horizontalPosition, verticalPosition)
+    return this
+}
+
 fun <T : Node> T.updateRow(row: Range) {
     WeightFlexPane.updatePosition(this) { it.copy(row = row) }
 }
