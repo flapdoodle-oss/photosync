@@ -11,7 +11,7 @@ import java.nio.file.Path
 class WeightFlexPaneSampler : View("Weighted Grid Pane") {
   override val root = borderpane {
     top {
-      if (false) {
+      if (true) {
         this += WeightFlexPane().apply {
           setColumnWeight(0, 1.0)
           setColumnWeight(1, 4.0)
@@ -47,7 +47,7 @@ class WeightFlexPaneSampler : View("Weighted Grid Pane") {
 //        borderWidth += box(1.0.px)
 //        borderColor += box(Color.RED)
 //      }
-      if (false) {
+      if (true) {
         this += WeightFlexPane().apply {
           stylesheet {
             WeightFlexPaneStyle.clazz {
@@ -75,7 +75,7 @@ class WeightFlexPaneSampler : View("Weighted Grid Pane") {
         }
       }
     }
-    if (false) {
+    if (true) {
       bottom {
         this += WeightFlexPane().apply {
           setColumnWeight(0, 1.0)

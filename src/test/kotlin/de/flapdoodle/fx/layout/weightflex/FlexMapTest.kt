@@ -59,9 +59,9 @@ internal class FlexMapTest : WithAssertions {
         val columnSizes = testee.columnSizes(columnWeight, limitsOf)
 
         assertThat(columnSizes).size().isEqualTo(3)
-        assertThat(columnSizes[0]).isEqualTo(WeightedDimension(2.0, 0.6, 1.9, 1.25))
-        assertThat(columnSizes[1]).isEqualTo(WeightedDimension(2.0, 0.6, 1.9, 1.25))
-        assertThat(columnSizes[2]).isEqualTo(WeightedDimension(1.0, 1.0, 2.0, 2.0))
+        assertThat(columnSizes[0]).isEqualTo(WeightedDimension(2.0, 0.6, 2.0, 1.25))
+        assertThat(columnSizes[1]).isEqualTo(WeightedDimension(2.0, 0.6, 2.0, 1.25))
+        assertThat(columnSizes[2]).isEqualTo(WeightedDimension(1.0, 1.0, 3.0, 2.0))
 
         val rowWeight = { it: Int ->
             when (it) {
@@ -80,8 +80,8 @@ internal class FlexMapTest : WithAssertions {
         val rowSizes = testee.rowSizes(rowWeight, rowLimitsOf)
 
         assertThat(rowSizes).size().isEqualTo(2)
-        assertThat(rowSizes[0]).isEqualTo(WeightedDimension(1.0, 1.0, 1.0, 1.0))
-        assertThat(rowSizes[1]).isEqualTo(WeightedDimension(2.0, 2.0, 2.0, 2.0))
+        assertThat(rowSizes[0]).isEqualTo(WeightedDimension(1.0, 1.0, 3.0, 2.0))
+        assertThat(rowSizes[1]).isEqualTo(WeightedDimension(2.0, 2.0, 4.0, 2.0))
     }
 
     /**

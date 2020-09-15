@@ -1,6 +1,5 @@
 package de.flapdoodle.fx.layout.weightflex
 
-import de.flapdoodle.fx.layout.WeightedSize
 import de.flapdoodle.photosync.associateByNotNull
 
 data class FlexMap<T : Any>(
@@ -31,7 +30,7 @@ data class FlexMap<T : Any>(
                         .foldRight(Weight(0.0), { a, b -> a + b })
 
                 weightMap.map { (column, weight) ->
-                    val factor = if (weightSum.value>0.0) weight.partOf(weightSum) else 1.0
+                    val factor = if (weightSum.value>0.0) weight.partOf(weightSum) else (1.0/weightMap.size)
                     column to Dimension(limits.first * factor, limits.second * factor, limits.third * factor)
                 }
             }
