@@ -153,7 +153,7 @@ class StartView : View("PhotoSync") {
         return FileChooser().apply {
             extensionFilters.addAll(
                     FileChooser.ExtensionFilter("All Files", "*.*"),
-                    FileChooser.ExtensionFilter("Tab File", "*.psync")
+                    FileChooser.ExtensionFilter("PhotoSync File", "*.psync")
             )
         }
     }
