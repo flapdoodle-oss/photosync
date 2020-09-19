@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.4.0</kotlin.version>
+        <kotlin.version>1.4.10</kotlin.version>
         <junit.version>4.12</junit.version>
         <java.version>11</java.version>
         <main.class>kotlin.KotlinHelloKt</main.class>
