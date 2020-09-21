@@ -68,7 +68,7 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                 useMaxWidth = true
             }
 
-            button("New") {
+            button("+") {
                 withPosition(ACTION_COLUMN, 0, horizontalPosition = HPos.CENTER)
                     minWidth = Region.USE_PREF_SIZE
                     action {
@@ -98,7 +98,7 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                     useMaxWidth = true
                 }.withPosition(DST_COLUMN, index, horizontalPosition = HPos.LEFT)
 
-        private val delete = Button("delete")
+        private val delete = Button("❌")
                 .apply {
                     minWidth = Region.USE_PREF_SIZE
                     action {
@@ -106,7 +106,7 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                     }
                 }.withPosition(ACTION_COLUMN, index)
 
-        private val edit = Button("change")
+        private val edit = Button("✎")
                 .apply {
                     minWidth = Region.USE_PREF_SIZE
                     action {
