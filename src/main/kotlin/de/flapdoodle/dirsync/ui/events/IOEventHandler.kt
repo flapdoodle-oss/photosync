@@ -31,7 +31,7 @@ class IOEventHandler(
             IOEvent.Action.Save -> {
                 val fileChooser = fileChooser()
                 fileChooser.title = "Save File"
-                fileChooser.initialFileName = "sample.psync"
+                fileChooser.initialFileName = "sample.dsync"
                 val file = fileChooser.showSaveDialog(currentStage())
                 println("write to $file")
                 if (file != null) {

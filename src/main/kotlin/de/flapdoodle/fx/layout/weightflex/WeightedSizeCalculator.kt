@@ -64,11 +64,13 @@ object WeightedSizeCalculator {
 
             var spaceUsed = 0.0
 
+            val spaceToResize = space - spaceUsedInMax - spaceUsedInMin
             sumOfWeights = sizedItems.sumOfWeights()
+            
             sizedItems.values
                     .filter { !it.limitReached() }
                     .forEach {
-                        val spaceNeeded = spaceToShrink * it.src.weight / sumOfWeights
+                        val spaceNeeded = spaceToResize * it.src.weight / sumOfWeights
                         if (it.src.min <= spaceNeeded && it.src.max >= spaceNeeded) {
                             it.setSize(spaceNeeded)
                             spaceUsed = spaceUsed + spaceNeeded

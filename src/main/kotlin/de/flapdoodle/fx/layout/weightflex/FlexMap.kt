@@ -9,6 +9,8 @@ data class FlexMap<T : Any>(
     private val rowSet = map.values.flatMap { it.rows() }.toSet().sorted()
 
     companion object {
+        val debug = false
+
         private fun <T : Any> sizes(
                 map: Map<T, List<Int>>,
                 positionSet: List<Int>,
@@ -17,6 +19,9 @@ data class FlexMap<T : Any>(
         ): Map<Int, WeightedDimension> {
             val weights = positionSet.associateByNotNull(weightOf)
 
+            if (debug) println("------------------")
+            if (debug) println(map)
+            if (debug) println("------------------")
             val positionLimits = map.entries.flatMap { entry ->
                 val limits = limitsOf(entry.key)
 //                println("-limits---")
@@ -36,10 +41,13 @@ data class FlexMap<T : Any>(
             }
                     .groupBy({ it.first }) { it.second }
                     .mapValues { entry ->
-                        entry.value
+                        if (debug) println("-> ${entry.key}:${entry.value}")
+                        val result = entry.value
                                 .foldRight(Dimension(0.0, 0.0, 0.0), { a, b ->
                                     mergeLimits(a, b)
                                 })
+                        if (debug) println("--> ${result}")
+                        result
                     }
 
             return positionSet.associateByNotNull {
