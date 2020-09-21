@@ -10,8 +10,8 @@ data class ModelEvent(
 ) : FXEvent() {
 
     companion object {
-        fun addConfig(entry: SyncEntry): ModelEvent {
-            return EventData.AddConfig(entry).asEvent()
+        fun addOrChangeConfig(entry: SyncEntry): ModelEvent {
+            return EventData.AddOrChangeConfig(entry).asEvent()
         }
 
         fun deleteConfig(id: UUID): ModelEvent {
@@ -26,11 +26,11 @@ data class ModelEvent(
 
         abstract fun applyTo(model: SyncConfig): SyncConfig
 
-        data class AddConfig(
+        data class AddOrChangeConfig(
                 val config: SyncEntry
         ) : EventData() {
             override fun applyTo(model: SyncConfig): SyncConfig {
-                return model.copy(entries = model.entries + config)
+                return model.copy(entries = model.entries.filter { it.id == config.id } + config)
             }
         }
 

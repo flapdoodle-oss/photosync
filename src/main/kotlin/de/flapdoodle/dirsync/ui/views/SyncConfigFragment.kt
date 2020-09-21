@@ -106,8 +106,16 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                     }
                 }.withPosition(ACTION_COLUMN, index)
 
+        private val edit = Button("change")
+                .apply {
+                    minWidth = Region.USE_PREF_SIZE
+                    action {
+                        AddSyncConfigView.openModal(entry)
+                    }
+                }.withPosition(SYNC_COLUMN, index)
+
         override fun nodes(): List<Node> {
-            return listOf(source, dst, delete)
+            return listOf(source, dst, delete, edit)
         }
 
         fun update(index: Int, source: SyncEntry): Container {
