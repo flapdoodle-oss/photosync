@@ -1,8 +1,10 @@
 package de.flapdoodle.dirsync.ui.views
 
 import de.flapdoodle.dirsync.ui.config.SyncConfig
+import de.flapdoodle.dirsync.ui.events.ActionEventHandler
 import de.flapdoodle.dirsync.ui.events.IOEventHandler
 import de.flapdoodle.dirsync.ui.events.ModelEventHandler
+import de.flapdoodle.dirsync.ui.tasks.Tasks
 import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.extensions.subscribeEvent
 import de.flapdoodle.fx.lazy.ChangeableValue
@@ -12,6 +14,7 @@ import tornadofx.*
 
 class StartView : View("DirSync") {
     private val currentConfig = ChangeableValue(SyncConfig())
+    private val tasks = Tasks()
 
     init {
         primaryStage.width = 1024.0
@@ -21,6 +24,7 @@ class StartView : View("DirSync") {
     override val root = borderpane {
         subscribeEvent(IOEventHandler({ currentStage }, currentConfig).instance())
         subscribeEvent(ModelEventHandler(currentConfig).instance())
+        subscribeEvent(ActionEventHandler(tasks).instance())
         
         top {
             menubar {
@@ -49,6 +53,9 @@ class StartView : View("DirSync") {
         }
         center {
             this+= SyncConfigFragment(currentConfig)
+        }
+        bottom {
+            this+= TaskListFragment(tasks.list())
         }
     }
 }

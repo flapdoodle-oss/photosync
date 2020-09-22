@@ -2,10 +2,12 @@ package de.flapdoodle.dirsync.ui.views
 
 import de.flapdoodle.dirsync.ui.config.SyncConfig
 import de.flapdoodle.dirsync.ui.config.SyncEntry
+import de.flapdoodle.dirsync.ui.events.ActionEvent
 import de.flapdoodle.dirsync.ui.events.ModelEvent
 import de.flapdoodle.fx.extensions.LazyNodeContainer
 import de.flapdoodle.fx.extensions.LazyNodeFactory
 import de.flapdoodle.fx.extensions.bindFromFactory
+import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.layout.weightflex.Range
 import de.flapdoodle.fx.layout.weightflex.WeightFlexPane
 import de.flapdoodle.fx.layout.weightflex.updateRow
@@ -29,7 +31,8 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
         const val SOURCE_COLUMN = 0
         const val DST_COLUMN = 1
         const val ACTION_COLUMN = 2
-        const val SYNC_COLUMN = 3
+        const val CONFIG_COLUMN = 3
+        const val SYNC_COLUMN = 4
     }
 
     override val root = vbox {
@@ -40,6 +43,7 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
             setColumnWeight(SOURCE_COLUMN, 10.0)
             setColumnWeight(DST_COLUMN, 10.0)
             setColumnWeight(ACTION_COLUMN, 1.0)
+            setColumnWeight(CONFIG_COLUMN, 1.0)
             setColumnWeight(SYNC_COLUMN, 1.0)
 
             style {
@@ -63,18 +67,22 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                 withPosition(DST_COLUMN, 0)
                 useMaxWidth = true
             }
+            button("+") {
+                withPosition(ACTION_COLUMN, 0, horizontalPosition = HPos.CENTER)
+                minWidth = Region.USE_PREF_SIZE
+                action {
+                    AddSyncConfigView.openModal()
+                }
+            }
+            label {
+                withPosition(CONFIG_COLUMN, 0)
+                useMaxWidth = true
+            }
             label {
                 withPosition(SYNC_COLUMN, 0)
                 useMaxWidth = true
             }
 
-            button("+") {
-                withPosition(ACTION_COLUMN, 0, horizontalPosition = HPos.CENTER)
-                    minWidth = Region.USE_PREF_SIZE
-                    action {
-                        AddSyncConfigView.openModal()
-                    }
-            }
 
             children.bindFromFactory(entries, SyncEntry::id, Factory(1))
         }
@@ -112,10 +120,19 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                     action {
                         AddSyncConfigView.openModal(entry)
                     }
+                }.withPosition(CONFIG_COLUMN, index)
+
+        private val sync = Button("⇔")
+                .apply {
+                    minWidth = Region.USE_PREF_SIZE
+                    action {
+                        ActionEvent.startScan(entry.id).fire()
+                        isDisable = true
+                    }
                 }.withPosition(SYNC_COLUMN, index)
 
         override fun nodes(): List<Node> {
-            return listOf(source, dst, delete, edit)
+            return listOf(source, dst, delete, edit, sync)
         }
 
         fun update(index: Int, source: SyncEntry): Container {
