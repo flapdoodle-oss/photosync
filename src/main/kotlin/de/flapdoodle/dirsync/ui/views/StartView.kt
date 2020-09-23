@@ -24,7 +24,7 @@ class StartView : View("DirSync") {
     override val root = borderpane {
         subscribeEvent(IOEventHandler({ currentStage }, currentConfig).instance())
         subscribeEvent(ModelEventHandler(currentConfig).instance())
-        subscribeEvent(ActionEventHandler(tasks).instance())
+        subscribeEvent(ActionEventHandler(tasks, currentConfig).instance())
         
         top {
             menubar {
