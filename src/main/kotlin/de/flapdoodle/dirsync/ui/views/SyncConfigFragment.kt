@@ -4,10 +4,7 @@ import de.flapdoodle.dirsync.ui.config.SyncConfig
 import de.flapdoodle.dirsync.ui.config.SyncEntry
 import de.flapdoodle.dirsync.ui.events.ActionEvent
 import de.flapdoodle.dirsync.ui.events.ModelEvent
-import de.flapdoodle.fx.extensions.LazyNodeContainer
-import de.flapdoodle.fx.extensions.LazyNodeFactory
-import de.flapdoodle.fx.extensions.bindFromFactory
-import de.flapdoodle.fx.extensions.fire
+import de.flapdoodle.fx.extensions.*
 import de.flapdoodle.fx.layout.weightflex.Range
 import de.flapdoodle.fx.layout.weightflex.WeightFlexPane
 import de.flapdoodle.fx.layout.weightflex.updateRow
@@ -128,6 +125,12 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                     action {
                         ActionEvent.startScan(entry.id).fire()
                         isDisable = true
+                    }
+                    subscribeEvent<ActionEvent> { event ->
+                        when (event.action) {
+                            is ActionEvent.Action.ScanFinished -> isDisable = false
+                            is ActionEvent.Action.ScanAborted -> isDisable = false
+                        }
                     }
                 }.withPosition(SYNC_COLUMN, index)
 

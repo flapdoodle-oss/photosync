@@ -9,8 +9,9 @@ class TreeCollectorAdapter : FileTreeCollector {
   private val root = Dir()
   private var current: Dir = root
 
-  override fun down(path: Path) {
+  override fun down(path: Path): Boolean {
     current = current.down(path)
+    return true
   }
 
   override fun up(path: Path) {

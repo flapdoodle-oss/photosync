@@ -6,8 +6,9 @@ import java.nio.file.Path
 import java.nio.file.attribute.FileTime
 
 class ProgressReportFileTreeCollector : FileTreeCollector {
-  override fun down(path: Path) {
+  override fun down(path: Path): Boolean {
     Monitor.message("down $path")
+    return true
   }
 
   override fun up(path: Path) {

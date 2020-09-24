@@ -12,11 +12,11 @@ class Tasks {
     private val runningTasks = ChangeableValue<Map<UUID, Task<out Any>>>(LinkedHashMap())
     private val tasks: LazyValue<List<Task<out Any>>> = runningTasks.mapToList { it.values.toList() }
 
-    fun <R: Any> async(
+    fun <R : Any> async(
             id: UUID,
             action: FXTask<*>.() -> R,
             onSuccess: (R) -> Unit,
-            onFail: (Throwable) -> Unit = { },
+            onFail: (Throwable) -> Unit = { it.printStackTrace() },
             onCancel: () -> Unit = { }
     ) {
         val task = runAsync {
@@ -24,14 +24,21 @@ class Tasks {
         } success {
             runningTasks.value { it - id }
             onSuccess(it)
-        } fail {
+        } fail { ex ->
             runningTasks.value { it - id }
-            onFail(it)
+            onFail(ex)
         } cancel {
             runningTasks.value { it - id }
             onCancel()
         }
         runningTasks.value { it + (id to task) }
+    }
+
+    fun stop(id: UUID) {
+        runningTasks.value { map ->
+            map.get(id)?.cancel()
+            map - id
+        }
     }
 
     fun list() = tasks

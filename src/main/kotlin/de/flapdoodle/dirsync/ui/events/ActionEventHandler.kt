@@ -29,18 +29,10 @@ class ActionEventHandler(
 
                     ActionEvent.scanFinished(event.action.id)
                 }
-//
-//                tasks.async(event.action.id, {
-//                    Thread.sleep(1000)
-//                    this.updateMessage("One")
-//                    Thread.sleep(1000)
-//                    this.updateMessage("Two")
-//                    Thread.sleep(1000)
-//                    this.updateMessage("3")
-//                    "works"
-//                }, onSuccess = { result ->
-//                    ActionEvent.scanFinished(event.action.id).fire()
-//                });
+            }
+            is ActionEvent.Action.StopScan -> {
+                println("stop scap called")
+                tasks.stop(event.action.id)
             }
         }
     }
@@ -50,9 +42,13 @@ class ActionEventHandler(
         val srcPath = Paths.get(config.src)
         val dstPath = Paths.get(config.dst)
         val filter: (Path) -> Boolean =
-                if (config.excludes.isEmpty())
-                    { it -> true }
-                else
+                if (config.excludes.isNotEmpty()) {
+                    { path ->
+                        val asString = path.fileName.toString()
+                        val visitPath = config.excludes.none { part -> asString.contains(part) }
+                        visitPath
+                    }
+                } else
                     { it -> true }
 
         val scanner = Scanner(srcPath, dstPath, filter = filter)
@@ -64,6 +60,11 @@ class ActionEventHandler(
             )
         }, onSuccess = {
             ActionEvent.scanFinished(id).fire()
+        }, onCancel = {
+            ActionEvent.scanAborted(id).fire()
+        }, onFail = {
+            it.printStackTrace()
+            ActionEvent.scanAborted(id).fire()
         })
     }
 }

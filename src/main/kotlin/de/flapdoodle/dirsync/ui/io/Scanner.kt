@@ -18,7 +18,7 @@ import java.time.LocalDateTime
 class Scanner(
         val srcPath: Path,
         val dstPath: Path,
-        val filter: ((Path) -> Boolean)?
+        val filter: ((Path) -> Boolean) = { true }
 ) {
      init {
          val srcAsFile = srcPath.toFile()
@@ -45,14 +45,14 @@ class Scanner(
 
             val srcTree = Monitor.scope("scan files") {
                 Monitor.message(srcPath.toString())
-                tree(srcPath)
+                tree(srcPath, abort)
             }
 
             progress(1, steps)
             if (abort()) throw AbortedException()
 
             val src = Monitor.scope("scan") {
-                scan(srcTree, filter = filter)
+                scan(srcTree)
             }
 
             progress(2, steps)
@@ -60,7 +60,7 @@ class Scanner(
 
             val dstTree = Monitor.scope("scan files") {
                 Monitor.message(dstPath.toString())
-                tree(dstPath)
+                tree(dstPath, abort)
             }
 
             progress(3, steps)
@@ -68,7 +68,7 @@ class Scanner(
 
             val dst = Monitor.scope("scan") {
                 Monitor.message(dstPath.toString())
-                scan(dstTree, filter = filter)
+                scan(dstTree)
             }
 
             progress(4, steps)
@@ -114,9 +114,11 @@ class Scanner(
         return groupedByContent
     }
 
-    private fun tree(path: Path): Tree.Directory {
+    private fun tree(path: Path,abort: () -> Boolean): Tree.Directory {
         val collector = TreeCollectorAdapter()
-        Files.walkFileTree(path, FileTreeVisitorAdapter(collector.andThen(ProgressReportFileTreeCollector())))
+        Files.walkFileTree(path, FileTreeVisitorAdapter(collector.withFilter(filter)
+                .withAbort { _ -> abort() }
+                .andThen(ProgressReportFileTreeCollector())))
         return collector.asTree()
     }
 

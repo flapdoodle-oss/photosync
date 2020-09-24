@@ -13,8 +13,10 @@ class FileTreeVisitorAdapter(
 
   override fun preVisitDirectory(path: Path, attributes: BasicFileAttributes): FileVisitResult {
     require(attributes.isDirectory) { "$path is not a directory" }
-    collector.down(path)
-    return FileVisitResult.CONTINUE
+    return if (collector.down(path))
+      FileVisitResult.CONTINUE
+    else
+      FileVisitResult.SKIP_SUBTREE
   }
 
   override fun postVisitDirectory(path: Path, exception: IOException?): FileVisitResult {
