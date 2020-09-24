@@ -27,6 +27,15 @@ fun Tree.Directory.find(path: Path): Tree.Directory? {
   return null
 }
 
+fun Tree.Directory.findChild(path: Path): Tree? {
+  require(this.path != path) { "invalid search path: $path" }
+
+  return this.children.findNotNull {
+    if (it.path == path) it else null
+  }
+  return null
+}
+
 fun Tree.Directory.get(path: Path): Tree.Directory {
   return find(path) ?: throw IllegalArgumentException("could not find $path in $this")
 }

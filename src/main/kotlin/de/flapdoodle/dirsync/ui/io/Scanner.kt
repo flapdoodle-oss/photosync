@@ -34,16 +34,16 @@ class Scanner(
             reporter: Monitor.Reporter = Monitor.ConsoleReporter(),
             abort: () -> Boolean = { false },
             progress: (Int, Int) -> Unit = { _,_ -> }
-    ): Unit {
+    ): TreeDiff {
         val start = LocalDateTime.now()
 
         val hasher = QuickHash
 
         return Monitor.execute(reporter) {
-            val steps = 6
+            val steps = 3
             progress(0, steps)
 
-            val srcTree = Monitor.scope("scan files") {
+            val srcTree = Monitor.scope("scan source") {
                 Monitor.message(srcPath.toString())
                 tree(srcPath, abort)
             }
@@ -51,27 +51,31 @@ class Scanner(
             progress(1, steps)
             if (abort()) throw AbortedException()
 
-            val src = Monitor.scope("scan") {
-                scan(srcTree)
+//            val src = Monitor.scope("scan") {
+//                scan(srcTree)
+//            }
+
+//            progress(2, steps)
+//            if (abort()) throw AbortedException()
+
+            val dstTree = Monitor.scope("scan destination") {
+                Monitor.message(dstPath.toString())
+                tree(dstPath, abort)
             }
 
             progress(2, steps)
             if (abort()) throw AbortedException()
 
-            val dstTree = Monitor.scope("scan files") {
-                Monitor.message(dstPath.toString())
-                tree(dstPath, abort)
+//            val dst = Monitor.scope("scan") {
+//                Monitor.message(dstPath.toString())
+//                scan(dstTree)
+//            }
+
+            val diff = Monitor.scope("diff") {
+                TreeDiff.diff(srcTree, dstTree, HashStrategy { listOf(hasher)});
             }
 
             progress(3, steps)
-            if (abort()) throw AbortedException()
-
-            val dst = Monitor.scope("scan") {
-                Monitor.message(dstPath.toString())
-                scan(dstTree)
-            }
-
-            progress(4, steps)
             if (abort()) throw AbortedException()
 
 //            val diff = Monitor.scope("diff") {
@@ -91,6 +95,7 @@ class Scanner(
 //                    start = start,
 //                    end = end
 //            )
+            diff
         }
     }
 

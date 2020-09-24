@@ -8,7 +8,9 @@ class RunningTaskFragment(task: Task<out Any>) : Fragment() {
     override val root = hbox {
         val thisBox = this
 
-        val bar = progressbar(property = task.progressProperty())
+        val bar = progressbar(property = task.progressProperty()) {
+            minWidth = 50.0
+        }
         val button = button("stop") {
             minWidth = Region.USE_PREF_SIZE
             action {

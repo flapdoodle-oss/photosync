@@ -27,8 +27,16 @@ class ActionEventHandler(
                     alert.headerText = "scan"
                     alert.showAndWait()
 
-                    ActionEvent.scanFinished(event.action.id)
+                    ActionEvent.scanAborted(event.action.id)
                 }
+            }
+            is ActionEvent.Action.ScanFinished -> {
+                println("---------------------------------")
+                println("diff")
+                event.action.diff.diffEntries.forEach {
+                    println(it)
+                }
+                println("---------------------------------")
             }
             is ActionEvent.Action.StopScan -> {
                 println("stop scap called")
@@ -58,8 +66,9 @@ class ActionEventHandler(
                     abort = { isCancelled },
                     progress = { current, max -> updateProgress(current.toLong(), max.toLong()) }
             )
+            result
         }, onSuccess = {
-            ActionEvent.scanFinished(id).fire()
+            ActionEvent.scanFinished(id, it).fire()
         }, onCancel = {
             ActionEvent.scanAborted(id).fire()
         }, onFail = {
