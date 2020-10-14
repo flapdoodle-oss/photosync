@@ -73,10 +73,14 @@ object UnixCommandListRenderer : CommandExecutor {
   }
 
   private fun printCommand(command: String, src: Path, dst: Path) {
-    println("$command $src $dst")
+    println("$command ${src.escaped()} ${dst.escaped()}")
   }
 
   private fun printCommand(command: String, src: Path) {
-    println("$command $src")
+    println("$command ${src.escaped()}")
+  }
+
+  private fun Path.escaped(): String {
+    return this.toString().replace(" ","\\ ")
   }
 }
