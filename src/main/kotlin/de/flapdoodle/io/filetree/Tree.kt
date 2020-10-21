@@ -1,11 +1,9 @@
-package de.flapdoodle.photosync.filetree
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.findNotNull
 import java.nio.file.Path
-import java.nio.file.attribute.FileTime
-import java.util.regex.Pattern
 
 fun Tree.Directory.mapFiles(mapper: (Tree.File) -> Blob): List<Blob> {
   return this.children.flatMap { it ->

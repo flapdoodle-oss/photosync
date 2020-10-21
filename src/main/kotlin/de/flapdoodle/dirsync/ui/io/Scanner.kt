@@ -1,15 +1,11 @@
 package de.flapdoodle.dirsync.ui.io
 
+import de.flapdoodle.io.filetree.*
 import de.flapdoodle.photosync.Blob
-import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
-import de.flapdoodle.photosync.diff.Scan
-import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.filetree.*
 import de.flapdoodle.photosync.progress.Monitor
-import de.flapdoodle.photosync.sync.*
 import java.lang.Exception
 import java.nio.file.Files
 import java.nio.file.Path

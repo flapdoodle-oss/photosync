@@ -1,9 +1,8 @@
-package de.flapdoodle.photosync.filetree
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.add
 import java.nio.file.Path
-import java.nio.file.attribute.FileTime
 
 class TreeCollectorAdapter : FileTreeCollector {
   private val root = Dir()
@@ -32,8 +31,8 @@ class TreeCollectorAdapter : FileTreeCollector {
   }
 
   private class Dir(
-      private val parent: Dir? = null,
-      private val dirPath: Path? = null
+          private val parent: Dir? = null,
+          private val dirPath: Path? = null
   ) {
     private var dirs: Map<Path, Dir> = emptyMap()
     private var files: Map<Path, Pair<Long, LastModified>> = emptyMap()

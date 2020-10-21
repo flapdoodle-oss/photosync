@@ -2,8 +2,8 @@ package de.flapdoodle.dirsync.ui.io
 
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.SizeHasher
-import de.flapdoodle.photosync.filetree.Tree
-import de.flapdoodle.photosync.filetree.findChild
+import de.flapdoodle.io.filetree.Tree
+import de.flapdoodle.io.filetree.findChild
 import java.nio.file.Path
 
 class TreeDiff(

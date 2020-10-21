@@ -1,9 +1,8 @@
-package de.flapdoodle.photosync.filetree
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
-import java.nio.file.attribute.FileTime
 
 class ProgressReportFileTreeCollector : FileTreeCollector {
   override fun down(path: Path): Boolean {

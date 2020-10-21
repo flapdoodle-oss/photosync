@@ -1,8 +1,7 @@
 package de.flapdoodle.photosync.sync
 
-import de.flapdoodle.photosync.FileTimes
 import de.flapdoodle.photosync.LastModified
-import de.flapdoodle.photosync.filetree.Tree
+import de.flapdoodle.io.filetree.Tree
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 

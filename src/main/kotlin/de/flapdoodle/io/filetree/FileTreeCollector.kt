@@ -1,9 +1,7 @@
-package de.flapdoodle.photosync.filetree
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.photosync.LastModified
-import java.lang.RuntimeException
 import java.nio.file.Path
-import java.nio.file.attribute.FileTime
 
 interface FileTreeCollector {
   fun down(path: Path): Boolean

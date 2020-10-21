@@ -1,8 +1,8 @@
 package de.flapdoodle.photosync.filetree
 
+import de.flapdoodle.io.filetree.FileTreeCollector
 import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.WithAssertions
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 

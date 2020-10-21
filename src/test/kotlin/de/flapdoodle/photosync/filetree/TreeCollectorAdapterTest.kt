@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filetree
 
-import de.flapdoodle.photosync.FileTimes
+import de.flapdoodle.io.filetree.Tree
+import de.flapdoodle.io.filetree.TreeCollectorAdapter
 import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows

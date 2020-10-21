@@ -1,4 +1,4 @@
-package de.flapdoodle.photosync.filetree
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.photosync.LastModified
 import java.io.IOException
