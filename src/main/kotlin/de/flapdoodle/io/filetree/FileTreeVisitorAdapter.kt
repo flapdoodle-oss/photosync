@@ -4,6 +4,7 @@ import de.flapdoodle.photosync.LastModified
 import java.io.IOException
 import java.nio.file.FileVisitResult
 import java.nio.file.FileVisitor
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.attribute.BasicFileAttributes
 
@@ -29,6 +30,7 @@ class FileTreeVisitorAdapter(
     require(!attributes.isOther) { "$path is a other?" }
 
     if (attributes.isSymbolicLink) {
+      var destination = Files.readSymbolicLink(path);
       collector.addSymlink(path)
     } else {
       collector.add(path, attributes.size(), LastModified.from(attributes.lastModifiedTime()))

@@ -7,9 +7,17 @@ sealed class Node(
         open val path: Path
 ) {
 
+    data class Directory(
+            override val path: Path
+    ) : Node(path)
+
     data class File(
             override val path: Path,
             val size: Long,
             val lastModifiedTime: LastModified
+    ) : Node(path)
+
+    data class SymLink(
+            override val path: Path
     ) : Node(path)
 }
