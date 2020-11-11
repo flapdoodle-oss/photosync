@@ -3,9 +3,19 @@ package de.flapdoodle.io.tree
 import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 
-sealed class FileTreeEvent {
-    data class Down(val path: Path) : FileTreeEvent()
-    data class Up(val path: Path) : FileTreeEvent()
-    data class SymLink(val path: Path, val destination: Path, val lastModified: LastModified) : FileTreeEvent()
-    data class File(val path: Path, val size: Long, val lastModified: LastModified) : FileTreeEvent()
+sealed class FileTreeEvent(open val path: Path) {
+    data class Down(override val path: Path) : FileTreeEvent(path)
+    data class Up(override val path: Path) : FileTreeEvent(path)
+
+    data class SymLink(
+            override val path: Path,
+            val destination: Path,
+            val lastModified: LastModified
+    ) : FileTreeEvent(path)
+
+    data class File(
+            override val path: Path,
+            val size: Long,
+            val lastModified: LastModified
+    ) : FileTreeEvent(path)
 }

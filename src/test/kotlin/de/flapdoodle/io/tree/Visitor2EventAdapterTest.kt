@@ -2,13 +2,9 @@ package de.flapdoodle.io.tree
 
 import de.flapdoodle.io.FilesInTests
 import de.flapdoodle.photosync.LastModified
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
-import java.nio.file.FileVisitOption
 import java.nio.file.Files
-import java.nio.file.attribute.PosixFilePermissions
 
 internal class Visitor2EventAdapterTest {
     @Test
@@ -84,7 +80,7 @@ internal class Visitor2EventAdapterTest {
         FilesInTests.withTempDirectory("visitor-test") { startingPoint ->
             val filePath = createFile("test", ByteArray(123))
             val timeStamp = Files.getLastModifiedTime(filePath)
-            
+
             val symLink = createSymLink("sym", filePath)
             val symLinkTimeStamp = Files.getLastModifiedTime(symLink)
 
@@ -95,6 +91,32 @@ internal class Visitor2EventAdapterTest {
                     FileTreeEvent.Down(startingPoint),
                     FileTreeEvent.File(filePath, 123, LastModified.from(timeStamp)),
                     FileTreeEvent.SymLink(symLink, filePath, LastModified.from(symLinkTimeStamp)),
+                    FileTreeEvent.Up(startingPoint)
+            )
+        }
+    }
+
+    @Test
+    fun filterPathMustSkipDirectoryContent() {
+        var events = emptyList<FileTreeEvent>()
+
+        val onFileTreeEvent = OnFileTreeEvent { it ->
+            events = events + it
+            OnFileTreeEvent.Action.Continue
+        }.withFilter { path -> path.fileName.toString() != "sub" }
+
+        val testee = Visitor2EventAdapter(onFileTreeEvent)
+
+        FilesInTests.withTempDirectory("visitor-test") { startingPoint ->
+            val sub = mkDir("sub")
+            val filePath = sub.createFile("test", ByteArray(123))
+            sub.createSymLink("sym", filePath)
+
+            val result = Files.walkFileTree(startingPoint, testee)
+
+            assertThat(result).isSameAs(startingPoint);
+            assertThat(events).containsExactly(
+                    FileTreeEvent.Down(startingPoint),
                     FileTreeEvent.Up(startingPoint)
             )
         }
