@@ -4,8 +4,8 @@ import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 
 sealed class FileTreeEvent(open val path: Path) {
-    data class Down(override val path: Path) : FileTreeEvent(path)
-    data class Up(override val path: Path) : FileTreeEvent(path)
+    data class Enter(override val path: Path) : FileTreeEvent(path)
+    data class Leave(override val path: Path) : FileTreeEvent(path)
 
     data class SymLink(
             override val path: Path,

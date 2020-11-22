@@ -19,7 +19,7 @@ internal class Visitor2EventAdapterTest {
             val result = Files.walkFileTree(startingPoint, testee)
 
             assertThat(result).isSameAs(startingPoint);
-            assertThat(events).containsExactly(FileTreeEvent.Down(startingPoint), FileTreeEvent.Up(startingPoint))
+            assertThat(events).containsExactly(FileTreeEvent.Enter(startingPoint), FileTreeEvent.Leave(startingPoint))
         }
     }
 
@@ -38,10 +38,10 @@ internal class Visitor2EventAdapterTest {
 
             assertThat(result).isSameAs(startingPoint);
             assertThat(events).containsExactly(
-                    FileTreeEvent.Down(startingPoint),
-                    FileTreeEvent.Down(sub),
-                    FileTreeEvent.Up(sub),
-                    FileTreeEvent.Up(startingPoint)
+                    FileTreeEvent.Enter(startingPoint),
+                    FileTreeEvent.Enter(sub),
+                    FileTreeEvent.Leave(sub),
+                    FileTreeEvent.Leave(startingPoint)
             )
         }
     }
@@ -62,9 +62,9 @@ internal class Visitor2EventAdapterTest {
 
             assertThat(result).isSameAs(startingPoint);
             assertThat(events).containsExactly(
-                    FileTreeEvent.Down(startingPoint),
+                    FileTreeEvent.Enter(startingPoint),
                     FileTreeEvent.File(filePath, 123, LastModified.from(timeStamp)),
-                    FileTreeEvent.Up(startingPoint)
+                    FileTreeEvent.Leave(startingPoint)
             )
         }
     }
@@ -88,10 +88,10 @@ internal class Visitor2EventAdapterTest {
 
             assertThat(result).isSameAs(startingPoint);
             assertThat(events).containsExactly(
-                    FileTreeEvent.Down(startingPoint),
+                    FileTreeEvent.Enter(startingPoint),
                     FileTreeEvent.File(filePath, 123, LastModified.from(timeStamp)),
                     FileTreeEvent.SymLink(symLink, filePath, LastModified.from(symLinkTimeStamp)),
-                    FileTreeEvent.Up(startingPoint)
+                    FileTreeEvent.Leave(startingPoint)
             )
         }
     }
@@ -116,8 +116,8 @@ internal class Visitor2EventAdapterTest {
 
             assertThat(result).isSameAs(startingPoint);
             assertThat(events).containsExactly(
-                    FileTreeEvent.Down(startingPoint),
-                    FileTreeEvent.Up(startingPoint)
+                    FileTreeEvent.Enter(startingPoint),
+                    FileTreeEvent.Leave(startingPoint)
             )
         }
     }

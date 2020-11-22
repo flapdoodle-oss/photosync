@@ -14,7 +14,7 @@ class Visitor2EventAdapter(
 
     override fun preVisitDirectory(path: Path, attributes: BasicFileAttributes): FileVisitResult {
         require(attributes.isDirectory) { "$path is not a directory" }
-        return when (onFileTreeEvent.onEvent(FileTreeEvent.Down(path))) {
+        return when (onFileTreeEvent.onEvent(FileTreeEvent.Enter(path))) {
             OnFileTreeEvent.Action.Skip -> FileVisitResult.SKIP_SUBTREE;
             OnFileTreeEvent.Action.Abort -> FileVisitResult.TERMINATE;
             else -> FileVisitResult.CONTINUE
@@ -49,7 +49,7 @@ class Visitor2EventAdapter(
             exception.printStackTrace()
             FileVisitResult.TERMINATE
         } else {
-            val action = onFileTreeEvent.onEvent(FileTreeEvent.Up(path))
+            val action = onFileTreeEvent.onEvent(FileTreeEvent.Leave(path))
             when (action) {
                 OnFileTreeEvent.Action.Continue -> FileVisitResult.CONTINUE;
                 else -> throw IllegalArgumentException("unexpected result: $action for $path")
