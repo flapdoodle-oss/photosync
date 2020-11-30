@@ -10,14 +10,14 @@ class TreeCollector : OnFileTreeEvent {
         return OnFileTreeEvent.Action.Continue
     }
 
-    public fun rootDirectory(): Tree.Directory? {
+    fun rootDirectory(): Tree.Directory? {
         require(collector is Collector.Root) { "unexpected collector: $collector"}
         return (collector as Collector.Root).rootDirectory()
     }
 
     private sealed class Collector() {
         abstract fun onEvent(event: FileTreeEvent): Collector
-        abstract fun leaveWith(tree: Tree): Collector
+        abstract fun addChild(tree: Tree): Collector
 
         class Root : Collector() {
             private var root: Tree.Directory? = null;
@@ -31,7 +31,7 @@ class TreeCollector : OnFileTreeEvent {
                 }
             }
 
-            override fun leaveWith(tree: Tree): Collector {
+            override fun addChild(tree: Tree): Collector {
                 require(tree is Tree.Directory) {"unexcpected: $tree"}
                 root=tree
                 return this;
@@ -48,7 +48,10 @@ class TreeCollector : OnFileTreeEvent {
             override fun onEvent(event: FileTreeEvent): Collector {
                 return when (event) {
                     is FileTreeEvent.Enter -> Dir(this, event.path)
-                    is FileTreeEvent.Leave -> parent.leaveWith(directory)
+                    is FileTreeEvent.Leave -> {
+                        require(event.path == directory.path) {"$event - path mismatch: ${event.path} != ${directory.path}"}
+                        parent.addChild(directory)
+                    }
                     is FileTreeEvent.File -> {
                         directory = directory.copy(children = directory.children + Tree.File(event.path, event.size, event.lastModified))
                         this
@@ -60,7 +63,7 @@ class TreeCollector : OnFileTreeEvent {
                 }
             }
 
-            override fun leaveWith(tree: Tree): Collector {
+            override fun addChild(tree: Tree): Collector {
                 directory = directory.copy(children = directory.children + tree)
                 return this
             }
