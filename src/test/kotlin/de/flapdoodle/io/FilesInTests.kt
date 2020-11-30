@@ -1,9 +1,11 @@
 package de.flapdoodle.io
 
+import de.flapdoodle.photosync.LastModified
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import java.nio.file.attribute.FileTime
 
 class FilesInTests(private val directory: Path) : AutoCloseable {
 
@@ -33,9 +35,18 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
             return Helper(newPath)
         }
 
-        fun createFile(name: String, content: ByteArray): Path {
+        fun mkDir(name: String, context: Helper.(Path) -> Unit): Helper {
+            val newHelper = mkDir(name)
+            context(newHelper, newHelper.current)
+            return newHelper
+        }
+
+        fun createFile(name: String, content: ByteArray, lastModified: LastModified? = null): Path {
             val newPath = current.resolve(name)
             Files.write(newPath, content, StandardOpenOption.CREATE_NEW);
+            if (lastModified!=null) {
+                Files.setLastModifiedTime(newPath, LastModified.asFileTime(lastModified))
+            }
             return newPath
         }
 

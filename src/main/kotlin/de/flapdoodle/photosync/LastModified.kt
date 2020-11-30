@@ -5,7 +5,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 data class LastModified(
-    val value: Instant
+    private val value: Instant
 ) : Comparable<LastModified> {
 
   override fun compareTo(other: LastModified): Int {
@@ -24,6 +24,10 @@ data class LastModified(
 
     fun now(): LastModified {
       return LastModified(Instant.now())
+    }
+
+    fun asFileTime(lastModified: LastModified): FileTime {
+      return FileTime.from(lastModified.value)
     }
   }
 }
