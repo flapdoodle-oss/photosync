@@ -23,7 +23,7 @@ data class LastModified(
     }
 
     fun now(): LastModified {
-      return LastModified(Instant.now())
+      return LastModified(Instant.now().truncatedTo(ChronoUnit.SECONDS))
     }
 
     fun asFileTime(lastModified: LastModified): FileTime {

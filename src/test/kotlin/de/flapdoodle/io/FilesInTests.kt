@@ -50,9 +50,12 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
             return newPath
         }
 
-        fun createSymLink(name: String, destination: Path): Path {
+        fun createSymLink(name: String, destination: Path, lastModified: LastModified? = null): Path {
             val newPath = current.resolve(name);
             Files.createSymbolicLink(newPath, destination);
+            if (lastModified!=null) {
+                Files.setLastModifiedTime(newPath, LastModified.asFileTime(lastModified))
+            }
             return newPath
         }
     }
