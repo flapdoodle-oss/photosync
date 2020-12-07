@@ -199,6 +199,18 @@
                             </mainClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>dirdiff</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>dirdiff</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.DirDiff
+                            </mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

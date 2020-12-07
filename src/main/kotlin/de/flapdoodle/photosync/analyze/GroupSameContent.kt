@@ -18,8 +18,6 @@ class GroupSameContent(
     groupedByHash = HashStrategy.groupBlobs(HashStrategy { listOf(SizeHasher()) + hashStrategy.hasher() }, blobs)
   }
 
-  data class SizeHash(private val size: Long) : Hash<SizeHash>
-
   fun uniqueBlobs() = groupedByHash.values.filter { it.size==1 }.map { it.single() }
   fun collisions() = groupedByHash.filter { it.value.size>1 }
 }

@@ -3,6 +3,7 @@ package de.flapdoodle.io.filetree.graph
 import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 
+@Deprecated("unused")
 sealed class Node(
         open val path: Path
 ) {

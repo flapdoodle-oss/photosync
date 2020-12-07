@@ -1,13 +1,11 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.LastModified
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
-import java.nio.file.attribute.FileTime
-import java.time.Instant
 
 class HashStrategyTest {
 
@@ -48,6 +46,31 @@ class HashStrategyTest {
         .containsEntry(FilenameHash("baz"), listOf(blobBaz))
         .containsEntry(FilenameHash("bar").append(SizeHash(0)), listOf(blobBarA))
         .containsEntry(FilenameHash("bar").append(SizeHash(1)), listOf(blobBarB))
+  }
+
+  @Test
+  fun `group files by hash`() {
+    val fileBarA = Tree.File(Path.of("foo", "bar"), 0, now())
+    val fileBarB = Tree.File(Path.of("blob", "bar"), 1, now())
+    val fileBaz = Tree.File(Path.of("foo", "baz"), 1, now())
+
+    val files = listOf(
+            fileBarA,
+            fileBarB,
+            fileBaz
+    )
+
+    val result = HashStrategy.groupBy(listOf(HashFilename(), HashSize()), files)
+
+    assertThat(result)
+            .containsKey(FilenameHash("baz"))
+            .containsKey(FilenameHash("bar").append(SizeHash(0)))
+            .containsKey(FilenameHash("bar").append(SizeHash(1)))
+            .size().isEqualTo(3)
+            .returnToMap()
+            .containsEntry(FilenameHash("baz"), listOf(fileBaz))
+            .containsEntry(FilenameHash("bar").append(SizeHash(0)), listOf(fileBarA))
+            .containsEntry(FilenameHash("bar").append(SizeHash(1)), listOf(fileBarB))
   }
 
   data class FilenameHash(val key: String) : Hash<FilenameHash>

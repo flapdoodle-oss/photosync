@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.io.tree.IsFile
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.KotlinCompilerFix_SAM_Helper
 import de.flapdoodle.photosync.progress.Monitor
@@ -59,6 +60,32 @@ interface HashStrategy {
       return groupedBlobs
     }
 
+    fun <T: IsFile> groupBy(
+            hashers: List<Hasher<*>>,
+            files: Iterable<T>,
+            rehashOnCollisionOnly: Boolean = true
+    ): Map<Hash<*>, List<T>> {
+      var groupedBlobs:Map<Hash<*>,List<T>> = files.groupBy { NoHash }
+
+      hashers.forEach { hasher ->
+        val useHasher = hasher.withMonitor()
+        var rehashedBlobs: Map<Hash<*>,List<T>> = emptyMap()
+
+        groupedBlobs.forEach { hash, list ->
+          val parentHash = if (hash != NoHash) hash else null
+          rehashedBlobs = if (list.size>1 || !rehashOnCollisionOnly) {
+//            println("must rehash ${list.size} entries with $hasher")
+            rehashedBlobs + list.groupBy { Hash.prepend(useHasher.hash(it.path, it.size),parentHash) }
+          } else {
+            rehashedBlobs + (hash to list)
+          }
+        }
+
+        groupedBlobs = rehashedBlobs
+      }
+
+      return groupedBlobs
+    }
     object NoHash : Hash<NoHash>
   }
 }
