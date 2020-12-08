@@ -4,6 +4,7 @@ import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.SizeHasher
 import de.flapdoodle.io.filetree.Tree
 import de.flapdoodle.io.filetree.findChild
+import de.flapdoodle.photosync.filehash.SizeHash
 import java.nio.file.Path
 
 class TreeDiff(
@@ -27,7 +28,7 @@ class TreeDiff(
             val srcBase = srcTree.path
             val dstBase = dstTree.path
 
-            val diffEntries = diffTree(srcBase, srcTree, dstBase, dstTree, HashStrategy { listOf(SizeHasher()) + hashStrategy.hasher() })
+            val diffEntries = diffTree(srcBase, srcTree, dstBase, dstTree, HashStrategy { listOf(SizeHash) + hashStrategy.hasher() })
 
             return TreeDiff(srcTree, dstTree, diffEntries)
         }

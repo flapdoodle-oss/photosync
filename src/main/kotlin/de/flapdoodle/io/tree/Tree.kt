@@ -14,7 +14,17 @@ fun <T> Tree.Directory.mapFiles(mapper: (Tree.File) -> T): List<T> {
 }
 
 sealed class Tree(open val path: Path) {
-    data class Directory(override val path: Path, val children: List<Tree> = emptyList()) : Tree(path)
+    data class Directory(override val path: Path, val children: List<Tree> = emptyList()) : Tree(path) {
+        init {
+            val pathCollisions = children.groupBy { it.path }.filter { it.value.size > 1 }
+            require(pathCollisions.isEmpty()) { "path collisions: $pathCollisions" }
+        }
+
+        fun childWithPath(childPath: Path): Tree? {
+            return children.firstOrNull { it.path == childPath }
+        }
+    }
+
     data class File(
             override val path: Path,
             override val size: Long,

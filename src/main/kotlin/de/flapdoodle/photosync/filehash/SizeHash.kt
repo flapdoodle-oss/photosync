@@ -7,5 +7,9 @@ data class SizeHash(private val size: Long) : Hash<SizeHash> {
         override fun hash(path: Path, size: Long): SizeHash {
             return SizeHash(size)
         }
+
+        override fun toString(): String {
+            return SizeHash::class.java.simpleName
+        }
     }
 }
