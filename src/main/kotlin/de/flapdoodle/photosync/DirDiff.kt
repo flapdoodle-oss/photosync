@@ -5,7 +5,7 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.validate
 import com.github.ajalt.clikt.parameters.types.path
-import de.flapdoodle.io.diff.TreeDiff
+import de.flapdoodle.io.diff.ExcpectSameLayout
 import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.photosync.filehash.MonitoringHasher
 import de.flapdoodle.photosync.filehash.QuickHash
@@ -40,16 +40,36 @@ object DirDiff {
             }
 
     override fun run() {
-      Monitor.execute {
+      val diff = Monitor.execute {
         val srcTree = FileTrees.asTree(source, listener = {
           Monitor.message("source $it")
         })
         val dstTree = FileTrees.asTree(destination, listener = {
           Monitor.message("destination $it")
         })
-        println("..\nDONE");
+        Monitor.message("DONE")
 
-        TreeDiff.diff(srcTree, dstTree, listOf(MonitoringHasher(SizeHash), MonitoringHasher(QuickHash)))
+        ExcpectSameLayout.diff(srcTree, dstTree, listOf(MonitoringHasher(SizeHash), MonitoringHasher(QuickHash)))
+      }
+      println()
+      
+      diff.forEach {
+        when(it) {
+          is ExcpectSameLayout.DiffEntry.SourceIsMissing ->
+            println("${it.expectedPath}? - ${it.dst.path}")
+          is ExcpectSameLayout.DiffEntry.DestinationIsMissing ->
+            println("${it.src.path} - ${it.expectedPath}?")
+          is ExcpectSameLayout.DiffEntry.TypeMissmatch ->
+            println("${it.src.javaClass.simpleName} (${it.src.path}) != ${it.dst.javaClass.simpleName} (${it.dst.path})")
+          is ExcpectSameLayout.DiffEntry.SymLinkMissmatch -> {
+            println("${it.src.path} (1) != ${it.dst.path} (2)")
+            println("1)-> ${it.src.destination}")
+            println("2)-> ${it.dst.destination}")
+          }
+          is ExcpectSameLayout.DiffEntry.ContentMissmatch -> {
+            println("${it.src.path} != ${it.dst.path}")
+          }
+        }
       }
     }
   }

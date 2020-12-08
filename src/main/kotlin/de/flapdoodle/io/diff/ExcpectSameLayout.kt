@@ -1,16 +1,16 @@
 package de.flapdoodle.io.diff
 
 import de.flapdoodle.io.tree.Tree
-import de.flapdoodle.io.tree.mapFiles
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.Hasher
 import java.nio.file.Path
 
-class TreeDiff {
+class ExcpectSameLayout {
 
     sealed class DiffEntry {
         data class ContentMissmatch(val src: Tree.File, val dst: Tree.File) : DiffEntry()
-        data class OneIsMissing(val src: Tree?, val dst: Tree?): DiffEntry()
+        data class SourceIsMissing(val expectedPath: Path, val dst: Tree): DiffEntry()
+        data class DestinationIsMissing(val src: Tree, val expectedPath: Path): DiffEntry()
         data class TypeMissmatch(val src: Tree, val dst: Tree): DiffEntry()
         data class SymLinkMissmatch(val src: Tree.SymLink, val dst: Tree.SymLink) : DiffEntry()
     }
@@ -20,29 +20,16 @@ class TreeDiff {
                 src: Tree.Directory,
                 dst: Tree.Directory,
                 hashers: List<Hasher<*>>
-        ) {
+        ): List<DiffEntry> {
             val srcBase = src.path
             val dstBase = dst.path
 
-            val diff = dirDiff(srcBase,dstBase,src,dst,hashers)
-
-            diff.forEach { println(it) }
-//            val srcFiles = src.mapFiles { it }
-//            val dstFiles = dst.mapFiles { it }
-//            val files = srcFiles + dstFiles
-//
-//            val hashGroupedFiles = HashStrategy.groupBy(hashers, files)
-//
-//            hashGroupedFiles.forEach { hash, list ->
-//                println("hash -> $hash")
-//                list.forEach {
-//                    println(" -> ${it.path}")
-//                }
-//            }
+            return dirDiff(srcBase,dstBase,src,dst,hashers)
         }
 
         private fun dirDiff(srcBase: Path, dstBase: Path, src: Tree.Directory?, dst: Tree.Directory?, hashers: List<Hasher<*>>): List<DiffEntry> {
             require(src!=null || dst!=null) {"invalid state"}
+
             if (src!=null && dst!=null) {
                 val relSrc = srcBase.relativize(src.path)
                 val relDst = dstBase.relativize(dst.path)
@@ -84,7 +71,7 @@ class TreeDiff {
                             }
                         }
                     } else {
-                        diffs = diffs +  DiffEntry.OneIsMissing(srcChild,dstChild)
+                        diffs = diffs +  DiffEntry.DestinationIsMissing(srcChild,expectedDestination)
                     }
                 }
 
@@ -93,12 +80,18 @@ class TreeDiff {
                     val expectedSource = srcBase.resolve(childPath)
                     val srcChild = src.childWithPath(expectedSource)
                     if (srcChild==null) {
-                        diffs = diffs +  DiffEntry.OneIsMissing(srcChild,dstChild)
+                        diffs = diffs +  DiffEntry.SourceIsMissing(expectedSource,dstChild)
                     }
                 }
                 return diffs
             } else {
-                return listOf(DiffEntry.OneIsMissing(src,dst))
+                if (src!=null) {
+                    return listOf(DiffEntry.DestinationIsMissing(src, dstBase.resolve(srcBase.relativize(src.path))))
+                } else if (dst!=null) {
+                    return listOf(DiffEntry.SourceIsMissing(srcBase.resolve(dstBase.relativize(dst.path)), dst))
+                }
+
+                return listOf()
             }
         }
 
