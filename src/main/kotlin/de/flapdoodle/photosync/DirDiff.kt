@@ -5,7 +5,7 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.validate
 import com.github.ajalt.clikt.parameters.types.path
-import de.flapdoodle.io.diff.ExcpectSameLayout
+import de.flapdoodle.io.layouts.same.ExcpectSameLayout
 import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.photosync.filehash.MonitoringHasher
 import de.flapdoodle.photosync.filehash.QuickHash

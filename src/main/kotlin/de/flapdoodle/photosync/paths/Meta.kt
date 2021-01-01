@@ -11,8 +11,20 @@ object Meta {
         .match(path, basePath)
   }
 
+  fun groupByBasePath(paths: List<Path>): Map<Path, List<Path>> {
+    val baseFiles = paths.filter { thisPath -> paths.none { isMeta(thisPath, it) } }
+    val metaFiles = paths.filter { !baseFiles.contains(it) }
+
+    return baseFiles.map {
+      it to emptyList<Path>()
+    }.toMap() + metaFiles.groupBy { thisPath ->
+      baseFiles.find { Meta.isMeta(thisPath, it) }
+              ?: throw IllegalArgumentException("basePath not found: $thisPath - $paths")
+    }
+  }
+
   fun replaceBase(path: Path, base: Path, newBase: Path): Path {
-    require(Meta.isMeta(path, base)) { "$this must start with $base" }
+    require(isMeta(path, base)) { "$this must start with $base" }
 
     val fileName = path.fileName.toString()
     val baseFileName = base.fileName.toString()
