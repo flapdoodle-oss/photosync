@@ -32,35 +32,23 @@ sealed class MetaTree(open val path: Path) {
     ) : MetaTree(path)
 
     companion object {
-        fun map(tree: Tree.Directory, matchMetaFileFactory: MatchMetaFileFactory): Directory {
-            return Directory(tree.path, mapChildren(tree.children, matchMetaFileFactory))
+        fun map(tree: Tree.Directory, groupMetaFiles: GroupMetaFiles): Directory {
+            return Directory(tree.path, mapChildren(tree.children, groupMetaFiles))
         }
 
-        private fun mapChildren(children: List<Tree>, matchMetaFileFactory: MatchMetaFileFactory): List<MetaTree> {
+        private fun mapChildren(children: List<Tree>, groupMetaFiles: GroupMetaFiles): List<MetaTree> {
             val (directories, filesAndSymlinks) = children.partition { it is Tree.Directory }
-            val matchMetaFile = matchMetaFileFactory.create(filesAndSymlinks.map { it.path })
 
             val mappedDirectories = directories.map {
                 require(it is Tree.Directory) { "wrong type: ${it}" }
-                map(it, matchMetaFileFactory)
+                map(it, groupMetaFiles)
             }
 
-            val (baseFiles, metaFiles) = filesAndSymlinks.map { it to matchMetaFile.basePath(it.path) }
-                .partition { pair -> pair.second == null }
-
-            val groupedByPath = metaFiles.map { pair -> pair.second!! to pair.first }
-                .groupBy(keySelector = Pair<Path, Tree>::first, valueTransform = Pair<Path, Tree>::second)
-
-            val mappedBaseFiles = baseFiles.map {
-                val entry = it.first
-
-                val entryMetaFiles: List<MetaTree> = (groupedByPath[entry.path] ?: emptyList())
-                    .map { meta -> mapEntry(meta, emptyList()) }
-
-                mapEntry(entry, entryMetaFiles);
+            val mappedBaseFiles =  groupMetaFiles.groupMetaFiles(filesAndSymlinks, Tree::path) { base, metaFiles ->
+                val mappedMetaFiles = metaFiles.map { mapEntry(it, emptyList()) }
+                mapEntry(base, mappedMetaFiles)
             }
-
-
+            
             return mappedDirectories + mappedBaseFiles
         }
 

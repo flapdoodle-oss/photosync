@@ -11,7 +11,7 @@ object Meta {
         .match(path, basePath)
   }
 
-  fun groupByBasePath(paths: List<Path>): Map<Path, List<Path>> {
+  fun groupByBasePath(paths: Collection<Path>): Map<Path, List<Path>> {
     val baseFiles = paths.filter { thisPath -> paths.none { isMeta(thisPath, it) } }
     val metaFiles = paths.filter { !baseFiles.contains(it) }
 

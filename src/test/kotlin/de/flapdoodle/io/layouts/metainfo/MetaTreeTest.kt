@@ -9,36 +9,13 @@ import java.nio.file.Path
 internal class MetaTreeTest {
 
     @Test
-    fun noMatchingMetaFiles() {
-        val root = Path.of("root")
-        val lastModified = LastModified.now()
-        val sample = sample(root, lastModified);
-
-        val result = MetaTree.map(sample, { paths -> MatchMetaFile { path -> null } })
-
-        assertThat(result.path).matches { it === root }
-        assertThat(result.children)
-            .hasSize(8)
-            .containsExactly(
-                MetaTree.Directory(root.resolve("sub")),
-                MetaTree.Directory(root.resolve("other")),
-                MetaTree.File(root.resolve("file2.xml"), 1L, lastModified.plus(1)),
-                MetaTree.File(root.resolve("file1"), 1L, lastModified.plus(2)),
-                MetaTree.File(root.resolve("file2.xml.copy"), 1L, lastModified.plus(3)),
-                MetaTree.File(root.resolve("file1.bak"), 1L, lastModified.plus(4)),
-                MetaTree.File(root.resolve("file3"), 1L, lastModified.plus(5)),
-                MetaTree.File(root.resolve("file2"), 1L, lastModified.plus(6))
-            )
-    }
-
-    @Test
     fun usingDefaultMetaFileFactory() {
         val root = Path.of("root")
         val lastModified = LastModified.now()
 
         val sample = sample(root, lastModified);
 
-        val result = MetaTree.map(sample, MatchMetaFileFactory.default())
+        val result = MetaTree.map(sample, GroupMetaFiles.default())
         assertThat(result.path).matches { it === root }
         assertThat(result.children)
             .hasSize(5)
