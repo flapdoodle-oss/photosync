@@ -19,7 +19,7 @@ interface GroupMetaFiles {
                 pathOfElement: (S) -> Path,
                 map: (S, List<S>) -> D
             ): List<D> {
-                val pathsMap = elements.map { pathOfElement(it) to it }.toMap()
+                val pathsMap = elements.associateBy(pathOfElement)
                 val basePathsMap = Meta.groupByBasePath(pathsMap.keys)
                 return pathsMap.flatMap { (path, element) ->
                     val metaPaths = basePathsMap[path]

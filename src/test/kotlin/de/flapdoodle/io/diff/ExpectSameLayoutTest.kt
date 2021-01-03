@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
-internal class ExcpectSameLayoutTest {
+internal class ExpectSameLayoutTest {
 
     @Test
     fun sample() {
