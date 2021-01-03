@@ -1,8 +1,10 @@
 package de.flapdoodle.io.layouts.metainfo
 
+import de.flapdoodle.io.layouts.same.ExcpectSameLayout
 import de.flapdoodle.io.tree.IsFile
 import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.photosync.LastModified
+import de.flapdoodle.photosync.filehash.Hasher
 import java.nio.file.Path
 
 sealed class MetaTree(open val path: Path) {

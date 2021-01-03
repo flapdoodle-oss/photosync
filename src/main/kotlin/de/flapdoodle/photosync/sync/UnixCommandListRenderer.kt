@@ -81,6 +81,6 @@ object UnixCommandListRenderer : CommandExecutor {
   }
 
   private fun Path.escaped(): String {
-    return this.toString().replace(" ","\\ ")
+    return this.toString().replace(" ","\\ ").replace("(","\\(").replace(")","\\)")
   }
 }
