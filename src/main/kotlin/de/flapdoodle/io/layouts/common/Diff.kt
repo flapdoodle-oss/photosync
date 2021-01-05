@@ -2,11 +2,14 @@ package de.flapdoodle.io.layouts.common
 
 import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.io.tree.childWithPath
+import de.flapdoodle.photosync.Comparision
+import de.flapdoodle.photosync.compare
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.Hasher
 import java.nio.file.Path
 
 sealed class Diff {
+    data class TimeStampMissmatch(val src: Tree.File, val dst: Tree.File) : Diff()
     data class ContentMissmatch(val src: Tree.File, val dst: Tree.File) : Diff()
     data class SourceIsMissing(val expectedPath: Path, val dst: Tree) : Diff()
     data class DestinationIsMissing(val src: Tree, val expectedPath: Path) : Diff()
@@ -75,10 +78,13 @@ sealed class Diff {
             return if (isDifferent(srcChild, dstChild, hashers))
                 listOf(ContentMissmatch(srcChild, dstChild))
             else
-                emptyList()
+                if (srcChild.lastModified.compare(dstChild.lastModified) != Comparision.Equal)
+                    listOf(TimeStampMissmatch(srcChild, dstChild))
+                else
+                    emptyList()
         }
 
-        private fun isDifferent(srcEntry: Tree.File, dstEntry: Tree.File, hashers: List<Hasher<*>>): Boolean {
+        fun isDifferent(srcEntry: Tree.File, dstEntry: Tree.File, hashers: List<Hasher<*>>): Boolean {
             val grouped = HashStrategy.groupBy(hashers, listOf(srcEntry, dstEntry))
             return grouped.keys.size == 2
         }

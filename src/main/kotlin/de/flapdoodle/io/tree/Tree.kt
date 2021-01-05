@@ -13,10 +13,6 @@ fun <T> Tree.Directory.mapFiles(mapper: (Tree.File) -> T): List<T> {
     }
 }
 
-fun List<Tree>.childWithPath(childPath: Path): Tree? {
-    return this.firstOrNull { it.path == childPath }
-}
-
 sealed class Tree(override val path: Path) : HasPath {
     data class Directory(override val path: Path, val children: List<Tree> = emptyList()) : Tree(path) {
         init {

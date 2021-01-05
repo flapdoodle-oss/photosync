@@ -6,14 +6,16 @@ import java.nio.file.Path
 
 sealed class MetaView : HasPath {
     data class Directory(val reference: Tree.Directory, val children: List<MetaView> = emptyList()) : MetaView() {
-        fun childWithPath(childPath: Path): MetaView? {
-            return children.firstOrNull { it.path == childPath }
-        }
-
         override val path: Path
             get() = reference.path
     }
-    data class Node(val base: Tree, val metaFiles: List<Tree> = emptyList()): MetaView() {
+
+    data class Node(val base: Tree, val metaFiles: List<Tree> = emptyList()) : MetaView() {
+        init {
+            require(base !is Tree.Directory) { "directory not expected: $base" }
+            require(metaFiles.none { it is Tree.Directory }) { "directory not expected: $metaFiles" }
+        }
+
         override val path: Path
             get() = base.path
     }
@@ -31,7 +33,7 @@ sealed class MetaView : HasPath {
                 map(it, groupMetaFiles)
             }
 
-            val mappedBaseFiles =  groupMetaFiles.groupMetaFiles(filesAndSymlinks, Tree::path) { base, metaFiles ->
+            val mappedBaseFiles = groupMetaFiles.groupMetaFiles(filesAndSymlinks, Tree::path) { base, metaFiles ->
                 mapEntry(base, metaFiles)
             }
 
