@@ -211,6 +211,18 @@
                             </mainClass>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>findsame</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>findsame</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.FindSame
+                            </mainClass>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
         </plugins>

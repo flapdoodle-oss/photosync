@@ -3,12 +3,12 @@ package de.flapdoodle.io.tree
 import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 
-fun <T> Tree.Directory.mapFiles(mapper: (Tree.File) -> T): List<T> {
+fun <T> Tree.Directory.flatMap(mapper: (Tree.IsFileLike) -> List<T>): List<T> {
     return this.children.flatMap { it ->
         when (it) {
-            is Tree.File -> listOf(mapper(it))
-            is Tree.Directory -> it.mapFiles(mapper)
-            else -> emptyList()
+            is Tree.File -> mapper(it)
+            is Tree.SymLink -> mapper(it)
+            is Tree.Directory -> it.flatMap(mapper)
         }
     }
 }
