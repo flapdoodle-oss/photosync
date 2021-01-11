@@ -3,6 +3,7 @@ package de.flapdoodle.io.layouts.metainfo
 import de.flapdoodle.io.layouts.common.Diff
 import de.flapdoodle.io.tree.childWithPath
 import de.flapdoodle.photosync.filehash.Hasher
+import de.flapdoodle.photosync.paths.expectParent
 import java.lang.IllegalArgumentException
 import java.nio.file.Path
 
@@ -86,11 +87,11 @@ object ExpectImmutableBaseFile {
         dst: MetaView.Node,
         hashers: List<Hasher<*>>
     ): List<MetaDiff> {
-        val baseDiff = Diff.diff(srcBase, dstBase, listOf(src.base), listOf(dst.base), hashers) {
+        val baseDiff = Diff.diff(src.path.expectParent(), dst.path.expectParent(), listOf(src.base), listOf(dst.base), hashers) {
                 _,_ -> throw IllegalArgumentException("call not expected")
         }
 
-        val metaDiff = Diff.diff(srcBase, dstBase, src.metaFiles, dst.metaFiles, hashers) {
+        val metaDiff = Diff.diff(src.path.expectParent(), dst.path.expectParent(), src.metaFiles, dst.metaFiles, hashers) {
                 _,_ -> throw IllegalArgumentException("call not expected")
         }
 

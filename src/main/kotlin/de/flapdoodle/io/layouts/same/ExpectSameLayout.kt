@@ -27,10 +27,8 @@ object ExpectSameLayout {
         require(relSrc == relDst) { "path mismatch: $relSrc != $relDst" }
 
         return Diff.diff(
-            srcBase,
-            dstBase,
-            src.children,
-            dst.children,
+            src,
+            dst,
             hashers
         ) { s, d -> dirDiff(srcBase, dstBase, s, d, hashers) }
     }

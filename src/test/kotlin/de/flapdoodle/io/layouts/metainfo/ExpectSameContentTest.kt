@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
 internal class ExpectSameContentTest {
+
     @Test
     @Disabled
     fun sample() {
@@ -37,28 +38,9 @@ internal class ExpectSameContentTest {
         }
         println()
         println("---------------")
-//        diff.forEach {
-//            when (it) {
-//                is ExpectImmutableBaseFile.MetaDiff.Missmatch -> {
-//                    println("-------")
-//                    println("Missmatch")
-//                    if (it.baseDiff.isNotEmpty()) {
-//                        println("base file changed")
-//                        it.baseDiff.forEach { baseDiff ->
-//                            println(baseDiff)
-//                        }
-//                    }
-//                    if (it.metaDiff.isNotEmpty()) {
-//                        println("meta files changed")
-//                        it.metaDiff.forEach { baseDiff ->
-//                            println(baseDiff)
-//                        }
-//                    }
-//                    println("-------")
-//                }
-//                else -> println(it)
-//            }
-//        }
+        diff.forEach {
+            println(it)
+        }
         println()
     }
 

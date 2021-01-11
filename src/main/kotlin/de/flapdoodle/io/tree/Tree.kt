@@ -1,6 +1,7 @@
 package de.flapdoodle.io.tree
 
 import de.flapdoodle.photosync.LastModified
+import de.flapdoodle.photosync.paths.expectParent
 import java.nio.file.Path
 
 fun <T> Tree.Directory.flatMap(mapper: (Tree.IsFileLike) -> List<T>): List<T> {
@@ -18,6 +19,8 @@ sealed class Tree(override val path: Path) : HasPath {
         init {
             val pathCollisions = children.groupBy { it.path }.filter { it.value.size > 1 }
             require(pathCollisions.isEmpty()) { "path collisions: $pathCollisions" }
+            val childrenWithWrongParent = children.filter { it.path.expectParent() != path }
+            require(childrenWithWrongParent.isEmpty()) { "paths does not match $path: $childrenWithWrongParent"}
         }
 
         @Deprecated("use extensionFunction")
