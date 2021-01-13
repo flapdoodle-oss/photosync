@@ -1,5 +1,6 @@
 package de.flapdoodle.io.layouts.metainfo
 
+import de.flapdoodle.io.layouts.common.Diff
 import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.photosync.filehash.MonitoringHasher
 import de.flapdoodle.photosync.filehash.QuickHash
@@ -39,9 +40,18 @@ internal class ExpectSameContentTest {
         println()
         println("---------------")
         diff.forEach {
-            println(it)
+            when(it) {
+                is ExpectSameContent.MetaDiff.ChangeMetaFiles -> {
+                    println("Changed MetaFiles: ${it.src.path} ->${it.dst.path}")
+                    it.metaFileDiff.forEach { delta ->
+                        println(" $delta")
+                    }
+                }
+                else -> println(it)
+            }
         }
         println()
     }
+
 
 }

@@ -182,6 +182,23 @@ internal class DiffTest {
             .containsExactly(Diff.TimeStampMissmatch(srcFile,dstFile))
     }
 
+    @Test
+    fun traverseDirectory() {
+        val srcSubDir = Tree.Directory(srcBase.resolve("sub"))
+        val src = Tree.Directory(srcBase, listOf(srcSubDir))
+        val dstSubDir = Tree.Directory(dstBase.resolve("sub"))
+        val dst = Tree.Directory(dstBase, listOf(dstSubDir))
+        val diff = Diff.diff(src, dst, failingHasher()) { s, d ->
+            assertThat(s).isSameAs(srcSubDir)
+            assertThat(d).isSameAs(dstSubDir)
+            // fake entry
+            listOf(Diff.TypeMissmatch(s,d))
+        }
+
+        assertThat(diff)
+            .containsExactly(Diff.TypeMissmatch(srcSubDir,dstSubDir))
+    }
+
     private fun failingHasher() = listOf(MockedHasher(emptyMap()))
 
     class MockedHasher(val map: Map<Path, MockedHash>) : Hasher<MockedHash> {
