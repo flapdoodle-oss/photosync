@@ -13,15 +13,15 @@ class SameHashMap<T>(list: List<SameHash<T>>) {
             }.map { it to sameHash }
         }.toMap()
 
-    fun get(key: T): SameHash<T> {
+    operator fun get(key: T): SameHash<T> {
         return requireNotNull(map[key]) { "no entry found for $key" }
     }
 
     sealed class SameHash<T> {
-        class OnlySource<T>(val src: T, val hash: Hash<*>) : SameHash<T>()
-        class OnlyDestination<T>(val dst: T, val hash: Hash<*>) : SameHash<T>()
-        class Direct<T>(val src: T, val dst: T, val hash: Hash<*>) : SameHash<T>()
-        class Multi<T>(val src: List<T>, val dst: List<T>, val hash: Hash<*>): SameHash<T>()
+        data class OnlySource<T>(val src: T, val hash: Hash<*>) : SameHash<T>()
+        data class OnlyDestination<T>(val dst: T, val hash: Hash<*>) : SameHash<T>()
+        data class Direct<T>(val src: T, val dst: T, val hash: Hash<*>) : SameHash<T>()
+        data class Multi<T>(val src: List<T>, val dst: List<T>, val hash: Hash<*>): SameHash<T>()
     }
 
     companion object {
