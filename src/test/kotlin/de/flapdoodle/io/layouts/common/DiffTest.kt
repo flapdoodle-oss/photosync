@@ -1,9 +1,10 @@
 package de.flapdoodle.io.layouts.common
 
+import de.flapdoodle.io.layouts.MockedHash
+import de.flapdoodle.io.layouts.MockedHasher
+import de.flapdoodle.io.layouts.MockedHasher.Companion.failingHasher
 import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.photosync.LastModified
-import de.flapdoodle.photosync.filehash.Hash
-import de.flapdoodle.photosync.filehash.Hasher
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -198,14 +199,4 @@ internal class DiffTest {
         assertThat(diff)
             .containsExactly(Diff.TypeMissmatch(srcSubDir,dstSubDir))
     }
-
-    private fun failingHasher() = listOf(MockedHasher(emptyMap()))
-
-    class MockedHasher(val map: Map<Path, MockedHash>) : Hasher<MockedHash> {
-        override fun hash(path: Path, size: Long): MockedHash {
-            return requireNotNull(map[path]) { "could not get entry for $path" }
-        }
-    }
-
-    data class MockedHash(val hash: Int) : Hash<MockedHash>
 }

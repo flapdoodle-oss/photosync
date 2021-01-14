@@ -3,7 +3,6 @@ package de.flapdoodle.io.layouts.metainfo
 import de.flapdoodle.io.layouts.common.Diff
 import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.io.tree.childWithPath
-import de.flapdoodle.photosync.filehash.Hash
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.Hasher
 import de.flapdoodle.photosync.paths.expectParent
@@ -39,18 +38,14 @@ object ExpectSameContent {
         hashers: List<Hasher<*>>
     ): List<MetaDiff> {
         require(src.path.toAbsolutePath() != dst.path.toAbsolutePath()) { "same path: ${src.path} ? ${dst.path}" }
-        val srcBaseFiles = src.flatMap {
-            listOf(baseFile(it.base) to it)
-        }.toMap()
-        val dstBaseFiles = dst.flatMap {
-            listOf(baseFile(it.base) to it)
-        }.toMap()
-        val srcFiles = srcBaseFiles.keys
-        val dstFiles = dstBaseFiles.keys
-        val groupedByHash = HashStrategy.groupBy(hashers, srcFiles + dstFiles)
+        val srcBaseFiles = baseFileMap(src)
+        val dstBaseFiles = baseFileMap(dst)
+        val groupedByHash = HashStrategy.groupBy(hashers, srcBaseFiles.keys + dstBaseFiles.keys)
         val sameHashMapping: SameHashMap<MetaView.Node> = SameHashMap.from(srcBaseFiles, dstBaseFiles, groupedByHash)
         return diff(src.path, dst.path, src, dst, sameHashMapping, hashers)
     }
+
+    private fun baseFileMap(src: MetaView.Directory) = src.flatMap { listOf(baseFile(it.base) to it) }.toMap()
 
     private fun diff(
         srcBase: Path,
@@ -86,10 +81,16 @@ object ExpectSameContent {
                                 val dstNode = dst.children.childWithPath(expectedDestination)
                                 if (dstNode != sameHashDstNode) {
                                     diffs =
-                                        diffs + MetaDiff.Moved(srcChild, sameHashDstNode, expectedDestination, metaFileDiff)
+                                        diffs + MetaDiff.Moved(
+                                            srcChild,
+                                            sameHashDstNode,
+                                            expectedDestination,
+                                            metaFileDiff
+                                        )
                                 } else {
                                     if (!metaFileDiff.isEmpty()) {
-                                        diffs = diffs + MetaDiff.ChangeMetaFiles(srcChild, sameHashDstNode, metaFileDiff)
+                                        diffs =
+                                            diffs + MetaDiff.ChangeMetaFiles(srcChild, sameHashDstNode, metaFileDiff)
                                     }
                                 }
                             } else {

@@ -1,5 +1,6 @@
 package de.flapdoodle.io.layouts.metainfo
 
+import de.flapdoodle.io.layouts.MockedHash
 import de.flapdoodle.photosync.filehash.Hash
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -30,12 +31,13 @@ internal class SameHashMapTest {
         assertThat(testee.get("src/one"))
             .isEqualTo(SameHashMap.SameHash.Direct("src/one","dst/one", MockedHash(1)))
         assertThat(testee.get("src/only-2"))
-            .isEqualTo(SameHashMap.SameHash.OnlySource("src/only-2",MockedHash(2)))
+            .isEqualTo(SameHashMap.SameHash.OnlySource("src/only-2", MockedHash(2)))
         assertThat(testee.get("dst/only-3"))
-            .isEqualTo(SameHashMap.SameHash.OnlyDestination("dst/only-3",MockedHash(3)))
+            .isEqualTo(SameHashMap.SameHash.OnlyDestination("dst/only-3", MockedHash(3)))
         assertThat(testee.get("src/multi-1"))
-            .isEqualTo(SameHashMap.SameHash.Multi(listOf("src/multi-1", "src/multi-2"), listOf("dst/multi-1","dst/multi-2"),MockedHash(4)))
+            .isEqualTo(SameHashMap.SameHash.Multi(listOf("src/multi-1", "src/multi-2"), listOf("dst/multi-1","dst/multi-2"),
+                MockedHash(4)
+            ))
     }
 
-    data class MockedHash(val hash: Int) : Hash<MockedHash>
 }
