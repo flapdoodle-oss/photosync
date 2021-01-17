@@ -17,7 +17,7 @@ object ExpectSameContent {
             MetaDiff()
 
         data class TypeMissmatch(val src: MetaView, val dst: MetaView) : MetaDiff()
-        data class MultipleMappings(val src: List<MetaView.Node>, val dst: List<MetaView.Node>) : MetaDiff()
+        data class MultipleMappings(val element: MetaView.Node, val src: List<MetaView.Node>, val dst: List<MetaView.Node>) : MetaDiff()
         data class Moved(
             val src: MetaView.Node,
             val dst: MetaView.Node,
@@ -62,7 +62,7 @@ object ExpectSameContent {
 
             when (srcChild) {
                 is MetaView.Node -> {
-                    val sameHash = sameHashMap.get(srcChild)
+                    val sameHash = sameHashMap[srcChild]
                     when (sameHash) {
                         is SameHashMap.SameHash.Direct -> {
                             val sameHashDstNode = sameHash.dst
@@ -94,14 +94,19 @@ object ExpectSameContent {
                                     }
                                 }
                             } else {
-                                diffs + diffs + MetaDiff.Renamed(srcChild, sameHashDstNode, expectedDestination)
+                                diffs = diffs + MetaDiff.Renamed(srcChild, sameHashDstNode, expectedDestination)
                             }
                         }
                         is SameHashMap.SameHash.OnlySource -> {
-                            diffs = diffs + MetaDiff.DestinationIsMissing(sameHash.src, expectedDestination)
+                            val dstNode = dst.children.childWithPath(expectedDestination)
+                            if (dstNode==null) {
+                                diffs = diffs + MetaDiff.DestinationIsMissing(sameHash.src, expectedDestination)
+                            } else {
+                                diffs = diffs + MetaDiff.TypeMissmatch(sameHash.src, dstNode)
+                            }
                         }
                         is SameHashMap.SameHash.Multi -> {
-                            diffs = diffs + MetaDiff.MultipleMappings(sameHash.src, sameHash.dst)
+                            diffs = diffs + MetaDiff.MultipleMappings(srcChild, sameHash.src, sameHash.dst)
                         }
                         else -> {
                             throw IllegalArgumentException("unexpected: $sameHash")
@@ -128,10 +133,29 @@ object ExpectSameContent {
         dst.children.forEach { dstChild ->
             val expectedSource = dstChild.path.rewrite(dstBase, srcBase)
             val srcChild = src.children.childWithPath(expectedSource)
-
-            // look into sameHashMap for OnlyDestination??
             if (srcChild == null) {
-                diffs = diffs + MetaDiff.SourceIsMissing(expectedSource, dstChild)
+                when (dstChild) {
+                    is MetaView.Node -> {
+                        val sameHash: SameHashMap.SameHash<MetaView.Node> = sameHashMap[dstChild];
+                        when (sameHash) {
+                            is SameHashMap.SameHash.OnlyDestination -> {
+                                diffs = diffs + MetaDiff.SourceIsMissing(expectedSource, dstChild)
+                            }
+                            is SameHashMap.SameHash.Multi -> {
+                                diffs = diffs + MetaDiff.MultipleMappings(dstChild, sameHash.src, sameHash.dst)
+                            }
+                            is SameHashMap.SameHash.Direct -> {
+                                // ignore, because direct mappings are already processed
+                            }
+                            else -> {
+                                throw IllegalArgumentException("not expected: $sameHash")
+                            }
+                        }
+                    }
+                    is MetaView.Directory -> {
+                        diffs = diffs + MetaDiff.SourceIsMissing(expectedSource, dstChild)
+                    }
+                }
             }
         }
         return diffs

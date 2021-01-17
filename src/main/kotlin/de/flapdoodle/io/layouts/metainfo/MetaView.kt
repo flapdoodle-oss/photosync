@@ -30,7 +30,7 @@ sealed class MetaView : HasPath {
     }
 
     companion object {
-        fun map(tree: Tree.Directory, groupMetaFiles: GroupMetaFiles): Directory {
+        fun map(tree: Tree.Directory, groupMetaFiles: GroupMetaFiles = GroupMetaFiles.default()): Directory {
             return Directory(tree, mapChildren(tree.children, groupMetaFiles))
         }
 
