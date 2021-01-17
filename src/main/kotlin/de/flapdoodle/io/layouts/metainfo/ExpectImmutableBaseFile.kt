@@ -44,23 +44,21 @@ object ExpectImmutableBaseFile {
 
         var diffs = emptyList<MetaDiff>()
         src.children.forEach { srcChild ->
-            val childPath = srcBase.relativize(srcChild.path)
-            val expectedDestination = dstBase.resolve(childPath)
+            val expectedDestination = dstBase.resolve(srcBase.relativize(srcChild.path))
             val dstChild = dst.children.childWithPath(expectedDestination)
 
             if (dstChild != null) {
-                when (srcChild) {
+                diffs = when (srcChild) {
                     is MetaView.Directory -> {
                         when (dstChild) {
-                            is MetaView.Directory -> diffs =
-                                diffs + dirDiff(srcBase, dstBase, srcChild, dstChild, hashers)
-                            else -> diffs = diffs + MetaDiff.TypeMissmatch(srcChild, dstChild)
+                            is MetaView.Directory -> diffs + dirDiff(srcBase, dstBase, srcChild, dstChild, hashers)
+                            else -> diffs + MetaDiff.TypeMissmatch(srcChild, dstChild)
                         }
                     }
                     is MetaView.Node -> {
                         when (dstChild) {
-                            is MetaView.Node -> diffs = diffs + fileDiff(srcBase, dstBase, srcChild, dstChild, hashers)
-                            else -> diffs = diffs + MetaDiff.TypeMissmatch(srcChild, dstChild)
+                            is MetaView.Node -> diffs + fileDiff(srcChild, dstChild, hashers)
+                            else -> diffs + MetaDiff.TypeMissmatch(srcChild, dstChild)
                         }
                     }
                 }
@@ -81,8 +79,6 @@ object ExpectImmutableBaseFile {
     }
 
     private fun fileDiff(
-        srcBase: Path,
-        dstBase: Path,
         src: MetaView.Node,
         dst: MetaView.Node,
         hashers: List<Hasher<*>>

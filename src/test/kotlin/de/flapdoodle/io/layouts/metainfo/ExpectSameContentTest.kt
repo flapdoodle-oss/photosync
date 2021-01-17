@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
-internal class ExpectSameContentTest {
+internal class ExpectSameContentTest : UseMetaViewHelper, UseTreeHelper {
     val now = LastModified.now()
 
     val srcBase = Path.of("src")
@@ -512,30 +512,6 @@ internal class ExpectSameContentTest {
                 MetaDiff.TypeMissmatch(src.childByName("b"), dst.childByName("b")),
                 MetaDiff.TypeMissmatch(src.childByName("a"), dst.childByName("a")),
             )
-    }
-
-    private fun Tree.Directory.directoryByName(name: String): Tree.Directory {
-        return childByName(name) as Tree.Directory
-    }
-
-    private fun Tree.Directory.fileByName(name: String): Tree.File {
-        return childByName(name) as Tree.File
-    }
-
-    private fun Tree.Directory.childByName(name: String): Tree {
-        return this.children.single { it.path.fileName.toString() == name }
-    }
-
-    private fun MetaView.Directory.nodeByName(name: String): MetaView.Node {
-        return childByName(name) as MetaView.Node
-    }
-
-    private fun MetaView.Directory.directoryByName(name: String): MetaView.Directory {
-        return childByName(name) as MetaView.Directory
-    }
-
-    private fun MetaView.Directory.childByName(name: String): MetaView {
-        return this.children.single { it.path.fileName.toString() == name }
     }
 
     private fun hasher(vararg pairs: Pair<Path, MockedHash>): MockedHasher {

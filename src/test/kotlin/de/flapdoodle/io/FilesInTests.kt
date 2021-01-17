@@ -2,6 +2,7 @@ package de.flapdoodle.io
 
 import de.flapdoodle.photosync.LastModified
 import java.io.File
+import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -41,6 +42,10 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
             return newHelper
         }
 
+        fun createFile(name: String, content: String, lastModified: LastModified? = null): Path {
+            return createFile(name, content.toByteArray(Charsets.UTF_8), lastModified)
+        }
+        
         fun createFile(name: String, content: ByteArray, lastModified: LastModified? = null): Path {
             val newPath = current.resolve(name)
             Files.write(newPath, content, StandardOpenOption.CREATE_NEW);
