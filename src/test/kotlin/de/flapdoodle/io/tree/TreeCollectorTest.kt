@@ -62,7 +62,7 @@ internal class TreeCollectorTest {
     @Test
     fun addFileToCurrentDirectory() {
         val dir = Path.of("dir")
-        val file = Path.of("file")
+        val file = dir.resolve("file")
         val size = 12L
         val lastModified = LastModified.now()
 
@@ -76,7 +76,7 @@ internal class TreeCollectorTest {
     @Test
     fun addSymlinkToCurrentDirectory() {
         val dir = Path.of("dir")
-        val file = Path.of("file")
+        val file = dir.resolve("file")
         val size = 12L
         val lastModified = LastModified.now()
 
@@ -90,8 +90,8 @@ internal class TreeCollectorTest {
     @Test
     fun addFileToSubDirectory() {
         val dir = Path.of("dir")
-        val sub = Path.of("sub")
-        val file = Path.of("file")
+        val sub = dir.resolve("sub")
+        val file = sub.resolve("file")
         val size = 12L
         val lastModified = LastModified.now()
 

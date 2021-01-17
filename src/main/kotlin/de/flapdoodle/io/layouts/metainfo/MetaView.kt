@@ -13,6 +13,15 @@ fun <T> MetaView.Directory.flatMap(mapper: (MetaView.Node) -> List<T>): List<T> 
     }
 }
 
+fun <T> MetaView.Directory.fold(start: T, reducer: (T, MetaView.Node) -> T): T {
+    return this.children.fold(start) { folded, it ->
+        when (it) {
+            is MetaView.Node -> reducer(folded, it)
+            is MetaView.Directory -> it.fold(folded, reducer)
+        }
+    }
+}
+
 sealed class MetaView : HasPath {
     data class Directory(val reference: Tree.Directory, val children: List<MetaView> = emptyList()) : MetaView() {
         override val path: Path
