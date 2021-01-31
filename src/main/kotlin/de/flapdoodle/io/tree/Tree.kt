@@ -29,7 +29,10 @@ sealed class Tree(override val path: Path) : HasPath {
         }
     }
 
-    interface IsFileLike
+    interface IsFileLike {
+        val path: Path
+        val lastModified: LastModified
+    }
 
     data class File(
             override val path: Path,
@@ -40,6 +43,6 @@ sealed class Tree(override val path: Path) : HasPath {
     data class SymLink(
             override val path: Path,
             val destination: Path,
-            val lastModified: LastModified
+            override val lastModified: LastModified
     ) : Tree(path), IsFileLike
 }

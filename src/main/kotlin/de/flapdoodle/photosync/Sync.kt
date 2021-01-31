@@ -9,6 +9,7 @@ import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.io.layouts.metainfo.*
+import de.flapdoodle.io.resolve.metainfo.ExpectSameContentDiff2Commands
 import de.flapdoodle.io.tree.FileTreeEvent
 import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.io.tree.Tree
@@ -19,10 +20,10 @@ import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
 import java.time.Duration
 import java.time.LocalDateTime
-import kotlin.io.path.name
-import kotlin.io.path.nameWithoutExtension
 
 object Sync {
+    const val MAX_PATH_LEN=70;
+
     class Args : CliktCommand() {
         init {
             context {
@@ -89,8 +90,8 @@ object Sync {
 
             val diff = ExpectSameContent.diff(
                 srcMetaTree, dstMetaTree, listOf(
-                    MonitoringHasher(SizeHash),
-                    MonitoringHasher(QuickHash)
+                    MonitoringHasher(SizeHash) { path, size -> "hash ${short(path)} (size)"},
+                    MonitoringHasher(QuickHash) { path, size -> "hash ${short(path)} (quickhash)"},
                 )
             )
 
@@ -100,7 +101,10 @@ object Sync {
         val end = LocalDateTime.now()
 
         println("- - - - - - - - - - - - - - - - -")
-        println("Changed: ${result.diff.size}")
+        val commands = ExpectSameContentDiff2Commands.syncCommandsFor(result.src, result.dst, result.diff)
+        commands.forEach {
+            println(" $it")
+        }
 //        UnixCommandListRenderer.execute(result.result)
 ////    val end = LocalDateTime.now()
         println("- - - - - - - - - - - - - - - - -")
@@ -110,23 +114,21 @@ object Sync {
     }
 
     private fun humanReadable(event: FileTreeEvent): String {
-        when (event) {
+        return when (event) {
             is FileTreeEvent.Enter -> "scan ${short(event.path)}"
             is FileTreeEvent.Leave -> "done ${short(event.path)}"
             is FileTreeEvent.File -> "file ${short(event.path)}"
             is FileTreeEvent.SymLink -> "symlink ${short(event.path)}"
         }
-        return event.toString()
     }
 
     private fun short(path: Path): String {
         val fullPath = path.toString()
-        val fileName = path.fileName.toString()
-        val leftForPath = 60 - fileName.length - 3
-
-        return if (fullPath.length > leftForPath + fileName.length) {
-            fullPath.substring(0, leftForPath) + "..." + fileName
-        } else fullPath
+        return if (fullPath.length > MAX_PATH_LEN) {
+            "..."+fullPath.substring(fullPath.length-(MAX_PATH_LEN-3), fullPath.length)
+        } else {
+            fullPath
+        }
     }
 
     sealed class SyncMode(name: String) : OptionGroup(name) {

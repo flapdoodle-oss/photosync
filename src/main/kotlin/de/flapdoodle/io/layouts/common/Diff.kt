@@ -11,10 +11,10 @@ import java.nio.file.Path
 
 sealed class Diff {
     data class TimeStampMissmatch(val src: Tree.IsFileLike, val dst: Tree.IsFileLike) : Diff()
-    data class ContentMissmatch(val src: Tree.File, val dst: Tree.File) : Diff()
+    data class ContentMismatch(val src: Tree.File, val dst: Tree.File) : Diff()
     data class SourceIsMissing(val expectedPath: Path, val dst: Tree) : Diff()
     data class DestinationIsMissing(val src: Tree, val expectedPath: Path) : Diff()
-    data class TypeMissmatch(val src: Tree, val dst: Tree) : Diff()
+    data class TypeMismatch(val src: Tree, val dst: Tree) : Diff()
     data class SymLinkMissmatch(val src: Tree.SymLink, val dst: Tree.SymLink) : Diff()
 
     companion object {
@@ -47,11 +47,11 @@ sealed class Diff {
                     when (srcChild) {
                         is Tree.Directory -> when (dstChild) {
                             is Tree.Directory -> diffs = diffs + dirDiff(srcChild, dstChild)
-                            else -> diffs = diffs + TypeMissmatch(srcChild, dstChild)
+                            else -> diffs = diffs + TypeMismatch(srcChild, dstChild)
                         }
                         is Tree.File -> when (dstChild) {
                             is Tree.File -> diffs = diffs + fileDiff(srcChild, dstChild, hashers)
-                            else -> diffs = diffs + TypeMissmatch(srcChild, dstChild)
+                            else -> diffs = diffs + TypeMismatch(srcChild, dstChild)
                         }
                         is Tree.SymLink -> when (dstChild) {
                             is Tree.SymLink -> {
@@ -65,7 +65,7 @@ sealed class Diff {
                                     }
                                 }
                             }
-                            else -> diffs = diffs + TypeMissmatch(srcChild, dstChild)
+                            else -> diffs = diffs + TypeMismatch(srcChild, dstChild)
                         }
                     }
                 } else {
@@ -85,7 +85,7 @@ sealed class Diff {
 
         private fun fileDiff(srcChild: Tree.File, dstChild: Tree.File, hashers: List<Hasher<*>>): List<Diff> {
             return if (isDifferent(srcChild, dstChild, hashers))
-                listOf(ContentMissmatch(srcChild, dstChild))
+                listOf(ContentMismatch(srcChild, dstChild))
             else
                 if (srcChild.lastModified.compare(dstChild.lastModified) != Comparision.Equal)
                     listOf(TimeStampMissmatch(srcChild, dstChild))

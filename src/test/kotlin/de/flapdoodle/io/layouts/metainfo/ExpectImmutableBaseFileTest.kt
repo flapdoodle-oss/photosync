@@ -114,7 +114,7 @@ internal class ExpectImmutableBaseFileTest : UseMetaViewHelper, UseTreeHelper {
                         dst = dstMetaTree.nodeByName("foo"),
                         baseDiff = emptyList(),
                         metaDiff = listOf(
-                            Diff.ContentMissmatch(
+                            Diff.ContentMismatch(
                                 src = srcMetaTree.nodeByName("foo")
                                     .metaFiles.fileByName("foo.info"),
                                 dst = dstMetaTree.nodeByName("foo")

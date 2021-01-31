@@ -60,14 +60,14 @@ object DirDiff {
             println("${it.expectedPath}? - ${it.dst.path}")
           is Diff.DestinationIsMissing ->
             println("${it.src.path} - ${it.expectedPath}?")
-          is Diff.TypeMissmatch ->
+          is Diff.TypeMismatch ->
             println("${it.src.javaClass.simpleName} (${it.src.path}) != ${it.dst.javaClass.simpleName} (${it.dst.path})")
           is Diff.SymLinkMissmatch -> {
             println("${it.src.path} (1) != ${it.dst.path} (2)")
             println("1)-> ${it.src.destination}")
             println("2)-> ${it.dst.destination}")
           }
-          is Diff.ContentMissmatch -> {
+          is Diff.ContentMismatch -> {
             println("${it.src.path} != ${it.dst.path}")
           }
         }

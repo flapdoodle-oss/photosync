@@ -7,12 +7,10 @@ import de.flapdoodle.io.layouts.metainfo.ExpectSameContent.MetaDiff
 import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.photosync.LastModified
-import de.flapdoodle.photosync.filehash.Hash
 import de.flapdoodle.photosync.filehash.MonitoringHasher
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.filehash.SizeHash
 import de.flapdoodle.photosync.progress.Monitor
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -198,7 +196,7 @@ internal class ExpectSameContentTest : UseMetaViewHelper, UseTreeHelper {
                 src = src.childByName("a") as MetaView.Node,
                 dst = dst.childByName("a") as MetaView.Node,
                 metaFileDiff = listOf(
-                    Diff.ContentMissmatch(
+                    Diff.ContentMismatch(
                         srcTree.childByName("a.info") as Tree.File,
                         dstTree.childByName("a.info") as Tree.File
                     )
@@ -248,7 +246,7 @@ internal class ExpectSameContentTest : UseMetaViewHelper, UseTreeHelper {
                 src = src.nodeByName("a"),
                 dst = dst.directoryByName("moved").nodeByName("a"),
                 metaFileDiff = listOf(
-                    Diff.ContentMissmatch(
+                    Diff.ContentMismatch(
                         srcTree.fileByName("a.info"),
                         dstTree.directoryByName("moved").fileByName("a.info")
                     )

@@ -69,9 +69,9 @@ internal class DiffTest {
 
         assertThat(diff)
             .containsExactlyInAnyOrder(
-                Diff.TypeMissmatch(src = srcLink, dst = dstFile),
-                Diff.TypeMissmatch(src = srcFile, dst = dstDir),
-                Diff.TypeMissmatch(src = srcDir, dst = dstLink)
+                Diff.TypeMismatch(src = srcLink, dst = dstFile),
+                Diff.TypeMismatch(src = srcFile, dst = dstDir),
+                Diff.TypeMismatch(src = srcDir, dst = dstLink)
             )
     }
 
@@ -94,7 +94,7 @@ internal class DiffTest {
         }
 
         assertThat(diff)
-            .containsExactly(Diff.ContentMissmatch(srcFile,dstFile))
+            .containsExactly(Diff.ContentMismatch(srcFile,dstFile))
     }
 
     @Test
@@ -193,10 +193,10 @@ internal class DiffTest {
             assertThat(s).isSameAs(srcSubDir)
             assertThat(d).isSameAs(dstSubDir)
             // fake entry
-            listOf(Diff.TypeMissmatch(s,d))
+            listOf(Diff.TypeMismatch(s,d))
         }
 
         assertThat(diff)
-            .containsExactly(Diff.TypeMissmatch(srcSubDir,dstSubDir))
+            .containsExactly(Diff.TypeMismatch(srcSubDir,dstSubDir))
     }
 }
