@@ -14,11 +14,6 @@ object Check {
     }
 
     private data class WasLastModifiedAt(val lastModified: LastModified) : PathCheck {
-        override fun check(path: Path) = LastModified.from(
-            Files.getLastModifiedTime(
-                path,
-                LinkOption.NOFOLLOW_LINKS
-            )
-        ) == lastModified
+        override fun check(path: Path) = LastModified.from(path) == lastModified
     }
 }

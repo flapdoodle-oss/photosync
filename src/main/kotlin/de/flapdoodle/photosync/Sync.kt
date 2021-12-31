@@ -13,9 +13,7 @@ import de.flapdoodle.io.resolve.metainfo.ExpectSameContentDiff2Commands
 import de.flapdoodle.io.tree.FileTreeEvent
 import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.io.tree.Tree
-import de.flapdoodle.photosync.filehash.MonitoringHasher
-import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.filehash.SizeHash
+import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
 import java.time.Duration
@@ -34,7 +32,8 @@ object Sync {
         val mode by option(
             "-m", "--mode", help = "mode (default is same-layout)"
         ).groupChoice(
-            "same-layout" to SyncMode.SameLayout()
+            "same-layout" to SyncMode.SameLayout(),
+            "same-time" to SyncMode.SameLayoutLastModified()
         )
 
         val source by argument("source")
@@ -89,10 +88,7 @@ object Sync {
             val dstMetaTree = MetaView.map(dstTree, GroupMetaFiles.default());
 
             val diff = ExpectSameContent.diff(
-                srcMetaTree, dstMetaTree, listOf(
-                    MonitoringHasher(SizeHash) { path, size -> "hash ${short(path)} (size)"},
-                    MonitoringHasher(QuickHash) { path, size -> "hash ${short(path)} (quickhash)"},
-                )
+                srcMetaTree, dstMetaTree, mode.hasher()
             )
 
             SyncResult(srcMetaTree, dstMetaTree, diff)
@@ -132,7 +128,21 @@ object Sync {
     }
 
     sealed class SyncMode(name: String) : OptionGroup(name) {
-        class SameLayout : SyncMode("options for same layout")
+        abstract fun hasher(): List<Hasher<*>>
+        class SameLayout : SyncMode("options for same layout") {
+            override fun hasher(): List<Hasher<*>> = listOf(
+                MonitoringHasher(SizeHash) { path, size -> "hash ${short(path)} (size)"},
+                MonitoringHasher(QuickHash) { path, size -> "hash ${short(path)} (quickhash)"},
+            )
+        }
+
+        // TODO does not work as expected
+        class SameLayoutLastModified : SyncMode("same modification date") {
+            override fun hasher(): List<Hasher<*>> = listOf(
+                MonitoringHasher(SizeHash) { path, size -> "hash ${short(path)} (size)"},
+                MonitoringHasher(LastModificationHash) { path, size -> "hash ${short(path)} (lastModified)"},
+            )
+        }
     }
 
     class SyncResult(
