@@ -176,6 +176,18 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>whatisnewer</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>whatisnewer</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.WhatIsNewer
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>photosync-ui</id>
                         <goals>
                             <goal>repackage</goal>
