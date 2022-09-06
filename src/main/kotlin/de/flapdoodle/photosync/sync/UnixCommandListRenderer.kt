@@ -25,6 +25,9 @@ object UnixCommandListRenderer : CommandExecutor {
         is Command.MkDir -> printCommand("mkdir", it.dst)
         is Command.BulkMove -> printCommand("mv", it.src.resolve("*"), it.dst)
 //        is Command.Remove -> { }
+        else -> {
+          throw IllegalArgumentException("should not happen")
+        }
       }
     }
 
@@ -40,6 +43,9 @@ object UnixCommandListRenderer : CommandExecutor {
             }
             printCommand("touch -r", it.dst, it.src)
           }
+          else -> {
+            throw IllegalArgumentException("should not happen")
+          }
         }
       }
     }
@@ -51,6 +57,9 @@ object UnixCommandListRenderer : CommandExecutor {
       removeCommands.forEach {
         when (it) {
           is Command.Remove -> if (it.cause == Command.Cause.CopyRemovedFromSource) printCommand("rm", it.dst)
+          else -> {
+            throw IllegalArgumentException("should not happen")
+          }
         }
       }
 
@@ -60,6 +69,9 @@ object UnixCommandListRenderer : CommandExecutor {
       removeCommands.forEach {
         when (it) {
           is Command.Remove -> if (it.cause == Command.Cause.DeletedEntry) printCommand("rm", it.dst)
+          else -> {
+            throw IllegalArgumentException("should not happen")
+          }
         }
       }
     }

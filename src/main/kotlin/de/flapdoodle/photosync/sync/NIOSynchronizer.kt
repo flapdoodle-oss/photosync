@@ -58,6 +58,10 @@ class NIOSynchronizer : Synchronizer {
                         listener(group.id, entry.command, SyncGroup.Status.Failed)
                     }
                 }
+
+                else -> {
+                    throw IllegalArgumentException("not implemented")
+                }
             }
         }
     }

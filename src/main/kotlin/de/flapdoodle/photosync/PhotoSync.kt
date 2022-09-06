@@ -12,7 +12,9 @@ import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
+import de.flapdoodle.photosync.filehash.FullHash
 import de.flapdoodle.photosync.filehash.HashStrategy
+import de.flapdoodle.photosync.filehash.Hashing
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.filetree.*
 import de.flapdoodle.photosync.paths.matches
@@ -44,7 +46,14 @@ object PhotoSync {
         "copy-source" to Mode.CopySource()
     )
 
-    val source by argument("source")
+      val hashMode by option(
+          "-H", "--hash", help = "hash (default is quick)"
+      )/*.groupChoice(
+          "quick" to QuickHash.Companion,
+          "full" to FullHash.Companion
+      )*/
+
+      val source by argument("source")
         .path(
             mustExist = true,
             canBeFile = false,
@@ -72,6 +81,7 @@ object PhotoSync {
 //      echo("$source -- $destination ($pattern)")
 
       val filter = pattern?.let { asFilter(it) }
+        val hash = hashMode ?: QuickHash;
 
       sync(
           source,

@@ -62,6 +62,11 @@ class StartView : View("PhotoSync") {
                 is ActionEvent.Action.Sync -> {
                     taskList.startSync(event.action.data, event.action.enableCopyBack, event.action.enableRemove)
                 }
+
+                is ActionEvent.Action.ScanAborted -> TODO()
+                is ActionEvent.Action.ScanStarted -> TODO()
+                ActionEvent.Action.SyncDone -> TODO()
+                is ActionEvent.Action.Synced -> TODO()
             }
         }
 

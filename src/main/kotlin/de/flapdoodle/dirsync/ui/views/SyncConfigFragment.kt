@@ -130,6 +130,8 @@ class SyncConfigFragment(val currentConfig: LazyValue<SyncConfig>) : Fragment("S
                         when (event.action) {
                             is ActionEvent.Action.ScanFinished -> isDisable = false
                             is ActionEvent.Action.ScanAborted -> isDisable = false
+                            else -> {
+                            }
                         }
                     }
                 }.withPosition(SYNC_COLUMN, index)

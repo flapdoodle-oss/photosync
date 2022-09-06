@@ -70,6 +70,9 @@ object DirDiff {
           is Diff.ContentMismatch -> {
             println("${it.src.path} != ${it.dst.path}")
           }
+            is Diff.TimeStampMissmatch -> {
+                println("${it.src.path} != ${it.dst.path} (${it.src.lastModified} != ${it.dst.lastModified}")
+            }
         }
       }
     }

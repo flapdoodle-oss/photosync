@@ -42,6 +42,7 @@ class ActionEventHandler(
                 println("stop scap called")
                 tasks.stop(event.action.id)
             }
+            else -> throw IllegalArgumentException("unexpected")
         }
     }
 

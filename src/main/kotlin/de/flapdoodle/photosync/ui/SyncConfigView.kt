@@ -125,6 +125,12 @@ class SyncConfigView(currentConfig: LazyValue<SyncConfig>) : Fragment("Sync Conf
                                     }
                                 }
                             }
+
+                            is ActionEvent.Action.StartScan -> TODO()
+                            is ActionEvent.Action.StopScan -> TODO()
+                            is ActionEvent.Action.Sync -> TODO()
+                            ActionEvent.Action.SyncDone -> TODO()
+                            is ActionEvent.Action.Synced -> TODO()
                         }
                     }
                     minWidth = Region.USE_PREF_SIZE
