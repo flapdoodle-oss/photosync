@@ -12,10 +12,7 @@ import de.flapdoodle.photosync.analyze.GroupMetaData
 import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
-import de.flapdoodle.photosync.filehash.FullHash
-import de.flapdoodle.photosync.filehash.HashStrategy
-import de.flapdoodle.photosync.filehash.Hashing
-import de.flapdoodle.photosync.filehash.QuickHash
+import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.filetree.*
 import de.flapdoodle.photosync.paths.matches
 import de.flapdoodle.photosync.progress.Monitor
@@ -48,10 +45,10 @@ object PhotoSync {
 
       val hashMode by option(
           "-H", "--hash", help = "hash (default is quick)"
-      )/*.groupChoice(
-          "quick" to QuickHash.Companion,
-          "full" to FullHash.Companion
-      )*/
+      ).groupChoice(
+          "quick" to HashMode.Quick(),
+          "full" to HashMode.Full()
+      )
 
       val source by argument("source")
         .path(
@@ -81,13 +78,16 @@ object PhotoSync {
 //      echo("$source -- $destination ($pattern)")
 
       val filter = pattern?.let { asFilter(it) }
-        val hash = hashMode ?: QuickHash;
 
       sync(
           source,
           destination,
           filter = filter,
-          mode = mode ?: Mode.Merge()
+          mode = mode ?: Mode.Merge(),
+          hasher = when (hashMode) {
+              is HashMode.Full -> FullHash
+              else -> QuickHash
+          }
       )
     }
   }
@@ -127,11 +127,18 @@ object PhotoSync {
       srcPath: Path,
       dstPath: Path,
       filter: ((Path) -> Boolean)?,
-      mode: Mode = Mode.Merge()
+      mode: Mode = Mode.Merge(),
+      hasher: Hasher<*>
   ) {
 
-    val result = Scanner(srcPath, dstPath, filter, SyncCommand2Command::map, mode)
-            .sync()
+    val result = Scanner(
+        srcPath = srcPath,
+        dstPath = dstPath,
+        filter = filter,
+        map = SyncCommand2Command::map,
+        mode = mode,
+        hasher = hasher
+    ).sync()
 
 //    SyncList.map(srcPath, dstPath, result)
 

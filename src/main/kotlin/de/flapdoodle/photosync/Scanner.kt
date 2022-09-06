@@ -6,6 +6,7 @@ import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.diff.Scan
 import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
 import de.flapdoodle.photosync.filehash.HashStrategy
+import de.flapdoodle.photosync.filehash.Hasher
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.sync.*
@@ -19,7 +20,8 @@ class Scanner<T>(
         val dstPath: Path,
         val filter: ((Path) -> Boolean)?,
         val map: (commands: List<SyncCommandGroup>, src: Tree.Directory, dst: Tree.Directory) -> T,
-        val mode: Mode = Mode.Merge()
+        val mode: Mode = Mode.Merge(),
+        val hasher: Hasher<*> = QuickHash
 ) {
      init {
          val srcAsFile = srcPath.toFile()
@@ -29,6 +31,7 @@ class Scanner<T>(
          val dstAsFile = dstPath.toFile()
          require(dstAsFile.exists()) {"$dstPath does not exist" }
          require(dstAsFile.isDirectory) {"$dstPath is not a directory" }
+
      }
 
     fun sync(
@@ -37,8 +40,6 @@ class Scanner<T>(
             progress: (Int, Int) -> Unit = { _,_ -> }
     ): Result<T> {
         val start = LocalDateTime.now()
-
-        val hasher = QuickHash
 
         return Monitor.execute(reporter) {
             val steps = 6
@@ -53,7 +54,7 @@ class Scanner<T>(
             if (abort()) throw AbortedException()
 
             val src = Monitor.scope("scan") {
-                scan(srcTree, filter = filter)
+                scan(srcTree, filter = filter, hashStrategy = HashStrategy{ listOf(hasher) })
             }
 
             progress(2, steps)
@@ -69,7 +70,7 @@ class Scanner<T>(
 
             val dst = Monitor.scope("scan") {
                 Monitor.message(dstPath.toString())
-                scan(dstTree, filter = filter)
+                scan(dstTree, filter = filter, hashStrategy = HashStrategy{ listOf(hasher) })
             }
 
             progress(4, steps)
@@ -110,7 +111,7 @@ class Scanner<T>(
 
     private fun scan(
             tree: Tree.Directory,
-            hashStrategy: HashStrategy = HashStrategy { listOf(QuickHash) },
+            hashStrategy: HashStrategy,
             filter: ((Path) -> Boolean)? = null
     ): Scan {
         val filteredTree = if (filter != null)

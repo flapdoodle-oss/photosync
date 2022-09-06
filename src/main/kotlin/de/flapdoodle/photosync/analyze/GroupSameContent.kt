@@ -1,11 +1,7 @@
 package de.flapdoodle.photosync.analyze
 
 import de.flapdoodle.photosync.Blob
-import de.flapdoodle.photosync.filehash.FullHash
-import de.flapdoodle.photosync.filehash.Hash
-import de.flapdoodle.photosync.filehash.HashStrategy
-import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.filehash.SizeHasher
+import de.flapdoodle.photosync.filehash.*
 
 class GroupSameContent(
     blobs: Iterable<Blob>,
@@ -15,7 +11,7 @@ class GroupSameContent(
   private val groupedByHash: Map<Hash<*>,List<Blob>>
 
   init {
-    groupedByHash = HashStrategy.groupBlobs(HashStrategy { listOf(SizeHasher()) + hashStrategy.hasher() }, blobs)
+    groupedByHash = HashStrategy.groupBlobs(HashStrategy { listOf(SizeHash) + hashStrategy.hasher() }, blobs)
   }
 
   fun uniqueBlobs() = groupedByHash.values.filter { it.size==1 }.map { it.single() }
