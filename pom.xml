@@ -16,7 +16,7 @@
         <main.class>kotlin.KotlinHelloKt</main.class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
+        <kotlin.compiler.languageVersion>1.7</kotlin.compiler.languageVersion>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
         <javafx.version>13.0.2</javafx.version>
     </properties>
@@ -319,13 +319,13 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>5.5.2</version>
+            <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.5.2</version>
+            <version>5.9.0</version>
             <scope>test</scope>
         </dependency>
         <!-- needed by infinitest? -->
