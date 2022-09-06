@@ -10,7 +10,7 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <kotlin.version>1.4.21</kotlin.version>
+        <kotlin.version>1.7.10</kotlin.version>
         <junit.version>4.12</junit.version>
         <java.version>11</java.version>
         <main.class>kotlin.KotlinHelloKt</main.class>
@@ -419,7 +419,7 @@
         <dependency>
             <groupId>com.squareup.moshi</groupId>
             <artifactId>moshi</artifactId>
-            <version>1.10.0</version>
+            <version>1.13.0</version>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.squareup.moshi</groupId>-->
@@ -429,7 +429,7 @@
         <dependency>
             <groupId>com.squareup.moshi</groupId>
             <artifactId>moshi-kotlin</artifactId>
-            <version>1.10.0</version>
+            <version>1.13.0</version>
         </dependency>
 
     </dependencies>
