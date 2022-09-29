@@ -4,16 +4,16 @@ import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 
 interface FileTreeCollector {
-  fun down(path: Path): Boolean
+  fun down(path: Path, lastModifiedTime: LastModified): Boolean
   fun up(path: Path)
   fun add(path: Path, size: Long, lastModifiedTime: LastModified)
-  fun addSymlink(path: Path, lastModifiedTime: LastModified)
+  fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified)
 
   fun andThen(other: FileTreeCollector): FileTreeCollector {
     val that = this
     return object : FileTreeCollector {
-      override fun down(path: Path): Boolean {
-        return that.down(path) && other.down(path)
+      override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
+        return that.down(path, lastModifiedTime) && other.down(path, lastModifiedTime)
       }
 
       override fun up(path: Path) {
@@ -26,9 +26,9 @@ interface FileTreeCollector {
         other.add(path, size, lastModifiedTime)
       }
 
-      override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
-        that.addSymlink(path, lastModifiedTime)
-        other.addSymlink(path, lastModifiedTime)
+      override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
+        that.addSymlink(path, destination, lastModifiedTime)
+        other.addSymlink(path, destination, lastModifiedTime)
       }
     }
   }
@@ -36,9 +36,9 @@ interface FileTreeCollector {
   fun withFilter(filter: (Path) -> Boolean): FileTreeCollector {
     val that = this
     return object : FileTreeCollector {
-      override fun down(path: Path): Boolean {
+      override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
         return if (filter(path))
-          that.down(path)
+          that.down(path, lastModifiedTime)
         else
           false
       }
@@ -53,9 +53,9 @@ interface FileTreeCollector {
         }
       }
 
-      override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
+      override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
         if (filter(path)) {
-          that.addSymlink(path, lastModifiedTime)
+          that.addSymlink(path, destination, lastModifiedTime)
         }
       }
     }
@@ -64,8 +64,8 @@ interface FileTreeCollector {
   fun withAbort(abort: (Path) -> Boolean): FileTreeCollector {
     val that = this
     return object  : FileTreeCollector {
-      override fun down(path: Path): Boolean {
-        return !abort(path) && that.down(path)
+      override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
+        return !abort(path) && that.down(path, lastModifiedTime)
       }
 
       override fun up(path: Path) {
@@ -76,8 +76,8 @@ interface FileTreeCollector {
         if (!abort(path)) that.add(path, size, lastModifiedTime)
       }
 
-      override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
-        if (!abort(path)) that.addSymlink(path, lastModifiedTime)
+      override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
+        if (!abort(path)) that.addSymlink(path, destination, lastModifiedTime)
       }
     }
   }

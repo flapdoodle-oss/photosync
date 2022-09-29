@@ -21,7 +21,7 @@ internal class TreeCollectorAdapterTest {
   @Test
   fun `should fail if scaning is in progress (quick hack)`() {
     val path = Path.of("down")
-    testee.down(path)
+    testee.down(path, LastModified.now())
     assertThrows(IllegalArgumentException::class.java) {
       testee.asTree()
     }
@@ -30,7 +30,7 @@ internal class TreeCollectorAdapterTest {
   @Test
   fun `collect empty directory`() {
     val path = Path.of("down")
-    testee.down(path)
+    testee.down(path, LastModified.now())
     testee.up(path)
 
     val result = testee.asTree()
@@ -44,7 +44,7 @@ internal class TreeCollectorAdapterTest {
     val now = LastModified.now()
     
     val path = Path.of("down")
-    testee.down(path)
+    testee.down(path, now)
     testee.add(path.resolve("file"), 0, now)
     testee.up(path)
 

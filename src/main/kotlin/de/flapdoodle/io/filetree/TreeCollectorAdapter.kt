@@ -8,7 +8,7 @@ class TreeCollectorAdapter : FileTreeCollector {
   private val root = Dir()
   private var current: Dir = root
 
-  override fun down(path: Path): Boolean {
+  override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
     current = current.down(path)
     return true
   }
@@ -21,7 +21,7 @@ class TreeCollectorAdapter : FileTreeCollector {
     current.add(path,size,lastModifiedTime)
   }
 
-  override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
+  override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
     current.addSymlink(path)
   }
 

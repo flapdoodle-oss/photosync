@@ -5,7 +5,7 @@ import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
 
 class ProgressReportFileTreeCollector : FileTreeCollector {
-  override fun down(path: Path): Boolean {
+  override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
     Monitor.message("down $path")
     return true
   }
@@ -18,7 +18,7 @@ class ProgressReportFileTreeCollector : FileTreeCollector {
     Monitor.message("add $path (size=$size)")
   }
 
-  override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
+  override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
     Monitor.message("add symlink $path")
   }
 }

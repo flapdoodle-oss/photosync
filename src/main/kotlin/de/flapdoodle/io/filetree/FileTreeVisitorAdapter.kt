@@ -14,7 +14,7 @@ class FileTreeVisitorAdapter(
 
   override fun preVisitDirectory(path: Path, attributes: BasicFileAttributes): FileVisitResult {
     require(attributes.isDirectory) { "$path is not a directory" }
-    return if (collector.down(path))
+    return if (collector.down(path, LastModified.from(attributes.lastModifiedTime())))
       FileVisitResult.CONTINUE
     else
       FileVisitResult.SKIP_SUBTREE
@@ -30,8 +30,8 @@ class FileTreeVisitorAdapter(
     require(!attributes.isOther) { "$path is a other?" }
 
     if (attributes.isSymbolicLink) {
-      var destination = Files.readSymbolicLink(path);
-      collector.addSymlink(path, LastModified.from(attributes.lastModifiedTime()))
+      val destination = Files.readSymbolicLink(path);
+      collector.addSymlink(path, destination, LastModified.from(attributes.lastModifiedTime()))
     } else {
       collector.add(path, attributes.size(), LastModified.from(attributes.lastModifiedTime()))
     }

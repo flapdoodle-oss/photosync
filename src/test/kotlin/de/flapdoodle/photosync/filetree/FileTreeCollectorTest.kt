@@ -20,8 +20,8 @@ internal class FileTreeCollectorTest : WithAssertions {
         }
         val andThen = withFilter.andThen(secondMock)
 
-        assertThat(andThen.down(Path.of("one"))).isTrue()
-        assertThat(andThen.down(Path.of("two"))).isTrue()
+        assertThat(andThen.down(Path.of("one"), LastModified.now())).isTrue()
+        assertThat(andThen.down(Path.of("two"), LastModified.now())).isTrue()
 
         assertThat(filterCalls).containsExactly(Path.of("one"), Path.of("two"))
         assertThat(mock.calls).containsExactly(
@@ -40,7 +40,7 @@ internal class FileTreeCollectorTest : WithAssertions {
         }
         var calls: List<Pair<Action, Path>> = emptyList()
 
-        override fun down(path: Path): Boolean {
+        override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
             calls = calls + (Action.DOWN to path)
             return true
         }
@@ -53,7 +53,7 @@ internal class FileTreeCollectorTest : WithAssertions {
             calls = calls + (Action.ADD to path)
         }
 
-        override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
+        override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
             calls = calls + (Action.ADD_SYMLINK to path)
 
         }
