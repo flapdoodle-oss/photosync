@@ -72,11 +72,11 @@ internal class ExpectImmutableBaseFileTest : UseMetaViewHelper, UseTreeHelper {
         val now = LastModified.now()
 
         FilesInTests.withTempDirectory("immutable-base") {
-            val src = mkDir("src") {
+            val src = withMkDir("src") {
                 createFile("foo", "some content", now)
                 createFile("foo.info", "meta", now.plus(23))
             }
-            val dst = mkDir("dst") {
+            val dst = withMkDir("dst") {
                 createFile("foo.info", "meta", now.plus(23))
                 createFile("foo", "some content", now)
             }
@@ -94,11 +94,11 @@ internal class ExpectImmutableBaseFileTest : UseMetaViewHelper, UseTreeHelper {
         val now = LastModified.now()
 
         FilesInTests.withTempDirectory("immutable-base") {
-            val src = mkDir("src") {
+            val src = withMkDir("src") {
                 createFile("foo", "some content", now)
                 createFile("foo.info", "meta change", now.plus(23))
             }
-            val dst = mkDir("dst") {
+            val dst = withMkDir("dst") {
                 createFile("foo.info", "meta", now.plus(23))
                 createFile("foo", "some content", now)
             }

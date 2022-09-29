@@ -2,11 +2,9 @@ package de.flapdoodle.io
 
 import de.flapdoodle.photosync.LastModified
 import java.io.File
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import java.nio.file.attribute.FileTime
 
 class FilesInTests(private val directory: Path) : AutoCloseable {
 
@@ -20,6 +18,12 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
                 return withDirectory(Helper(it.directory), it.directory);
             }
         }
+
+        fun <T> withDirectory(base: Path, callback: Helper.(Path) -> T): T {
+            FilesInTests(base).use { 
+                return callback(Helper(it.directory), it.directory)
+            }
+        }
     }
 
     override fun close() {
@@ -30,14 +34,23 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
     }
 
     class Helper(val current: Path) {
-        fun mkDir(name: String): Helper {
+        fun mkDir(name: String, lastModified: LastModified? = null): Helper {
             val newPath = current.resolve(name)
             Files.createDirectory(newPath)
+            if (lastModified!=null) {
+                Files.setLastModifiedTime(newPath, LastModified.asFileTime(lastModified))
+            }
             return Helper(newPath)
         }
 
-        fun mkDir(name: String, context: Helper.(Path) -> Unit): Helper {
-            val newHelper = mkDir(name)
+        fun withMkDir(name: String, context: Helper.(Path) -> Unit): Helper {
+            val newHelper = mkDir(name, null)
+            context(newHelper, newHelper.current)
+            return newHelper
+        }
+
+        fun withMkDir(name: String, lastModified: LastModified, context: Helper.(Path) -> Unit): Helper {
+            val newHelper = mkDir(name, lastModified)
             context(newHelper, newHelper.current)
             return newHelper
         }
