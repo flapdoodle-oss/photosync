@@ -21,7 +21,7 @@ class TreeCollectorAdapter : FileTreeCollector {
     current.add(path,size,lastModifiedTime)
   }
 
-  override fun addSymlink(path: Path) {
+  override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
     current.addSymlink(path)
   }
 

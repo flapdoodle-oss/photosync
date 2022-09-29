@@ -18,7 +18,7 @@ class ProgressReportFileTreeCollector : FileTreeCollector {
     Monitor.message("add $path (size=$size)")
   }
 
-  override fun addSymlink(path: Path) {
+  override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
     Monitor.message("add symlink $path")
   }
 }

@@ -53,7 +53,7 @@ internal class FileTreeCollectorTest : WithAssertions {
             calls = calls + (Action.ADD to path)
         }
 
-        override fun addSymlink(path: Path) {
+        override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
             calls = calls + (Action.ADD_SYMLINK to path)
 
         }

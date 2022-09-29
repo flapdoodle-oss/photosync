@@ -7,7 +7,7 @@ interface FileTreeCollector {
   fun down(path: Path): Boolean
   fun up(path: Path)
   fun add(path: Path, size: Long, lastModifiedTime: LastModified)
-  fun addSymlink(path: Path)
+  fun addSymlink(path: Path, lastModifiedTime: LastModified)
 
   fun andThen(other: FileTreeCollector): FileTreeCollector {
     val that = this
@@ -26,9 +26,9 @@ interface FileTreeCollector {
         other.add(path, size, lastModifiedTime)
       }
 
-      override fun addSymlink(path: Path) {
-        that.addSymlink(path)
-        other.addSymlink(path)
+      override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
+        that.addSymlink(path, lastModifiedTime)
+        other.addSymlink(path, lastModifiedTime)
       }
     }
   }
@@ -53,9 +53,9 @@ interface FileTreeCollector {
         }
       }
 
-      override fun addSymlink(path: Path) {
+      override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
         if (filter(path)) {
-          that.addSymlink(path)
+          that.addSymlink(path, lastModifiedTime)
         }
       }
     }
@@ -76,8 +76,8 @@ interface FileTreeCollector {
         if (!abort(path)) that.add(path, size, lastModifiedTime)
       }
 
-      override fun addSymlink(path: Path) {
-        if (!abort(path)) that.addSymlink(path)
+      override fun addSymlink(path: Path, lastModifiedTime: LastModified) {
+        if (!abort(path)) that.addSymlink(path, lastModifiedTime)
       }
     }
   }

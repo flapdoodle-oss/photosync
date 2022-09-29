@@ -31,7 +31,7 @@ class FileTreeVisitorAdapter(
 
     if (attributes.isSymbolicLink) {
       var destination = Files.readSymbolicLink(path);
-      collector.addSymlink(path)
+      collector.addSymlink(path, LastModified.from(attributes.lastModifiedTime()))
     } else {
       collector.add(path, attributes.size(), LastModified.from(attributes.lastModifiedTime()))
     }
