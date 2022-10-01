@@ -6,6 +6,7 @@ import java.nio.file.Path
 import java.nio.file.attribute.FileTime
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import kotlin.io.path.isSymbolicLink
 
 data class LastModified(
     private val value: Instant
@@ -19,6 +20,10 @@ data class LastModified(
         return LastModified(value.plus(offsetInSeconds.toLong(), ChronoUnit.SECONDS))
     }
 
+    operator fun minus(offsetInSeconds: Int): LastModified {
+        return LastModified(value.minus(offsetInSeconds.toLong(), ChronoUnit.SECONDS))
+    }
+
     companion object {
         fun from(path: Path): LastModified {
             return from(
@@ -27,6 +32,18 @@ data class LastModified(
                     LinkOption.NOFOLLOW_LINKS
                 )
             )
+        }
+
+        fun to(path: Path, lastModified: LastModified) {
+            // this code fails on symlinks
+            // Files.getFileAttributeView(path, BasicFileAttributeView::class.java, LinkOption.NOFOLLOW_LINKS)
+            //   .setTimes(fileTime, null, null)
+
+            require(!path.isSymbolicLink()) { "not supported on symlinks: see https://stackoverflow.com/questions/17308363/symlink-lastmodifiedtime-in-java-1-7" }
+
+            if (!path.isSymbolicLink()) {
+                Files.setLastModifiedTime(path, asFileTime(lastModified))
+            }
         }
 
         fun from(fileTime: FileTime): LastModified {

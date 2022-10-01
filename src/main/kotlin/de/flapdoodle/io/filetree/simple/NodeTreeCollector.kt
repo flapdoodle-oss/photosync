@@ -14,7 +14,6 @@ class NodeTreeCollector : FileTreeCollector {
     fun root() = root
 
     override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
-        println("down -> $path")
         if (stack.isEmpty()) {
             stack.push(Node.Directory("", lastModifiedTime))
         } else {
@@ -27,7 +26,6 @@ class NodeTreeCollector : FileTreeCollector {
     }
 
     override fun up(path: Path) {
-        println("up -> $path")
         val up = stack.pop()
         requireNotNull(up) { "nothing left" }
         if (stack.isEmpty()) {
@@ -36,12 +34,12 @@ class NodeTreeCollector : FileTreeCollector {
     }
 
     override fun add(path: Path, size: Long, lastModifiedTime: LastModified) {
-        println("add -> $path")
+        require(!stack.isEmpty()) { "no parent directory" }
         stack.replace { current -> current.copy(children = current.children + Node.File(path.name, lastModifiedTime, size)) }
     }
 
     override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
-        println("symlink -> $path --> $destination")
+        require(!stack.isEmpty()) { "no parent directory" }
         stack.replace { current -> current.copy(children = current.children + Node.SymLink(path.name, lastModifiedTime, Either.right(destination))) }
     }
 }

@@ -211,7 +211,7 @@ internal class FileTreesTest {
             withMkDir("sub") {
                 val first = createFile("file.txt", "content".toByteArray(Charsets.UTF_8), lastModified)
                 createFile("other.txt", "".toByteArray(Charsets.UTF_8), lastModified)
-                createSymLink("symlink", first, lastModified)
+                createSymLink("symlink", first)
                 withMkDir("sub-sub") {
                     createFile("test.txt", "test".toByteArray(Charsets.UTF_8), lastModified)
                 }

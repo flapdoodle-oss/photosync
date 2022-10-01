@@ -6,7 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
-class FilesInTests(private val directory: Path) : AutoCloseable {
+class FilesInTests(private val directory: Path, val cleanUpRoot: Boolean = true) : AutoCloseable {
 
     companion object {
         fun newTempDirectory(prefix: String): FilesInTests {
@@ -20,7 +20,7 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
         }
 
         fun <T> withDirectory(base: Path, callback: Helper.(Path) -> T): T {
-            FilesInTests(base).use { 
+            FilesInTests(base, false).use {
                 return callback(Helper(it.directory), it.directory)
             }
         }
@@ -29,6 +29,7 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
     override fun close() {
         Files.walk(directory)
                 .sorted(Comparator.reverseOrder())
+                .filter { it -> cleanUpRoot || it != directory }
                 .map(Path::toFile)
                 .forEach(File::delete);
     }
@@ -36,11 +37,11 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
     class Helper(val current: Path) {
         fun mkDir(name: String, lastModified: LastModified? = null): Helper {
             val newPath = current.resolve(name)
-            Files.createDirectory(newPath)
+            val dir = Files.createDirectory(newPath)
             if (lastModified!=null) {
-                Files.setLastModifiedTime(newPath, LastModified.asFileTime(lastModified))
+                LastModified.to(dir, lastModified)
             }
-            return Helper(newPath)
+            return Helper(dir)
         }
 
         fun withMkDir(name: String, context: Helper.(Path) -> Unit): Helper {
@@ -61,20 +62,17 @@ class FilesInTests(private val directory: Path) : AutoCloseable {
         
         fun createFile(name: String, content: ByteArray, lastModified: LastModified? = null): Path {
             val newPath = current.resolve(name)
-            Files.write(newPath, content, StandardOpenOption.CREATE_NEW);
+            val written = Files.write(newPath, content, StandardOpenOption.CREATE_NEW);
             if (lastModified!=null) {
-                Files.setLastModifiedTime(newPath, LastModified.asFileTime(lastModified))
+                LastModified.to(written, lastModified)
             }
-            return newPath
+            return written
         }
 
-        fun createSymLink(name: String, destination: Path, lastModified: LastModified? = null): Path {
+        fun createSymLink(name: String, destination: Path): Path {
             val newPath = current.resolve(name);
-            Files.createSymbolicLink(newPath, destination);
-            if (lastModified!=null) {
-                Files.setLastModifiedTime(newPath, LastModified.asFileTime(lastModified))
-            }
-            return newPath
+            val symlink = Files.createSymbolicLink(newPath, destination);
+            return symlink
         }
     }
 }
