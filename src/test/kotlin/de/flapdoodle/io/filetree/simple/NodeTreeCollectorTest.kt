@@ -18,10 +18,9 @@ internal class NodeTreeCollectorTest {
     @Test
     fun directoryWithEachPossibleType(@TempDir tempDir: Path) {
         val now = LastModified.now()
-        val lastModifiedTempDir = LastModified.from(tempDir)
 
-        var symLinkLastModified: LastModified? = null
-        var other_symLinkLastModified: LastModified? = null
+        lateinit var symLinkLastModified: LastModified
+        lateinit var other_symLinkLastModified: LastModified
 
         val result: Node.Directory? = FilesInTests.withDirectory(tempDir) {
             withMkDir("other", now + 2) {
@@ -51,10 +50,10 @@ internal class NodeTreeCollectorTest {
             assertThat(it.children).hasSize(3)
             assertThat(it.children)
                 .contains(Node.Directory("sub", now -3))
-                .contains(Node.SymLink("other-symlink", other_symLinkLastModified!!, Either.right(tempDir.resolve("other").resolve("other-file"))))
+                .contains(Node.SymLink("other-symlink", other_symLinkLastModified, Either.right(tempDir.resolve("other").resolve("other-file"))))
                 .contains(Node.Directory("stuff", now + 1, children = listOf(
                     Node.File("file", now - 1, "content".length.toLong()),
-                    Node.SymLink("symlink", symLinkLastModified!!, Either.left(Node.NodeReference(listOf("stuff","file")))),
+                    Node.SymLink("symlink", symLinkLastModified, Either.left(Node.NodeReference(listOf("stuff","file")))),
                 )))
         }
     }
