@@ -25,4 +25,8 @@ class Stack<T> {
         }
     }
 
+
+    override fun toString(): String {
+        return "Stack(${list.joinToString(",") { it.toString() }})"
+    }
 }

@@ -18,12 +18,8 @@ class NodeTreeCollector : FileTreeCollector {
     override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
         if (stack.isEmpty()) {
             basePath = path
-            stack.push(Node.Directory(path.name, lastModifiedTime))
-        } else {
-            val sub = Node.Directory(path.name, lastModifiedTime)
-            stack.replace { current -> current.copy(children = current.children + sub) }
-            stack.push(sub)
         }
+        stack.push(Node.Directory(path.name, lastModifiedTime))
 
         return true
     }
@@ -35,6 +31,8 @@ class NodeTreeCollector : FileTreeCollector {
             requireNotNull(basePath) { "basePath not set"}
             root = resolveLocalSymlinks(basePath!!, up)
             basePath = null
+        } else {
+            stack.replace { current -> current.copy(children = current.children + up) }
         }
     }
 
@@ -57,17 +55,25 @@ class NodeTreeCollector : FileTreeCollector {
             val mappedChildren = src.children.map {
                 when (it) {
                     is Node.Directory -> resolveLocalSymlinks(basePath, localPath.resolve(it.name), it)
-                    is Node.SymLink -> {
-                        if (it.destination is Either.Right) {
-                            val relativePath = localPath.relativize(it.destination.value)
-                            println("-> ${it.destination} - ${relativePath}")
-                        }
-                        it
-                    }
+                    is Node.SymLink -> resolveLocalSymlink(it, basePath)
                     else -> it
                 }
             }
             return src.copy(children = mappedChildren)
+        }
+
+        private fun resolveLocalSymlink(
+            symLink: Node.SymLink,
+            basePath: Path
+        ): Node.SymLink {
+            if (symLink.destination is Either.Right) {
+                val dest = symLink.destination.value
+                if (dest.startsWith(basePath)) {
+                    val relativePath = basePath.relativize(symLink.destination.value)
+                    return symLink.copy(destination = Either.left(Node.NodeReference.of(relativePath)))
+                }
+            }
+            return symLink
         }
     }
 }

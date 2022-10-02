@@ -28,11 +28,15 @@ internal class NodeTreeCollectorTest {
                 val other_file = createFile("other-file", "content", now - 1)
             }
             withMkDir("collect-this", now - 10) {
-                val file = createFile("file", "content", now - 1)
-                val symlink = createSymLink("symlink", file)
+                withMkDir("stuff", now + 1) {
+                    val file = createFile("file", "content", now - 1)
+                    val symlink = createSymLink("symlink", file)
+                    symLinkLastModified = LastModified.from(symlink)
+                }
+
                 val other_symlink = createSymLink("other-symlink", tempDir.resolve("other").resolve("other-file"))
-                symLinkLastModified = LastModified.from(symlink)
                 other_symLinkLastModified = LastModified.from(other_symlink)
+
                 val dir = mkDir("sub", now - 3)
             }
 
@@ -44,13 +48,14 @@ internal class NodeTreeCollectorTest {
             assertThat(it.name).isEqualTo("collect-this")
             assertThat(it.lastModifiedTime).isEqualTo(now - 10)
 
-            assertThat(it.children).hasSize(4)
-            assertThat(it.children).containsExactlyInAnyOrder(
-                Node.File("file", now - 1, "content".length.toLong()),
-                Node.SymLink("symlink", symLinkLastModified!!, Either.right(tempDir.resolve("collect-this").resolve("file"))),
-                Node.SymLink("other-symlink", other_symLinkLastModified!!, Either.right(tempDir.resolve("other").resolve("other-file"))),
-                Node.Directory("sub", now -3)
-            )
+            assertThat(it.children).hasSize(3)
+            assertThat(it.children)
+                .contains(Node.Directory("sub", now -3))
+                .contains(Node.SymLink("other-symlink", other_symLinkLastModified!!, Either.right(tempDir.resolve("other").resolve("other-file"))))
+                .contains(Node.Directory("stuff", now + 1, children = listOf(
+                    Node.File("file", now - 1, "content".length.toLong()),
+                    Node.SymLink("symlink", symLinkLastModified!!, Either.left(Node.NodeReference(listOf("stuff","file")))),
+                )))
         }
     }
 
