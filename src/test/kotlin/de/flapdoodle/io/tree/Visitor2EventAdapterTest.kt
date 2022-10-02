@@ -32,7 +32,7 @@ internal class Visitor2EventAdapterTest {
         })
 
         FilesInTests.withTempDirectory("visitor-test") { startingPoint ->
-            val sub = mkDir("sub").current
+            val sub = mkDir("sub")
 
             val result = Files.walkFileTree(startingPoint, testee)
 
@@ -108,10 +108,11 @@ internal class Visitor2EventAdapterTest {
         val testee = Visitor2EventAdapter(onFileTreeEvent)
 
         FilesInTests.withTempDirectory("visitor-test") { startingPoint ->
-            val sub = mkDir("sub")
-            val filePath = sub.createFile("test", ByteArray(123))
-            sub.createSymLink("sym", filePath)
-
+            val sub = withMkDir("sub") {
+                val filePath = createFile("test", ByteArray(123))
+                createSymLink("sym", filePath)
+            }
+            
             val result = Files.walkFileTree(startingPoint, testee)
 
             assertThat(result).isSameAs(startingPoint);

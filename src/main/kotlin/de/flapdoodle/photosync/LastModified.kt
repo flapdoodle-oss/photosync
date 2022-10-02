@@ -40,10 +40,7 @@ data class LastModified(
             //   .setTimes(fileTime, null, null)
 
             require(!path.isSymbolicLink()) { "not supported on symlinks: see https://stackoverflow.com/questions/17308363/symlink-lastmodifiedtime-in-java-1-7" }
-
-            if (!path.isSymbolicLink()) {
-                Files.setLastModifiedTime(path, asFileTime(lastModified))
-            }
+            Files.setLastModifiedTime(path, asFileTime(lastModified))
         }
 
         fun from(fileTime: FileTime): LastModified {

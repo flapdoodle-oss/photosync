@@ -35,25 +35,26 @@ class FilesInTests(private val directory: Path, val cleanUpRoot: Boolean = true)
     }
 
     class Helper(val current: Path) {
-        fun mkDir(name: String, lastModified: LastModified? = null): Helper {
+        fun mkDir(name: String, lastModified: LastModified? = null): Path {
             val newPath = current.resolve(name)
             val dir = Files.createDirectory(newPath)
             if (lastModified!=null) {
                 LastModified.to(dir, lastModified)
             }
-            return Helper(dir)
+            return dir
         }
 
-        fun withMkDir(name: String, context: Helper.(Path) -> Unit): Helper {
-            val newHelper = mkDir(name, null)
-            context(newHelper, newHelper.current)
-            return newHelper
+        fun withMkDir(name: String, context: Helper.(Path) -> Unit): Path {
+            val dir = mkDir(name, null)
+            context(Helper(dir), dir)
+            return dir
         }
 
-        fun withMkDir(name: String, lastModified: LastModified, context: Helper.(Path) -> Unit): Helper {
-            val newHelper = mkDir(name, lastModified)
-            context(newHelper, newHelper.current)
-            return newHelper
+        fun withMkDir(name: String, lastModified: LastModified, context: Helper.(Path) -> Unit): Path  {
+            val dir = mkDir(name, lastModified)
+            context(Helper(dir), dir)
+            LastModified.to(dir, lastModified)
+            return dir
         }
 
         fun createFile(name: String, content: String, lastModified: LastModified? = null): Path {

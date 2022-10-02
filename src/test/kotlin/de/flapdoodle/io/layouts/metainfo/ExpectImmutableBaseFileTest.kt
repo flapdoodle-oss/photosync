@@ -80,8 +80,8 @@ internal class ExpectImmutableBaseFileTest : UseMetaViewHelper, UseTreeHelper {
                 createFile("foo.info", "meta", now.plus(23))
                 createFile("foo", "some content", now)
             }
-            val srcMetaTree = MetaView.map(FileTrees.asTree(src.current), GroupMetaFiles.default())
-            val dstMetaTree = MetaView.map(FileTrees.asTree(dst.current), GroupMetaFiles.default())
+            val srcMetaTree = MetaView.map(FileTrees.asTree(src), GroupMetaFiles.default())
+            val dstMetaTree = MetaView.map(FileTrees.asTree(dst), GroupMetaFiles.default())
             val diff = diff(srcMetaTree, dstMetaTree)
 
             assertThat(diff)
@@ -102,8 +102,8 @@ internal class ExpectImmutableBaseFileTest : UseMetaViewHelper, UseTreeHelper {
                 createFile("foo.info", "meta", now.plus(23))
                 createFile("foo", "some content", now)
             }
-            val srcMetaTree = MetaView.map(FileTrees.asTree(src.current), GroupMetaFiles.default())
-            val dstMetaTree = MetaView.map(FileTrees.asTree(dst.current), GroupMetaFiles.default())
+            val srcMetaTree = MetaView.map(FileTrees.asTree(src), GroupMetaFiles.default())
+            val dstMetaTree = MetaView.map(FileTrees.asTree(dst), GroupMetaFiles.default())
             
             val diff = diff(srcMetaTree, dstMetaTree)
 

@@ -9,13 +9,16 @@ import kotlin.io.path.name
 
 class NodeTreeCollector : FileTreeCollector {
     private var stack: Stack<Node.Directory> = Stack()
-    private var root: Node.Directory? = null;
+    private var basePath: Path? = null
+    private var root: Node.Directory? = null
 
     fun root() = root
+    fun content() = root!!.children
 
     override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
         if (stack.isEmpty()) {
-            stack.push(Node.Directory("", lastModifiedTime))
+            basePath = path
+            stack.push(Node.Directory(path.name, lastModifiedTime))
         } else {
             val sub = Node.Directory(path.name, lastModifiedTime)
             stack.replace { current -> current.copy(children = current.children + sub) }
@@ -29,7 +32,9 @@ class NodeTreeCollector : FileTreeCollector {
         val up = stack.pop()
         requireNotNull(up) { "nothing left" }
         if (stack.isEmpty()) {
-            root = up
+            requireNotNull(basePath) { "basePath not set"}
+            root = resolveLocalSymlinks(basePath!!, up)
+            basePath = null
         }
     }
 
@@ -41,5 +46,28 @@ class NodeTreeCollector : FileTreeCollector {
     override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
         require(!stack.isEmpty()) { "no parent directory" }
         stack.replace { current -> current.copy(children = current.children + Node.SymLink(path.name, lastModifiedTime, Either.right(destination))) }
+    }
+
+    companion object {
+        internal fun resolveLocalSymlinks(basePath: Path, src: Node.Directory): Node.Directory {
+            return resolveLocalSymlinks(basePath, basePath, src)
+        }
+
+        private fun resolveLocalSymlinks(basePath: Path, localPath: Path, src: Node.Directory): Node.Directory {
+            val mappedChildren = src.children.map {
+                when (it) {
+                    is Node.Directory -> resolveLocalSymlinks(basePath, localPath.resolve(it.name), it)
+                    is Node.SymLink -> {
+                        if (it.destination is Either.Right) {
+                            val relativePath = localPath.relativize(it.destination.value)
+                            println("-> ${it.destination} - ${relativePath}")
+                        }
+                        it
+                    }
+                    else -> it
+                }
+            }
+            return src.copy(children = mappedChildren)
+        }
     }
 }

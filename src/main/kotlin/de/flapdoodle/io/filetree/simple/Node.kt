@@ -1,6 +1,5 @@
 package de.flapdoodle.io.filetree.simple
 
-import de.flapdoodle.io.filetree.FileTreeCollector
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.Either
 import java.nio.file.Path
@@ -24,8 +23,10 @@ sealed class Node(
     data class SymLink(
         override val name: String,
         override val lastModifiedTime: LastModified,
-        val destination: Either<Node, Path>
+        val destination: Either<NodeReference, Path>
     ) : Node(name, lastModifiedTime)
+
+    data class NodeReference(val path: List<String>)
 
     companion object {
         fun collector(): NodeTreeCollector {
