@@ -3,8 +3,8 @@ package de.flapdoodle.io.filetree.diff.samelayout
 import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.Either
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
+import java.nio.file.Path
 
 internal class DiffTest {
 
@@ -12,7 +12,7 @@ internal class DiffTest {
     fun sample() {
         val now = LastModified.now()
 
-        val src = Node.Directory("src", now, children = listOf(
+        val src = Node.Top(Path.of("src"), now, children = listOf(
             Node.File("same-file", now, 123L),
             Node.File("changed-size", now, 100L),
             Node.File("changed-time", now + 1, 100L),
@@ -27,7 +27,7 @@ internal class DiffTest {
             ))
         ))
 
-        val dest = Node.Directory("src", now, children = listOf(
+        val dest = Node.Top(Path.of("src"), now, children = listOf(
             Node.File("same-file", now, 123L),
             Node.File("changed-size", now, 200L),
             Node.File("changed-time", now, 200L),
@@ -42,16 +42,16 @@ internal class DiffTest {
             ))
         ))
 
-        val diff = Diff.diff(src.children, dest.children)
-        print(diff)
+        val diff = Diff.diff(src, dest)
+        printDiff(diff.entries)
     }
 
-    private fun print(diff: Diff) {
-        diff.entries.forEach {
+    private fun printDiff(entries: List<Diff.Entry>) {
+        entries.forEach {
             when (it) {
                 is Diff.Entry.DirectoryChanged -> {
                     println("--> ${it.src} ? ${it.dest}")
-                    print(it.diff)
+                    printDiff(it.entries)
                 }
                 else -> println(" -> $it")
             }

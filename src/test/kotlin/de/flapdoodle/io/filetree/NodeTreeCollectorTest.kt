@@ -19,7 +19,7 @@ internal class NodeTreeCollectorTest {
         lateinit var symLinkLastModified: LastModified
         lateinit var other_symLinkLastModified: LastModified
 
-        val result: Node.Directory? = FilesInTests.withDirectory(tempDir) {
+        val result: Node.Top? = FilesInTests.withDirectory(tempDir) {
             withMkDir("other", now + 2) {
                 val other_file = createFile("other-file", "content", now - 1)
             }
@@ -41,7 +41,7 @@ internal class NodeTreeCollectorTest {
 
         assertThat(result).isNotNull
         result?.let {
-            assertThat(it.name).isEqualTo("collect-this")
+            assertThat(it.path).isEqualTo(tempDir.resolve("collect-this"))
             assertThat(it.lastModifiedTime).isEqualTo(now - 10)
 
             assertThat(it.children).hasSize(3)

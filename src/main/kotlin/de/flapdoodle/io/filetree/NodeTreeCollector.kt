@@ -9,10 +9,9 @@ import kotlin.io.path.name
 class NodeTreeCollector : FileTreeCollector {
     private var stack: Stack<Node.Directory> = Stack()
     private var basePath: Path? = null
-    private var root: Node.Directory? = null
+    private var root: Node.Top? = null
 
     fun root() = root
-    fun content() = root!!.children
 
     override fun down(path: Path, lastModifiedTime: LastModified): Boolean {
         if (stack.isEmpty()) {
@@ -28,7 +27,8 @@ class NodeTreeCollector : FileTreeCollector {
         requireNotNull(up) { "nothing left" }
         if (stack.isEmpty()) {
             requireNotNull(basePath) { "basePath not set"}
-            root = resolveLocalSymlinks(basePath!!, up)
+            val withResolvedSymLinks = resolveLocalSymlinks(basePath!!, up)
+            root = Node.Top(path, withResolvedSymLinks.lastModifiedTime, children = withResolvedSymLinks.children)
             basePath = null
         } else {
             stack.replace { current -> current.copy(children = current.children + up) }

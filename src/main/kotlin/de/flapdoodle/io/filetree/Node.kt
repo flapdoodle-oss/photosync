@@ -9,6 +9,12 @@ sealed class Node(
     open val name: String,
     open val lastModifiedTime: LastModified
 ) {
+    data class Top(
+        val path: Path,
+        val lastModifiedTime: LastModified,
+        val children: List<Node> = emptyList()
+    )
+
     data class Directory(
         override val name: String,
         override val lastModifiedTime: LastModified,
