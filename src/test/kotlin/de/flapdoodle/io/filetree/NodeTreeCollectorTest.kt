@@ -1,8 +1,6 @@
-package de.flapdoodle.io.filetree.simple
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.io.FilesInTests
-import de.flapdoodle.io.filetree.FileTreeVisitorAdapter
-import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.Either
 import org.assertj.core.api.Assertions.assertThat
@@ -11,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Files
 import java.nio.file.Path
-import kotlin.io.path.name
 
 internal class NodeTreeCollectorTest {
 
@@ -51,11 +48,27 @@ internal class NodeTreeCollectorTest {
             assertThat(it.children)
                 .contains(Node.Directory("sub", now -3))
                 .contains(Node.SymLink("other-symlink", other_symLinkLastModified, Either.right(tempDir.resolve("other").resolve("other-file"))))
-                .contains(Node.Directory("stuff", now + 1, children = listOf(
+                .contains(
+                    Node.Directory("stuff", now + 1, children = listOf(
                     Node.File("file", now - 1, "content".length.toLong()),
                     Node.SymLink("symlink", symLinkLastModified, Either.left(Node.NodeReference(listOf("stuff","file")))),
                 )))
         }
+    }
+
+    @Test
+    fun useDataClass() {
+        val now = LastModified.now()
+        val a= Node.Directory("a", now, children = listOf(
+            Node.File("file",now + 1, 123L),
+            Node.SymLink("link", now + 2, Either.left(Node.NodeReference(listOf("a","b"))))
+        ))
+        val b= Node.Directory("a", now, children = listOf(
+            Node.File("file",now + 1, 123L),
+            Node.SymLink("link", now + 2, Either.left(Node.NodeReference(listOf("a","b"))))
+        ))
+
+        assertThat(a).isEqualTo(b)
     }
 
     @Test

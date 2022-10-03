@@ -1,4 +1,4 @@
-package de.flapdoodle.io.filetree.simple
+package de.flapdoodle.io.filetree
 
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.Either

@@ -1,6 +1,5 @@
-package de.flapdoodle.io.filetree.simple
+package de.flapdoodle.io.filetree
 
-import de.flapdoodle.io.filetree.FileTreeCollector
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.Either
 import de.flapdoodle.types.Stack
@@ -38,12 +37,22 @@ class NodeTreeCollector : FileTreeCollector {
 
     override fun add(path: Path, size: Long, lastModifiedTime: LastModified) {
         require(!stack.isEmpty()) { "no parent directory" }
-        stack.replace { current -> current.copy(children = current.children + Node.File(path.name, lastModifiedTime, size)) }
+        stack.replace { current -> current.copy(children = current.children + Node.File(
+            path.name,
+            lastModifiedTime,
+            size
+        )
+        ) }
     }
 
     override fun addSymlink(path: Path, destination: Path, lastModifiedTime: LastModified) {
         require(!stack.isEmpty()) { "no parent directory" }
-        stack.replace { current -> current.copy(children = current.children + Node.SymLink(path.name, lastModifiedTime, Either.right(destination))) }
+        stack.replace { current -> current.copy(children = current.children + Node.SymLink(
+            path.name,
+            lastModifiedTime,
+            Either.right(destination)
+        )
+        ) }
     }
 
     companion object {
