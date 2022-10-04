@@ -15,7 +15,6 @@ import java.nio.file.Path
 internal class DiffTest {
 
     @Test
-    @Disabled
     fun sample() {
         val now = LastModified.now()
 
@@ -29,11 +28,12 @@ internal class DiffTest {
 
             Node.File("new-file", now + 1, 10L),
 
-            Node.SymLink("changed-sym-link", now, Either.left(Node.NodeReference(listOf("same-file")))),
+            Node.SymLink("changed-sym-link", now, Node.NodeReference("same-file")),
 
             Node.Directory("sub", now, children = listOf(
                 Node.File("file", now, 123L),
-            ))
+            )),
+            Node.SymLink("type-changed", now, Node.NodeReference("same-file"))
         ))
 
         val destPath = Path.of("dest")
@@ -46,11 +46,12 @@ internal class DiffTest {
 
             Node.File("removed-file", now -10, 10L),
 
-            Node.SymLink("changed-sym-link", now + 1, Either.left(Node.NodeReference(listOf("same-file")))),
+            Node.SymLink("changed-sym-link", now + 1, Node.NodeReference("same-file")),
 
             Node.Directory("sub", now + 1, children = listOf(
                 Node.File("file", now, 123L),
-            ))
+            )),
+            Node.Directory("type-changed", now, emptyList())
         ))
 
         val hasher = MockedHasher()
@@ -68,7 +69,7 @@ internal class DiffTest {
         assertThat(diff.src).isEqualTo(srcPath)
         assertThat(diff.dest).isEqualTo(destPath)
         assertThat(diff.entries)
-            .hasSize(8)
+            .hasSize(9)
             .contains(Diff.Entry.IsEqual(node = Node.File("same-file", now, 123L)))
             .contains(Diff.Entry.FileChanged(
                 src = Node.File("changed-size", now, 100L),
@@ -107,6 +108,10 @@ internal class DiffTest {
                 entries = listOf(
                     Diff.Entry.IsEqual(node = Node.File("file", now, 123L))
                 )
+            ))
+            .contains(Diff.Entry.TypeMismatch(
+                Node.SymLink("type-changed", now, Node.NodeReference("same-file")),
+                Node.Directory("type-changed", now, emptyList())
             ))
     }
 
@@ -228,6 +233,108 @@ internal class DiffTest {
                 Node.SymLink("same", now + 1, Node.NodeReference("dest")),
                 listOf(Diff.SymLinkChange.TimeStamp(now, now + 1))
             ))
+        }
+    }
+
+    @Nested
+    inner class DirDiffs {
+        private val now = LastModified.now()
+        private val srcPath = Path.of("src")
+        private val destPath = Path.of("dest")
+
+        @Test
+        fun isEqual() {
+            val hasher = MockedHasher()
+                .addRule(srcPath.resolve("same").resolve("same-same"), 1L, "same-file-hash")
+                .addRule(destPath.resolve("same").resolve("same-same"), 1L, "same-file-hash")
+
+            val result = Diff.diff(
+                srcPath,Node.Directory("same", now, listOf(
+                    Node.File("same-same", now, 1L)
+                )),
+                destPath,Node.Directory("same", now, listOf(
+                    Node.File("same-same", now, 1L)
+                )),
+                hasher
+            )
+
+            assertThat(result)
+                .isEqualTo(
+                    Diff.Entry.IsEqual(
+                        Node.Directory("same", now, listOf(
+                                Node.File("same-same", now, 1L)
+                            ))
+                    ))
+        }
+
+        @Test
+        fun childChanged() {
+            val hasher = MockedHasher()
+                .addRule(srcPath.resolve("same").resolve("same-same"), 1L, "same-file-hash")
+                .addRule(destPath.resolve("same").resolve("same-same"), 1L, "same-file-hash")
+
+            val result = Diff.diff(
+                srcPath,Node.Directory("same", now, listOf(
+                    Node.File("same-same", now, 1L)
+                )),
+                destPath,Node.Directory("same", now, listOf(
+                    Node.File("same-same", now + 1, 1L)
+                )),
+                hasher
+            )
+
+            assertThat(result)
+                .isEqualTo(
+                    Diff.Entry.DirectoryChanged(
+                        Node.Directory("same", now, listOf(
+                            Node.File("same-same", now, 1L)
+                        )),
+                        Node.Directory("same", now, listOf(
+                            Node.File("same-same", now + 1, 1L)
+                        )),
+                        listOf(
+                            Diff.Entry.FileChanged(
+                                Node.File("same-same", now, 1L),
+                                Node.File("same-same", now + 1, 1L),
+                                listOf(
+                                    Diff.FileChange.TimeStamp(now , now +1)
+                                )
+                            )
+                        )
+                    ))
+        }
+
+        @Test
+        fun timeStampChanged() {
+            val hasher = MockedHasher()
+                .addRule(srcPath.resolve("same").resolve("same-same"), 1L, "same-file-hash")
+                .addRule(destPath.resolve("same").resolve("same-same"), 1L, "same-file-hash")
+
+            val result = Diff.diff(
+                srcPath,Node.Directory("same", now, listOf(
+                    Node.File("same-same", now, 1L)
+                )),
+                destPath,Node.Directory("same", now + 1, listOf(
+                    Node.File("same-same", now, 1L)
+                )),
+                hasher
+            )
+
+            assertThat(result)
+                .isEqualTo(
+                    Diff.Entry.DirectoryChanged(
+                        Node.Directory("same", now, listOf(
+                            Node.File("same-same", now, 1L)
+                        )),
+                        Node.Directory("same", now + 1, listOf(
+                            Node.File("same-same", now, 1L)
+                        )),
+                        listOf(
+                            Diff.Entry.IsEqual(
+                                Node.File("same-same", now, 1L)
+                            )
+                        )
+                    ))
         }
     }
 }

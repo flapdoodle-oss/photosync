@@ -147,8 +147,9 @@ data class Diff(
             hasher: Hasher<T>
         ): Entry {
             val changes = diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hasher)
+            val nochange = changes.all { it is Entry.IsEqual }
 
-            return if (src == dest && changes.isEmpty())
+            return if (src == dest && nochange)
                 Entry.IsEqual(src)
             else
                 Entry.DirectoryChanged(src, dest, changes)
