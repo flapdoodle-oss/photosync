@@ -100,7 +100,7 @@ data class Diff(
             }
         }
 
-        private fun <T : Hash<T>> diff(
+        internal fun <T : Hash<T>> diff(
             srcPath: Path,
             src: Node.File,
             destPath: Path,
@@ -127,7 +127,7 @@ data class Diff(
             }
         }
 
-        private fun diff(src: Node.SymLink, dest: Node.SymLink): Entry {
+        internal fun diff(src: Node.SymLink, dest: Node.SymLink): Entry {
             val timeStampChange = if (src.lastModifiedTime != dest.lastModifiedTime) {
                 listOf(SymLinkChange.TimeStamp(src.lastModifiedTime, dest.lastModifiedTime))
             } else emptyList()
@@ -139,7 +139,7 @@ data class Diff(
                 Entry.SymLinkChanged(src, dest, timeStampChange + SymLinkChange.Destination(src.destination, dest.destination))
         }
 
-        private fun <T : Hash<T>> diff(
+        internal fun <T : Hash<T>> diff(
             srcPath: Path,
             src: Node.Directory,
             destPath: Path,

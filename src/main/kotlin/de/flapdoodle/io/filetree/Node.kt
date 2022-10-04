@@ -31,9 +31,18 @@ sealed class Node(
         override val name: String,
         override val lastModifiedTime: LastModified,
         val destination: Either<NodeReference, Path>
-    ) : Node(name, lastModifiedTime)
+    ) : Node(name, lastModifiedTime) {
+
+        constructor(name: String, lastModifiedTime: LastModified, destination: NodeReference) :
+                this(name, lastModifiedTime, Either.left(destination))
+
+        constructor(name: String, lastModifiedTime: LastModified, destination: Path) :
+                this(name, lastModifiedTime, Either.right(destination))
+    }
 
     data class NodeReference(val path: List<String>) {
+        constructor(vararg path: String) : this(listOf(*path))
+
         companion object {
             fun of(path: Path): NodeReference {
                 require(!path.isAbsolute) {"path is absolute: $path"}
