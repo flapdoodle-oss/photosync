@@ -146,14 +146,12 @@ data class Diff(
             dest: Node.Directory,
             hasher: Hasher<T>
         ): Entry {
-            return if (src == dest)
+            val changes = diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hasher)
+
+            return if (src == dest && changes.isEmpty())
                 Entry.IsEqual(src)
             else
-                Entry.DirectoryChanged(
-                    src,
-                    dest,
-                    diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hasher)
-                )
+                Entry.DirectoryChanged(src, dest, changes)
         }
     }
 }

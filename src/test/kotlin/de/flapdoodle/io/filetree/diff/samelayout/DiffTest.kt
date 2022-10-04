@@ -7,6 +7,7 @@ import de.flapdoodle.photosync.MockedHasher
 import de.flapdoodle.types.Either
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
@@ -14,6 +15,7 @@ import java.nio.file.Path
 internal class DiffTest {
 
     @Test
+    @Disabled
     fun sample() {
         val now = LastModified.now()
 
