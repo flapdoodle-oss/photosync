@@ -1,23 +1,21 @@
 package de.flapdoodle.photosync.filehash
 
-import java.nio.ByteBuffer
-import java.nio.file.Files
 import java.nio.file.Path
 
-@Deprecated(message = "use SizedQuickHash")
-data class QuickHash(
+data class SizedQuickHash(
     private val startHash: String,
+    private val size: Long,
     private val endHash: String
-) : Hash<QuickHash> {
+) : Hash<SizedQuickHash> {
 
-  companion object : Hasher<QuickHash> {
+  companion object : Hasher<SizedQuickHash> {
     private const val BLOCK_SIZE: Int = 512
 
     override fun toString(): String {
-      return QuickHash::class.java.simpleName
+      return SizedQuickHash::class.java.simpleName
     }
 
-    override fun hash(path: Path, size: Long): QuickHash {
+    override fun hash(path: Path, size: Long): SizedQuickHash {
       return try {
         val secondHash = if (size > BLOCK_SIZE)
           Hashing.sha256(Hashing.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
@@ -29,7 +27,7 @@ data class QuickHash(
         else
           ""
 
-        QuickHash(firstHash, secondHash)
+        SizedQuickHash(firstHash, size, secondHash)
       } catch (ex: Exception) {
         throw RuntimeException("could not hash $path", ex)
       }
