@@ -67,25 +67,32 @@ internal class DiffTest {
         assertThat(diff.entries)
             .hasSize(8)
             .contains(Diff.Entry.IsEqual(node = Node.File("same-file", now, 123L)))
-            .contains(Diff.Entry.Changed(
+            .contains(Diff.Entry.FileChanged(
                 src = Node.File("changed-size", now, 100L),
-                dest = Node.File("changed-size", now, 200L)
+                dest = Node.File("changed-size", now, 200L),
+                changes = listOf(Diff.FileChange.Size(100L, 200L))
             ))
-            .contains(Diff.Entry.Changed(
+            .contains(Diff.Entry.FileChanged(
                 src = Node.File("changed-time", now + 1, 100L),
-                dest = Node.File("changed-time", now, 100L)
+                dest = Node.File("changed-time", now, 100L),
+                changes = listOf(Diff.FileChange.TimeStamp(now + 1, now))
             ))
-            .contains(Diff.Entry.HashChanged<MockedHasher.MockHash>(
+            .contains(Diff.Entry.FileChanged(
                 src = Node.File("changed-hash", now + 1, 100L),
                 dest = Node.File("changed-hash", now + 1, 100L),
-                srcHash = MockedHasher.MockHash("hash#1"),
-                destHash = MockedHasher.MockHash("hash#2")
+                changes = listOf(Diff.FileChange.Content(
+                src = MockedHasher.MockHash("hash#1"),
+                dest = MockedHasher.MockHash("hash#2")
+                ))
             ))
             .contains(Diff.Entry.Missing(src=Node.File("new-file", now + 1, 10L)))
             .contains(Diff.Entry.Removed(dest = Node.File("removed-file", now - 10, 10L)))
-            .contains(Diff.Entry.Changed(
+            .contains(Diff.Entry.SymLinkChanged(
                 src = Node.SymLink("changed-sym-link", now, Either.left(Node.NodeReference(listOf("same-file")))),
                 dest = Node.SymLink("changed-sym-link", now + 1, Either.left(Node.NodeReference(listOf("same-file")))),
+                changes = listOf(
+                    Diff.SymLinkChange.TimeStamp(now, now +1)
+                )
             ))
             .contains(Diff.Entry.DirectoryChanged(
                 src = Node.Directory("sub", now, children = listOf(
