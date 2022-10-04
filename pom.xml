@@ -231,7 +231,7 @@
                         <configuration>
                             <classifier>dirdiff</classifier>
                             <mainClass>
-                                de.flapdoodle.photosync.DirDiff
+                                de.flapdoodle.photosync.DirDiff2
                             </mainClass>
                         </configuration>
                     </execution>
