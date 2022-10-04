@@ -5,14 +5,15 @@ import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.validate
 import com.github.ajalt.clikt.parameters.types.path
-import de.flapdoodle.io.layouts.common.Diff
-import de.flapdoodle.io.layouts.same.ExpectSameLayout
-import de.flapdoodle.io.tree.FileTrees
+import de.flapdoodle.io.filetree.FileTrees
+import de.flapdoodle.io.filetree.Node
+import de.flapdoodle.io.filetree.NodeTreeCollector
+import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.photosync.filehash.MonitoringHasher
-import de.flapdoodle.photosync.filehash.QuickHash
-import de.flapdoodle.photosync.filehash.SizeHash
 import de.flapdoodle.photosync.filehash.SizedQuickHash
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.types.Either
+import java.nio.file.Path
 
 object DirDiff2 {
 
@@ -37,34 +38,23 @@ object DirDiff2 {
 
     override fun run() {
       val diff = Monitor.execute {
-        val src = de.flapdoodle.io.filetree.FileTrees.walkFileTree(source, listener = {
+        val src = FileTrees.walkFileTree(source, listener = {
           Monitor.message("source $it")
         })
-        val dest = de.flapdoodle.io.filetree.FileTrees.walkFileTree(destination, listener = {
+        val dest = FileTrees.walkFileTree(destination, listener = {
           Monitor.message("destination $it")
         })
         Monitor.message("DONE")
         if (src!=null && dest!=null) {
-          de.flapdoodle.io.filetree.diff.samelayout.Diff.diff(src, dest, MonitoringHasher(SizedQuickHash))
+          Diff.diff(src, dest, MonitoringHasher(SizedQuickHash))
         } else {
-          de.flapdoodle.io.filetree.diff.samelayout.Diff(source,destination, emptyList())
+          Diff(source,destination, emptyList())
         }
       }
 
-//      val diff = Monitor.execute {
-//        val srcTree = FileTrees.asTree(source, listener = {
-//          Monitor.message("source $it")
-//        })
-//        val dstTree = FileTrees.asTree(destination, listener = {
-//          Monitor.message("destination $it")
-//        })
-//        Monitor.message("DONE")
-//
-//        ExpectSameLayout.diff(srcTree, dstTree, listOf(MonitoringHasher(SizeHash), MonitoringHasher(QuickHash)))
-//      }
       println()
       
-
+      printReport(diff)
 //      diff.forEach {
 //        when (it) {
 //          is Diff.SourceIsMissing -> println("${it.expectedPath}? - ${it.dst.path}")
@@ -88,6 +78,55 @@ object DirDiff2 {
 //          }
 //        }
 //      }
+    }
+
+    private fun printReport(diff: Diff) {
+      printReport(diff.src, diff.dest, diff.entries)
+    }
+
+    private fun printReport(src: Path, dest: Path, entries: List<Diff.Entry>) {
+      entries.forEach { entry ->
+        when (entry) {
+          is Diff.Entry.TypeMismatch -> println("${asPath(src, entry.src)} != ${asPath(dest, entry.dest)}")
+          is Diff.Entry.Missing -> println("${asPath(src, entry.src)} --X ${asPath(dest, entry.src)}")
+          is Diff.Entry.Removed -> println("${asPath(src, entry.dest)} X-- ${asPath(dest, entry.dest)}")
+          is Diff.Entry.FileChanged -> {
+            if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
+              println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")
+            } else {
+              println("${asPath(src, entry.src)} <-- ${asPath(dest, entry.dest)}")
+            }
+          }
+          is Diff.Entry.SymLinkChanged -> {
+            if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
+              println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")
+              println("  ${asPath(src, entry.src)} == ${asPath(src, entry.src.destination)}")
+              println("  ${asPath(dest, entry.dest)} == ${asPath(dest, entry.dest.destination)}")
+            } else {
+              println("${asPath(src, entry.src)} <-- ${asPath(dest, entry.dest)}")
+            }
+          }
+          is Diff.Entry.DirectoryChanged -> {
+            if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
+              println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")
+            } else {
+              println("${asPath(src, entry.src)} <-- ${asPath(dest, entry.dest)}")
+            }
+            printReport(asPath(src, entry.src), asPath(dest, entry.dest), entry.entries)
+          }
+          else -> {
+            // skip
+          }
+        }
+      }
+    }
+
+    private fun asPath(base: Path, destination: Either<Node.NodeReference, Path>): Path {
+      throw NotImplementedError()
+    }
+
+    private fun asPath(base: Path, node: Node): Path {
+      return base.resolve(node.name)
     }
   }
 
