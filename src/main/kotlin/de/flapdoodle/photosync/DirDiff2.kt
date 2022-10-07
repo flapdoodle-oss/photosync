@@ -142,9 +142,9 @@ object DirDiff2 {
     }
 
     private fun sync(src: Path, dest: Path, entries: List<Diff.Entry>) {
-      println("sync not implemented")
+      // create list of IO operations
+      TODO("not implemented")
     }
-
   }
 
   @JvmStatic
