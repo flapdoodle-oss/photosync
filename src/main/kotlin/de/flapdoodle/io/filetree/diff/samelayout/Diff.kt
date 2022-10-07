@@ -72,9 +72,11 @@ data class Diff(
 
             val changed = both.map { diffNodes(srcPath, srcByName[it]!!, destPath, destByName[it]!!, hasher) }
 
+            // TODO and map all children
             val missing = src.filter { onlyInSrc.contains(it.name) }
                 .map { Entry.Missing(it) }
 
+            // TODO and map all children
             val removed = dest.filter { onlyInDest.contains(it.name) }
                 .map { Entry.Removed(it) }
 
