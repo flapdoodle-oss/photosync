@@ -5,6 +5,9 @@ import java.nio.file.Path
 
 sealed class Action {
     data class CopyFile(val src: Path, val dest: Path, val size: Long): Action()
-    data class SetLastModified(val dest: Path, val lastModified: LastModified): Action()
+    data class MakeDirectory(val dest: Path): Action()
 
+    data class Remove(val src: Path): Action()
+
+    data class SetLastModified(val dest: Path, val lastModified: LastModified): Action()
 }
