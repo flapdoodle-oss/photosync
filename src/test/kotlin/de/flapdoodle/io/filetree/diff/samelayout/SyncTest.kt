@@ -55,6 +55,95 @@ internal class SyncTest {
   }
 
   @Nested
+  inner class Leftovers {
+    @Test
+    fun removeFile() {
+      val actions = Sync.remove(
+        destPath, Diff.Entry.Leftover.LeftoverFile(
+          Node.File("d", now, 123L)
+        )
+      )
+
+      assertThat(actions)
+        .hasSize(1)
+        .containsExactlyInAnyOrder(
+          Action.Remove(destPath / "d")
+        )
+    }
+
+    @Test
+    fun removeSymlink() {
+      val actions = Sync.remove(
+        destPath, Diff.Entry.Leftover.LeftoverSymLink(
+          Node.SymLink("d", now, Node.NodeReference("x"))
+        )
+      )
+
+      assertThat(actions)
+        .hasSize(1)
+        .containsExactlyInAnyOrder(
+          Action.Remove(destPath / "d")
+        )
+    }
+
+    @Test
+    fun removeDirectory() {
+      val actions = Sync.remove(
+        destPath, Diff.Entry.Leftover.LeftoverDirectory(
+          Node.Directory("sub", now, emptyList()),
+          listOf(
+            Diff.Entry.Leftover.LeftoverFile(
+              Node.File("d", now, 123L)
+            )
+          )
+        )
+      )
+
+      assertThat(actions)
+        .hasSize(2)
+        .containsExactlyInAnyOrder(
+          Action.Remove(destPath / "sub" / "d"),
+          Action.Remove(destPath / "sub")
+        )
+    }
+
+    @Test
+    fun copyFileBack() {
+      val actions = Sync.copyBack(srcPath, destPath, Diff.Entry.Leftover.LeftoverFile(
+        Node.File("d", now, 123L)
+      ))
+      
+      assertThat(actions)
+        .hasSize(2)
+        .containsExactlyInAnyOrder(
+          Action.CopyFile(destPath / "d", srcPath / "d", 123L),
+          Action.SetLastModified(srcPath / "d", now)
+        )
+    }
+
+    @Test
+    fun copyDirectoryBack() {
+      val actions = Sync.copyBack(srcPath, destPath, Diff.Entry.Leftover.LeftoverDirectory(
+        Node.Directory("sub", now + 1, emptyList()),
+        listOf(
+          Diff.Entry.Leftover.LeftoverFile(
+            Node.File("d", now, 123L)
+          )
+        )
+      ))
+
+      assertThat(actions)
+        .hasSize(4)
+        .containsExactlyInAnyOrder(
+          Action.MakeDirectory(srcPath / "sub"),
+          Action.CopyFile(destPath / "sub" / "d", srcPath / "sub" / "d", 123L),
+          Action.SetLastModified(srcPath / "sub" / "d", now),
+          Action.SetLastModified(srcPath / "sub" , now + 1)
+        )
+    }
+  }
+
+  @Nested
   inner class FileChanges {
 
     @Test
@@ -64,7 +153,7 @@ internal class SyncTest {
           Node.File("s", now + 1, 123L),
           Node.File("d", now, 123L),
           true
-        ), Sync.Changes.ONLY_NEW
+        ), Sync.Copy.ONLY_NEW
       )
 
       assertThat(actions)
@@ -82,7 +171,7 @@ internal class SyncTest {
           Node.File("s", now + 1, 123L),
           Node.File("d", now, 123L),
           false
-        ), Sync.Changes.ONLY_NEW
+        ), Sync.Copy.ONLY_NEW
       )
 
       assertThat(actions)
@@ -99,7 +188,7 @@ internal class SyncTest {
           Node.File("s", now, 123L),
           Node.File("d", now, 123L),
           true
-        ), Sync.Changes.ONLY_NEW
+        ), Sync.Copy.ONLY_NEW
       )
 
       assertThat(actions).isEmpty()
@@ -112,7 +201,7 @@ internal class SyncTest {
           Node.File("s", now, 123L),
           Node.File("d", now, 123L),
           true
-        ), Sync.Changes.IF_CHANGED
+        ), Sync.Copy.IF_CHANGED
       )
 
       assertThat(actions)
@@ -123,5 +212,97 @@ internal class SyncTest {
         )
     }
 
+  }
+
+  @Nested
+  inner class DirectoryChanges {
+    @Test
+    fun restoreLastModifiedAsLastEntry() {
+      val actions = Sync.copyDirectory(
+        srcPath, destPath, Diff.Entry.DirectoryChanged(
+          Node.Directory("s", now, emptyList()),
+          Node.Directory("d", now + 2, emptyList()),
+          listOf(
+            Diff.Entry.FileChanged(
+              Node.File("file", now + 1, 123L),
+              Node.File("file", now, 123L),
+              true
+            )
+          )
+        ),
+        Sync.Copy.ONLY_NEW,
+        Sync.Leftover.IGNORE
+      )
+
+      assertThat(actions)
+        .hasSize(3)
+        .containsExactlyInAnyOrder(
+          Action.CopyFile(srcPath / "s" / "file", destPath / "d" / "file", 123L),
+          Action.SetLastModified(destPath / "d" / "file", now + 1),
+          Action.SetLastModified(destPath / "d", now + 2)
+        )
+    }
+
+    @Test
+    fun setLastModifiedAfterCopy() {
+      val actions = Sync.copyDirectory(
+        srcPath, destPath, Diff.Entry.DirectoryChanged(
+          Node.Directory("s", now, emptyList()),
+          Node.Directory("d", now + 2, emptyList()),
+          listOf(
+            Diff.Entry.FileChanged(
+              Node.File("file", now, 123L),
+              Node.File("file", now + 1, 123L),
+              true
+            )
+          )
+        ),
+        Sync.Copy.IF_CHANGED,
+        Sync.Leftover.IGNORE
+      )
+
+      assertThat(actions)
+        .hasSize(3)
+        .containsExactlyInAnyOrder(
+          Action.CopyFile(srcPath / "s" / "file", destPath / "d" / "file", 123L),
+          Action.SetLastModified(destPath / "d" / "file", now),
+          Action.SetLastModified(destPath / "d", now)
+        )
+    }
+
+    @Test
+    fun setLastModifiedIfNewerEvenIfNoOtherChanges() {
+      val actions = Sync.copyDirectory(
+        srcPath, destPath, Diff.Entry.DirectoryChanged(
+          Node.Directory("s", now + 1, emptyList()),
+          Node.Directory("d", now, emptyList()),
+          emptyList()
+        ),
+        Sync.Copy.ONLY_NEW,
+        Sync.Leftover.IGNORE
+      )
+
+      assertThat(actions)
+        .hasSize(1)
+        .containsExactlyInAnyOrder(
+          Action.SetLastModified(destPath / "d", now + 1)
+        )
+    }
+
+    @Test
+    fun noActionsIfDestinationIsNewer() {
+      val actions = Sync.copyDirectory(
+        srcPath, destPath, Diff.Entry.DirectoryChanged(
+          Node.Directory("s", now, emptyList()),
+          Node.Directory("d", now + 1, emptyList()),
+          emptyList()
+        ),
+        Sync.Copy.ONLY_NEW,
+        Sync.Leftover.IGNORE
+      )
+
+      assertThat(actions)
+        .isEmpty()
+    }
   }
 }

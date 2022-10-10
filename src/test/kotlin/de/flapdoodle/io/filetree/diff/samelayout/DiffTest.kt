@@ -3,7 +3,6 @@ package de.flapdoodle.io.filetree.diff.samelayout
 import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.MockedHasher
-import de.flapdoodle.types.Either
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -85,7 +84,7 @@ internal class DiffTest {
                 contentChanged= true
             ))
             .contains(Diff.Entry.Missing.MissingFile(src=Node.File("new-file", now + 1, 10L)))
-            .contains(Diff.Entry.Removed.RemovedFile(dest = Node.File("removed-file", now - 10, 10L)))
+            .contains(Diff.Entry.Leftover.LeftoverFile(dest = Node.File("removed-file", now - 10, 10L)))
             .contains(Diff.Entry.SymLinkChanged(
                 src = Node.SymLink("changed-sym-link", now, Node.NodeReference("same-file")),
                 dest = Node.SymLink("changed-sym-link", now + 1, Node.NodeReference("same-file"))

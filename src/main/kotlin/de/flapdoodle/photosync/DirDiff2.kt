@@ -10,8 +10,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.filetree.Node
-import de.flapdoodle.io.filetree.NodeTreeCollector
+import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.io.filetree.diff.samelayout.Diff
+import de.flapdoodle.io.filetree.diff.samelayout.Sync
 import de.flapdoodle.photosync.filehash.FullHash
 import de.flapdoodle.photosync.filehash.MonitoringHasher
 import de.flapdoodle.photosync.filehash.SizedQuickHash
@@ -80,11 +81,29 @@ object DirDiff2 {
         }
       }
 
+      val actions = Sync(Sync.Copy.ONLY_NEW, Sync.Leftover.IGNORE)
+        .actions(diff)
+
       println()
 
       when (mode ?: Mode.Report) {
-        is Mode.Report -> printReport(diff)
+        is Mode.Report -> printReport(actions)
         is Mode.Sync -> sync(diff)
+      }
+    }
+
+    private fun printReport(actions: List<Action>) {
+      actions.forEach { action ->
+        when (action) {
+          is Action.CopyFile ->
+            println("cp ${action.src} ${action.dest} #size=${action.size}")
+          is Action.SetLastModified ->
+            println("touch ${action.dest} ${action.lastModified}")
+          is Action.MakeDirectory ->
+            println("mkdir ${action.dest}")
+          is Action.Remove ->
+            println("rm ${action.dest}")
+        }
       }
     }
 
@@ -97,7 +116,7 @@ object DirDiff2 {
         when (entry) {
           is Diff.Entry.TypeMismatch -> println("${asPath(src, entry.src)} != ${asPath(dest, entry.dest)}")
           is Diff.Entry.Missing -> println("${asPath(src, entry.src)} --X ${asPath(dest, entry.src)}")
-          is Diff.Entry.Removed -> println("${asPath(src, entry.dest)} X-- ${asPath(dest, entry.dest)}")
+          is Diff.Entry.Leftover -> println("${asPath(src, entry.dest)} X-- ${asPath(dest, entry.dest)}")
           is Diff.Entry.FileChanged -> {
             if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
               println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")

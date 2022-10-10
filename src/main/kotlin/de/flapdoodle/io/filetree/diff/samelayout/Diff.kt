@@ -17,10 +17,10 @@ data class Diff(
     data class IsEqual(val node: Node) : Entry()
     data class TypeMismatch(val src: Node, val dest: Node) : Entry()
 
-    sealed class Removed(open val dest: Node) : Entry() {
-      data class RemovedFile(override val dest: Node.File) : Removed(dest)
-      data class RemovedSymLink(override val dest: Node.SymLink) : Removed(dest)
-      data class RemovedDirectory(override val dest: Node.Directory, val entries: List<Removed>) : Removed(dest)
+    sealed class Leftover(open val dest: Node) : Entry() {
+      data class LeftoverFile(override val dest: Node.File) : Leftover(dest)
+      data class LeftoverSymLink(override val dest: Node.SymLink) : Leftover(dest)
+      data class LeftoverDirectory(override val dest: Node.Directory, val entries: List<Leftover>) : Leftover(dest)
     }
 
     sealed class Missing(open val src: Node) : Entry() {
@@ -69,9 +69,6 @@ data class Diff(
       val dest: Node.Directory,
       val entries: List<Entry>
     ) : Entry() {
-      init {
-        require(entries.isNotEmpty()) { "no entries" }
-      }
 
       fun compareTimeStamp(): Comparision {
         return src.lastModifiedTime.compare(dest.lastModifiedTime)!!
@@ -118,10 +115,10 @@ data class Diff(
       is Node.Directory -> Entry.Missing.MissingDirectory(it, it.children.map(::missing))
     }
 
-    private fun removed(it: Node): Entry.Removed = when (it) {
-      is Node.File -> Entry.Removed.RemovedFile(it)
-      is Node.SymLink -> Entry.Removed.RemovedSymLink(it)
-      is Node.Directory -> Entry.Removed.RemovedDirectory(it, it.children.map(::removed))
+    private fun removed(it: Node): Entry.Leftover = when (it) {
+      is Node.File -> Entry.Leftover.LeftoverFile(it)
+      is Node.SymLink -> Entry.Leftover.LeftoverSymLink(it)
+      is Node.Directory -> Entry.Leftover.LeftoverDirectory(it, it.children.map(::removed))
     }
 
     private fun <T : Hash<T>> diffNodes(
