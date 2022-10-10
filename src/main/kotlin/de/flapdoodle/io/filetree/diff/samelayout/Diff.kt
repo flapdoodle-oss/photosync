@@ -4,6 +4,7 @@ import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.photosync.Comparision
 import de.flapdoodle.photosync.compare
 import de.flapdoodle.photosync.filehash.Hash
+import de.flapdoodle.photosync.filehash.HashSelector
 import de.flapdoodle.photosync.filehash.Hasher
 import java.nio.file.Path
 
@@ -77,16 +78,16 @@ data class Diff(
   }
 
   companion object {
-    fun <T : Hash<T>> diff(src: Node.Top, dest: Node.Top, hasher: Hasher<T>): Diff {
-      return Diff(src.path, dest.path, diff(src.path, src.children, dest.path, dest.children, hasher))
+    fun diff(src: Node.Top, dest: Node.Top, hashSelector: HashSelector): Diff {
+      return Diff(src.path, dest.path, diff(src.path, src.children, dest.path, dest.children, hashSelector))
     }
 
-    fun <T : Hash<T>> diff(
+    fun diff(
       srcPath: Path,
       src: List<Node>,
       destPath: Path,
       dest: List<Node>,
-      hasher: Hasher<T>
+      hashSelector: HashSelector
     ): List<Entry> {
       val srcByName = src.associateBy(Node::name)
       val destByName = dest.associateBy(Node::name)
@@ -98,7 +99,7 @@ data class Diff(
       val onlyInSrc = srcByName.keys - destByName.keys
       val onlyInDest = destByName.keys - srcByName.keys
 
-      val changed = both.map { diffNodes(srcPath, srcByName[it]!!, destPath, destByName[it]!!, hasher) }
+      val changed = both.map { diffNodes(srcPath, srcByName[it]!!, destPath, destByName[it]!!, hashSelector) }
 
       val missing = src.filter { onlyInSrc.contains(it.name) }
         .map(::missing)
@@ -121,12 +122,12 @@ data class Diff(
       is Node.Directory -> Entry.Leftover.LeftoverDirectory(it, it.children.map(::removed))
     }
 
-    private fun <T : Hash<T>> diffNodes(
+    private fun diffNodes(
       srcPath: Path,
       src: Node,
       destPath: Path,
       dest: Node,
-      hasher: Hasher<T>
+      hashSelector: HashSelector
     ): Entry {
       require(src.name == dest.name) { "different names: $src - $dest" }
 
@@ -134,23 +135,24 @@ data class Diff(
         return Entry.TypeMismatch(src, dest)
       }
       return when (src) {
-        is Node.File -> diff(srcPath, src, destPath, dest as Node.File, hasher)
+        is Node.File -> diff(srcPath, src, destPath, dest as Node.File, hashSelector)
         is Node.SymLink -> diff(src, dest as Node.SymLink)
-        is Node.Directory -> diff(srcPath, src, destPath, dest as Node.Directory, hasher)
+        is Node.Directory -> diff(srcPath, src, destPath, dest as Node.Directory, hashSelector)
       }
     }
 
-    internal fun <T : Hash<T>> diff(
+    internal fun diff(
       srcPath: Path,
       src: Node.File,
       destPath: Path,
       dest: Node.File,
-      hasher: Hasher<T>
+      hashSelector: HashSelector
     ): Entry {
       val timeStampChanged = src.lastModifiedTime != dest.lastModifiedTime
 
       return if (src.size == dest.size) {
         // check for content change
+        val hasher = hashSelector.hasherFor(srcPath.resolve(src.name))
         val srcHash = hasher.hash(srcPath.resolve(src.name), src.size)
         val destHash = hasher.hash(destPath.resolve(dest.name), dest.size)
         if (srcHash == destHash) {
@@ -172,14 +174,14 @@ data class Diff(
         Entry.IsEqual(src)
     }
 
-    internal fun <T : Hash<T>> diff(
+    internal fun diff(
       srcPath: Path,
       src: Node.Directory,
       destPath: Path,
       dest: Node.Directory,
-      hasher: Hasher<T>
+      hashSelector: HashSelector
     ): Entry {
-      val changes = diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hasher)
+      val changes = diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hashSelector)
       val nochange = changes.all { it is Entry.IsEqual }
 
       return if (src == dest && nochange)

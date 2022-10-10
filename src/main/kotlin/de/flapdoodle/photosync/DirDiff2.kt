@@ -13,9 +13,7 @@ import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.io.filetree.diff.samelayout.Sync
-import de.flapdoodle.photosync.filehash.FullHash
-import de.flapdoodle.photosync.filehash.MonitoringHasher
-import de.flapdoodle.photosync.filehash.SizedQuickHash
+import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.types.Either
 import java.nio.file.Path
@@ -42,7 +40,7 @@ object DirDiff2 {
     }
 
     val hashMode by option(
-      "-H", "--hash", help = "hash (default is quick)"
+      "-H", "--hash", help = "hash (default is mimetype)"
     ).groupChoice(
       "quick" to HashMode.Quick(),
       "full" to HashMode.Full()
@@ -61,9 +59,10 @@ object DirDiff2 {
     )
 
     override fun run() {
-      val hash = when (hashMode ?: HashMode.Quick()) {
-        is HashMode.Full -> FullHash
-        is HashMode.Quick -> SizedQuickHash
+      val hashSelector = when (hashMode) {
+        is HashMode.Full -> HashSelector.always(FullHash)
+        is HashMode.Quick -> HashSelector.always(SizedQuickHash)
+        else -> FastHashSelector.defaultMapping()
       }
 
       val diff = Monitor.execute {
@@ -75,7 +74,7 @@ object DirDiff2 {
         })
         Monitor.message("DONE")
         if (src!=null && dest!=null) {
-          Diff.diff(src, dest, MonitoringHasher(hash))
+          Diff.diff(src, dest, MonitoringHashSelector(hashSelector))
         } else {
           Diff(source,destination, emptyList())
         }

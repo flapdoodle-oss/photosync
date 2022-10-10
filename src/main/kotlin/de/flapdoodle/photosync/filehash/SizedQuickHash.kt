@@ -17,13 +17,13 @@ data class SizedQuickHash(
 
     override fun hash(path: Path, size: Long): SizedQuickHash {
       return try {
-        val secondHash = if (size > BLOCK_SIZE)
-          Hashing.sha256(Hashing.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
+        val firstHash = if (size > 0)
+          Hashing.sha256(Hashing.read(path, 0, BLOCK_SIZE))
         else
           ""
 
-        val firstHash = if (size > 0)
-          Hashing.sha256(Hashing.read(path, 0, BLOCK_SIZE))
+        val secondHash = if (size > BLOCK_SIZE)
+          Hashing.sha256(Hashing.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
         else
           ""
 
