@@ -8,6 +8,10 @@ data class FullHash(
 ) : Hash<FullHash> {
 
   companion object : Hasher<FullHash> {
+    override fun toString(): String {
+      return FullHash::class.java.simpleName
+    }
+
     override fun hash(path: Path, size: Long) = FullHash(Hashing.sha256(Files.readAllBytes(path)))
   }
 }

@@ -19,6 +19,10 @@ import de.flapdoodle.types.Either
 import java.nio.file.Path
 
 object DirDiff2 {
+  sealed class SyncMode(name: String, val copy: Sync.Copy, val leftover: Sync.Leftover) : OptionGroup(name) {
+    class OnlyNew : SyncMode("copy new, dont remove leftovers", Sync.Copy.ONLY_NEW, Sync.Leftover.IGNORE)
+    class Changes : SyncMode("copy if changed, remove leftovers", Sync.Copy.IF_CHANGED, Sync.Leftover.IGNORE)
+  }
 
   class Args : CliktCommand() {
     init {
@@ -46,6 +50,13 @@ object DirDiff2 {
       "full" to HashMode.Full()
     )
 
+    val syncMode by option(
+      "-S", "--sync", help = "sync mode (default is only new)"
+    ).groupChoice(
+      "onlyNew" to SyncMode.OnlyNew(),
+      "changes" to SyncMode.Changes()
+    )
+
     sealed class Mode(name: String) : OptionGroup(name) {
       object Report : Mode("report")
       object Sync : Mode("sync")
@@ -65,6 +76,9 @@ object DirDiff2 {
         else -> FastHashSelector.defaultMapping()
       }
 
+      val copy = (syncMode ?: SyncMode.OnlyNew()).copy
+      val leftover = (syncMode ?: SyncMode.OnlyNew()).leftover
+
       val diff = Monitor.execute {
         val src = FileTrees.walkFileTree(source, listener = {
           Monitor.message("source $it")
@@ -80,7 +94,7 @@ object DirDiff2 {
         }
       }
 
-      val actions = Sync(Sync.Copy.ONLY_NEW, Sync.Leftover.IGNORE)
+      val actions = Sync(copy, leftover)
         .actions(diff)
 
       println()
