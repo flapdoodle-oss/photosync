@@ -101,7 +101,7 @@ object DirDiff2 {
 
       when (mode ?: Mode.Report) {
         is Mode.Report -> printReport(actions)
-        is Mode.Sync -> sync(diff)
+        is Mode.Sync -> sync(actions)
       }
     }
 
@@ -167,6 +167,10 @@ object DirDiff2 {
 
     private fun asPath(base: Path, node: Node): Path {
       return base.resolve(node.name)
+    }
+
+    private fun sync(actions: List<Action>) {
+      TODO("not implemented")
     }
 
     private fun sync(diff: Diff) {
