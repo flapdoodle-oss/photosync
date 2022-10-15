@@ -11,7 +11,6 @@
 
     <properties>
         <kotlin.version>1.7.10</kotlin.version>
-        <junit.version>4.12</junit.version>
         <java.version>11</java.version>
         <main.class>kotlin.KotlinHelloKt</main.class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

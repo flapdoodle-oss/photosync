@@ -62,7 +62,7 @@ object DirDiff2 {
     }
 
     val mode by option(
-      "-m","--mode", help = "mode (default is report)"
+      "-m","--mode", help = "mode (default is sync)"
     ).groupChoice(
       "report" to Mode.Report,
       "sync" to Mode.Sync
@@ -98,7 +98,7 @@ object DirDiff2 {
 
       println()
 
-      val succeed: Boolean = when (mode ?: Mode.Report) {
+      val succeed: Boolean = when (mode ?: Mode.Sync) {
         is Mode.Report -> {
           printReport(actions)
           true
@@ -116,21 +116,27 @@ object DirDiff2 {
 
     private fun sync(actions: List<Action>): Boolean {
       printReport(actions)
-      println("... proceed? (yes|no)")
+      
+      return if (actions.isNotEmpty()) {
+        println("... proceed? (yes|no)")
 
-      return when (readLine()) {
-        "yes" -> {
-          println("do it")
-          Actions.execute(actions) { current, size, action ->
-            Monitor.message("$current of $size -> ${Actions.asHumanReadable(action)} ")
+        when (readLine()) {
+          "yes" -> {
+            Monitor.execute {
+              Actions.execute(actions) { current, size, action ->
+                Monitor.message("$current of $size -> ${Actions.asHumanReadable(action)} ")
+              }
+            }
+            true
           }
-          true
-        }
 
-        else -> {
-          println("... aborted")
-          false
+          else -> {
+            println("... aborted")
+            false
+          }
         }
+      } else {
+        true
       }
     }
   }
