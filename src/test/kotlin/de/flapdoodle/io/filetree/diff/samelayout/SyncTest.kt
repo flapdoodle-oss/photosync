@@ -27,7 +27,7 @@ internal class SyncTest {
       assertThat(actions)
         .hasSize(2)
         .containsExactlyInAnyOrder(
-          Action.CopyFile(srcPath / "s", destPath / "s", 123L),
+          Action.CopyFile(srcPath / "s", destPath / "s", 123L, false),
           Action.SetLastModified(destPath / "s", now)
         )
     }
@@ -47,7 +47,7 @@ internal class SyncTest {
         .hasSize(4)
         .containsExactlyInAnyOrder(
           Action.MakeDirectory(destPath / "sub"),
-          Action.CopyFile(srcPath / "sub" / "s", destPath / "sub" / "s", 123L),
+          Action.CopyFile(srcPath / "sub" / "s", destPath / "sub" / "s", 123L, false),
           Action.SetLastModified(destPath / "sub" / "s", now),
           Action.SetLastModified(destPath / "sub", now + 1)
         )
@@ -116,7 +116,7 @@ internal class SyncTest {
       assertThat(actions)
         .hasSize(2)
         .containsExactlyInAnyOrder(
-          Action.CopyFile(destPath / "d", srcPath / "d", 123L),
+          Action.CopyFile(destPath / "d", srcPath / "d", 123L, false),
           Action.SetLastModified(srcPath / "d", now)
         )
     }
@@ -136,7 +136,7 @@ internal class SyncTest {
         .hasSize(4)
         .containsExactlyInAnyOrder(
           Action.MakeDirectory(srcPath / "sub"),
-          Action.CopyFile(destPath / "sub" / "d", srcPath / "sub" / "d", 123L),
+          Action.CopyFile(destPath / "sub" / "d", srcPath / "sub" / "d", 123L, false),
           Action.SetLastModified(srcPath / "sub" / "d", now),
           Action.SetLastModified(srcPath / "sub" , now + 1)
         )
@@ -159,7 +159,7 @@ internal class SyncTest {
       assertThat(actions)
         .hasSize(2)
         .containsExactlyInAnyOrder(
-          Action.CopyFile(srcPath / "s", destPath / "d", 123L),
+          Action.CopyFile(srcPath / "s", destPath / "d", 123L, true),
           Action.SetLastModified(destPath / "d", now + 1)
         )
     }
@@ -207,7 +207,7 @@ internal class SyncTest {
       assertThat(actions)
         .hasSize(2)
         .containsExactlyInAnyOrder(
-          Action.CopyFile(srcPath / "s", destPath / "d", 123L),
+          Action.CopyFile(srcPath / "s", destPath / "d", 123L, true),
           Action.SetLastModified(destPath / "d", now)
         )
     }
@@ -237,7 +237,7 @@ internal class SyncTest {
       assertThat(actions)
         .hasSize(3)
         .containsExactlyInAnyOrder(
-          Action.CopyFile(srcPath / "s" / "file", destPath / "d" / "file", 123L),
+          Action.CopyFile(srcPath / "s" / "file", destPath / "d" / "file", 123L, true),
           Action.SetLastModified(destPath / "d" / "file", now + 1),
           Action.SetLastModified(destPath / "d", now + 2)
         )
@@ -264,7 +264,7 @@ internal class SyncTest {
       assertThat(actions)
         .hasSize(3)
         .containsExactlyInAnyOrder(
-          Action.CopyFile(srcPath / "s" / "file", destPath / "d" / "file", 123L),
+          Action.CopyFile(srcPath / "s" / "file", destPath / "d" / "file", 123L, true),
           Action.SetLastModified(destPath / "d" / "file", now),
           Action.SetLastModified(destPath / "d", now)
         )

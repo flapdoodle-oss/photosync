@@ -101,7 +101,7 @@ class Sync(
 
         is Diff.Entry.Leftover.LeftoverFile -> {
           val destNode = entry.dest
-          copyFile(destPath.resolve(destNode.name), srcPath.resolve(destNode.name), destNode.size, destNode.lastModifiedTime)
+          copyFile(destPath.resolve(destNode.name), srcPath.resolve(destNode.name), destNode.size, destNode.lastModifiedTime, false)
         }
 
         is Diff.Entry.Leftover.LeftoverSymLink -> {
@@ -122,7 +122,7 @@ class Sync(
 
         is Diff.Entry.Missing.MissingFile -> {
           entry.src.letThis {
-            copyFile(srcPath.resolve(name), destPath.resolve(name), size, lastModifiedTime)
+            copyFile(srcPath.resolve(name), destPath.resolve(name), size, lastModifiedTime, false)
           }
         }
 
@@ -172,7 +172,7 @@ class Sync(
       }
 
       return if (shouldCopyFile) {
-        copyFile(srcPath.resolve(entry.src.name), destPath.resolve(entry.dest.name), entry.src.size, entry.src.lastModifiedTime)
+        copyFile(srcPath.resolve(entry.src.name), destPath.resolve(entry.dest.name), entry.src.size, entry.src.lastModifiedTime, true)
       } else {
         if (shouldSetLastModified) {
           listOf(Action.SetLastModified(destPath.resolve(entry.dest.name), entry.src.lastModifiedTime))
@@ -182,9 +182,9 @@ class Sync(
       }
     }
 
-    internal fun copyFile(src: Path, dest: Path, size: Long, lastModified: LastModified): List<Action> {
+    internal fun copyFile(src: Path, dest: Path, size: Long, lastModified: LastModified, replaceExisting: Boolean): List<Action> {
       return listOf(
-        Action.CopyFile(src,dest,size),
+        Action.CopyFile(src,dest,size,replaceExisting),
         Action.SetLastModified(dest,lastModified)
       )
     }

@@ -11,6 +11,7 @@ import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.io.filetree.diff.Action
+import de.flapdoodle.io.filetree.diff.Actions
 import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.io.filetree.diff.samelayout.Sync
 import de.flapdoodle.photosync.filehash.*
@@ -106,80 +107,15 @@ object DirDiff2 {
     }
 
     private fun printReport(actions: List<Action>) {
-      actions.forEach { action ->
-        when (action) {
-          is Action.CopyFile ->
-            println("cp ${action.src} ${action.dest} #size=${action.size}")
-          is Action.SetLastModified ->
-            println("touch ${action.dest} ${action.lastModified}")
-          is Action.MakeDirectory ->
-            println("mkdir ${action.dest}")
-          is Action.Remove ->
-            println("rm ${action.dest}")
-        }
-      }
-    }
-
-    private fun printReport(diff: Diff) {
-      printReport(diff.src, diff.dest, diff.entries)
-    }
-
-    private fun printReport(src: Path, dest: Path, entries: List<Diff.Entry>) {
-      entries.forEach { entry ->
-        when (entry) {
-          is Diff.Entry.TypeMismatch -> println("${asPath(src, entry.src)} != ${asPath(dest, entry.dest)}")
-          is Diff.Entry.Missing -> println("${asPath(src, entry.src)} --X ${asPath(dest, entry.src)}")
-          is Diff.Entry.Leftover -> println("${asPath(src, entry.dest)} X-- ${asPath(dest, entry.dest)}")
-          is Diff.Entry.FileChanged -> {
-            if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
-              println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")
-            } else {
-              println("${asPath(src, entry.src)} <-- ${asPath(dest, entry.dest)}")
-            }
-          }
-          is Diff.Entry.SymLinkChanged -> {
-            if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
-              println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")
-              println("  ${asPath(src, entry.src)} == ${asPath(src, entry.src.destination)}")
-              println("  ${asPath(dest, entry.dest)} == ${asPath(dest, entry.dest.destination)}")
-            } else {
-              println("${asPath(src, entry.src)} <-- ${asPath(dest, entry.dest)}")
-            }
-          }
-          is Diff.Entry.DirectoryChanged -> {
-            if (entry.src.lastModifiedTime > entry.dest.lastModifiedTime) {
-              println("${asPath(src, entry.src)} --> ${asPath(dest, entry.dest)}")
-            } else {
-              println("${asPath(src, entry.src)} <-- ${asPath(dest, entry.dest)}")
-            }
-            printReport(asPath(src, entry.src), asPath(dest, entry.dest), entry.entries)
-          }
-          else -> {
-            // skip
-          }
-        }
-      }
-    }
-
-    private fun asPath(base: Path, destination: Either<Node.NodeReference, Path>): Path {
-      throw NotImplementedError()
-    }
-
-    private fun asPath(base: Path, node: Node): Path {
-      return base.resolve(node.name)
+      Actions.asHumanReadable(actions)
+        .forEach(::println)
     }
 
     private fun sync(actions: List<Action>) {
-      TODO("not implemented")
-    }
-
-    private fun sync(diff: Diff) {
-      sync(diff.src, diff.dest, diff.entries)
-    }
-
-    private fun sync(src: Path, dest: Path, entries: List<Diff.Entry>) {
-      // create list of IO operations
-      TODO("not implemented")
+      printReport(actions)
+      println("... proceed?")
+      val answer = readLine()
+      println("--> '$answer'")
     }
   }
 
