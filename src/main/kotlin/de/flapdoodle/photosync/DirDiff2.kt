@@ -21,6 +21,7 @@ object DirDiff2 {
   sealed class SyncMode(name: String, val copy: Sync.Copy, val leftover: Sync.Leftover) : OptionGroup(name) {
     class OnlyNew : SyncMode("copy new, dont remove leftovers", Sync.Copy.ONLY_NEW, Sync.Leftover.IGNORE)
     class Changes : SyncMode("copy if changed, remove leftovers", Sync.Copy.IF_CHANGED, Sync.Leftover.IGNORE)
+    class AllChanges : SyncMode("copy if changed, copy back removed", Sync.Copy.IF_CHANGED, Sync.Leftover.COPY_BACK)
   }
 
   class Args : CliktCommand() {
@@ -53,7 +54,8 @@ object DirDiff2 {
       "-S", "--sync", help = "sync mode (default is only new)"
     ).groupChoice(
       "onlyNew" to SyncMode.OnlyNew(),
-      "changes" to SyncMode.Changes()
+      "changes" to SyncMode.Changes(),
+      "all-changes" to SyncMode.AllChanges()
     )
 
     sealed class Mode(name: String) : OptionGroup(name) {
