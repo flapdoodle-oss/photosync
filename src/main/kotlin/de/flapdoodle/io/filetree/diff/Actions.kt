@@ -3,10 +3,9 @@ package de.flapdoodle.io.filetree.diff
 import de.flapdoodle.photosync.LastModified
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.nio.file.attribute.PosixFileAttributes
 
 object Actions {
-    fun execute(actions: List<Action>, progressListener: (Int, Int, Action) -> Unit) {
+    fun execute(actions: List<Action>, progressListener: (Int, Int, Action) -> Unit = { _,_,_ -> }) {
         actions.forEachIndexed { index, action ->
             progressListener(index, actions.size, action)
             execute(action)

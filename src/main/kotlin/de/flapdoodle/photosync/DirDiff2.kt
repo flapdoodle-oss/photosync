@@ -9,15 +9,13 @@ import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.io.filetree.FileTrees
-import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.io.filetree.diff.Actions
 import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.io.filetree.diff.samelayout.Sync
 import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.progress.Monitor
-import de.flapdoodle.types.Either
-import java.nio.file.Path
+import kotlin.system.exitProcess
 
 object DirDiff2 {
   sealed class SyncMode(name: String, val copy: Sync.Copy, val leftover: Sync.Leftover) : OptionGroup(name) {
@@ -100,10 +98,15 @@ object DirDiff2 {
 
       println()
 
-      when (mode ?: Mode.Report) {
-        is Mode.Report -> printReport(actions)
+      val succeed: Boolean = when (mode ?: Mode.Report) {
+        is Mode.Report -> {
+          printReport(actions)
+          true
+        }
         is Mode.Sync -> sync(actions)
       }
+
+      if (!succeed) exitProcess(1)
     }
 
     private fun printReport(actions: List<Action>) {
@@ -111,11 +114,21 @@ object DirDiff2 {
         .forEach(::println)
     }
 
-    private fun sync(actions: List<Action>) {
+    private fun sync(actions: List<Action>): Boolean {
       printReport(actions)
-      println("... proceed?")
-      val answer = readLine()
-      println("--> '$answer'")
+      println("... proceed? (yes|no)")
+
+      return when (readLine()) {
+        "yes" -> {
+          println("do it")
+          true
+        }
+
+        else -> {
+          println("... aborted")
+          false
+        }
+      }
     }
   }
 
