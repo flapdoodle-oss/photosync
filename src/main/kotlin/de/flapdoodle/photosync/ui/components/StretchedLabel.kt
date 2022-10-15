@@ -1,10 +1,10 @@
 package de.flapdoodle.photosync.ui.components
 
 import javafx.beans.value.ObservableValue
-import javafx.scene.Parent
 import javafx.scene.control.OverrunStyle
-import javafx.scene.paint.Color
-import tornadofx.*
+import tornadofx.Fragment
+import tornadofx.hbox
+import tornadofx.label
 
 class StretchedLabel(textProperty: ObservableValue<String>, textOverrunStyle: OverrunStyle = OverrunStyle.ELLIPSIS) : Fragment() {
 

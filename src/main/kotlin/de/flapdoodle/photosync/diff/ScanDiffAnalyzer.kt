@@ -2,7 +2,6 @@ package de.flapdoodle.photosync.diff
 
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.Hasher
-import de.flapdoodle.photosync.filehash.SizeHasher
 import de.flapdoodle.photosync.progress.Monitor
 
 object ScanDiffAnalyzer {

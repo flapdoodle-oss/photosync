@@ -1,6 +1,5 @@
 package de.flapdoodle.io.layouts.metainfo
 
-import de.flapdoodle.io.tree.Tree
 import de.flapdoodle.photosync.filehash.Hash
 
 class SameHashMap<T>(list: List<SameHash<T>>) {

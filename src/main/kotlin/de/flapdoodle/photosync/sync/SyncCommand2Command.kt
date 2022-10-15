@@ -1,10 +1,10 @@
 package de.flapdoodle.photosync.sync
 
-import de.flapdoodle.photosync.paths.expectParent
 import de.flapdoodle.io.filetree.Tree
 import de.flapdoodle.io.filetree.containsExactly
 import de.flapdoodle.io.filetree.find
 import de.flapdoodle.io.filetree.get
+import de.flapdoodle.photosync.paths.expectParent
 import java.nio.file.Path
 
 object SyncCommand2Command {

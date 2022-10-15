@@ -5,7 +5,7 @@ import de.flapdoodle.photosync.ui.sync.SyncGroup
 import de.flapdoodle.photosync.ui.sync.SyncGroupID
 import de.flapdoodle.photosync.ui.sync.SyncList
 import tornadofx.FXEvent
-import java.util.UUID
+import java.util.*
 
 data class ActionEvent(val action: Action) : FXEvent() {
 

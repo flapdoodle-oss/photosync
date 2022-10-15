@@ -6,7 +6,6 @@ import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.progress.Monitor
-import java.lang.Exception
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime

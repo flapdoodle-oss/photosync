@@ -1,6 +1,5 @@
 package de.flapdoodle.fx.layout.weightgrid
 
-import de.flapdoodle.photosync.ui.SyncConfigView.SyncConfigNodes.Companion.updateRow
 import javafx.geometry.HPos
 import javafx.geometry.VPos
 import javafx.scene.Node

@@ -3,7 +3,6 @@ package de.flapdoodle.photosync.filehash
 import de.flapdoodle.io.tree.IsFile
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.KotlinCompilerFix_SAM_Helper
-import de.flapdoodle.photosync.progress.Monitor
 
 
 interface HashStrategy {

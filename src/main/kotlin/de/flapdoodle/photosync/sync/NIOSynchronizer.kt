@@ -1,12 +1,13 @@
 package de.flapdoodle.photosync.sync
 
-import com.sun.nio.file.ExtendedCopyOption
 import de.flapdoodle.photosync.progress.Progress
 import de.flapdoodle.photosync.ui.sync.SyncGroup
 import de.flapdoodle.photosync.ui.sync.SyncGroupID
 import de.flapdoodle.photosync.ui.sync.SyncList
-import java.nio.file.*
-import java.util.*
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 
 class NIOSynchronizer : Synchronizer {
     override fun sync(

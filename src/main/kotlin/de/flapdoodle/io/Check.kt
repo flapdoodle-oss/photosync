@@ -1,8 +1,6 @@
 package de.flapdoodle.io
 
 import de.flapdoodle.photosync.LastModified
-import java.nio.file.Files
-import java.nio.file.LinkOption
 import java.nio.file.Path
 
 object Check {

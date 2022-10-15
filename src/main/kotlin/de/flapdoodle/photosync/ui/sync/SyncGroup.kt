@@ -1,7 +1,6 @@
 package de.flapdoodle.photosync.ui.sync
 
 import de.flapdoodle.photosync.sync.SyncCommand
-import java.util.*
 
 data class SyncGroup(
         val id: SyncGroupID = SyncGroupID(),

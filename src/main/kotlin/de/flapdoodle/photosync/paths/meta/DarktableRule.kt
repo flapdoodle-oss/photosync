@@ -3,7 +3,6 @@ package de.flapdoodle.photosync.paths.meta
 import de.flapdoodle.photosync.paths.expectParent
 import java.nio.file.Path
 import java.util.regex.Pattern
-import kotlin.io.path.name
 
 object DarktableRule : MetafileRule {
     // base file -> XYZ.ext --> XYZ_01.ext.fooBar

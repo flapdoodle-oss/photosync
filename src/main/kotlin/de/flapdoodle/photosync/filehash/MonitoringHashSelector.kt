@@ -1,6 +1,5 @@
 package de.flapdoodle.photosync.filehash
 
-import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
 
 class MonitoringHashSelector(

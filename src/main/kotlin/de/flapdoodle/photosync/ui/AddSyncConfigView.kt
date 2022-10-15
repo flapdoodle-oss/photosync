@@ -3,7 +3,6 @@ package de.flapdoodle.photosync.ui
 import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.photosync.ui.config.SyncEntry
 import de.flapdoodle.photosync.ui.events.ModelEvent
-import javafx.beans.property.SimpleStringProperty
 import javafx.scene.layout.Priority
 import javafx.stage.DirectoryChooser
 import tornadofx.*

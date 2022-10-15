@@ -4,7 +4,6 @@ import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.photosync.Comparision
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.letThis
-import java.lang.IllegalArgumentException
 import java.nio.file.Path
 import kotlin.io.path.div
 

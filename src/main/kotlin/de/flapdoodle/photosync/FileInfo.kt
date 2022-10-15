@@ -1,10 +1,6 @@
 package de.flapdoodle.photosync
 
 import org.apache.tika.Tika
-import org.apache.tika.config.TikaConfig
-import org.apache.tika.detect.DefaultDetector
-import org.apache.tika.metadata.Metadata
-import java.io.File
 import java.nio.file.Path
 
 object FileInfo {

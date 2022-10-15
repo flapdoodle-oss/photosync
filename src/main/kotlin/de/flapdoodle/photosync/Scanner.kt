@@ -9,8 +9,9 @@ import de.flapdoodle.photosync.filehash.HashStrategy
 import de.flapdoodle.photosync.filehash.Hasher
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.progress.Monitor
-import de.flapdoodle.photosync.sync.*
-import java.lang.Exception
+import de.flapdoodle.photosync.sync.Diff2CopySourceCommands
+import de.flapdoodle.photosync.sync.Diff2SyncCommands
+import de.flapdoodle.photosync.sync.SyncCommandGroup
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime

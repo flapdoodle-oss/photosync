@@ -2,7 +2,6 @@ package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.Blob
 import de.flapdoodle.photosync.Comparision
-import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.compare
 import de.flapdoodle.photosync.diff.BlobWithMeta
 import de.flapdoodle.photosync.diff.DiffEntry

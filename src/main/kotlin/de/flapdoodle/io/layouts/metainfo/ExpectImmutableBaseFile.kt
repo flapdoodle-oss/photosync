@@ -4,7 +4,6 @@ import de.flapdoodle.io.layouts.common.Diff
 import de.flapdoodle.io.tree.childWithPath
 import de.flapdoodle.photosync.filehash.Hasher
 import de.flapdoodle.photosync.paths.expectParent
-import java.lang.IllegalArgumentException
 import java.nio.file.Path
 
 object ExpectImmutableBaseFile {

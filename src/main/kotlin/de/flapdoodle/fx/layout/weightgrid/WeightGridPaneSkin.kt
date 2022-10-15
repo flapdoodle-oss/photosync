@@ -1,10 +1,10 @@
 package de.flapdoodle.fx.layout.weightgrid
 
-import de.flapdoodle.fx.layout.GridMap
-import de.flapdoodle.fx.layout.WeightedSize
 import de.flapdoodle.fx.extensions.constraint
 import de.flapdoodle.fx.extensions.heightLimits
 import de.flapdoodle.fx.extensions.widthLimits
+import de.flapdoodle.fx.layout.GridMap
+import de.flapdoodle.fx.layout.WeightedSize
 import javafx.collections.ListChangeListener
 import javafx.geometry.HPos
 import javafx.geometry.VPos

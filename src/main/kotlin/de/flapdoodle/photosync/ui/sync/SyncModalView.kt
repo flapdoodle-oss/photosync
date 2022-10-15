@@ -4,11 +4,9 @@ import de.flapdoodle.fx.extensions.bindFromFactory
 import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.extensions.subscribeEvent
 import de.flapdoodle.fx.lazy.*
-import de.flapdoodle.photosync.ui.AddSyncConfigView
 import de.flapdoodle.photosync.ui.events.ActionEvent
 import tornadofx.*
 import java.time.Duration
-import java.time.LocalDateTime
 import java.util.*
 
 class SyncModalView : View("Sync") {

@@ -1,16 +1,13 @@
 package de.flapdoodle.io.resolve.metainfo
 
-import de.flapdoodle.io.Check
 import de.flapdoodle.io.layouts.common.Diff
 import de.flapdoodle.io.layouts.common.Diff2Commands
 import de.flapdoodle.io.layouts.metainfo.ExpectSameContent
 import de.flapdoodle.io.layouts.metainfo.MetaView
 import de.flapdoodle.io.resolve.commands.Command
 import de.flapdoodle.io.resolve.commands.Intention
-import de.flapdoodle.io.resolve.commands.Precondition
 import de.flapdoodle.io.tree.Tree
 import java.nio.file.Path
-import kotlin.reflect.jvm.internal.impl.util.Checks
 
 object ExpectSameContentDiff2Commands {
     fun syncCommandsFor(

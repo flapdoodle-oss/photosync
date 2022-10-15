@@ -1,8 +1,8 @@
 package de.flapdoodle.fx.layout.weightflex
 
-import de.flapdoodle.fx.extensions.*
-import de.flapdoodle.fx.layout.GridMap
-import de.flapdoodle.fx.layout.WeightedSize
+import de.flapdoodle.fx.extensions.constraint
+import de.flapdoodle.fx.extensions.heightDimensions
+import de.flapdoodle.fx.extensions.widthDimensions
 import javafx.collections.ListChangeListener
 import javafx.geometry.HPos
 import javafx.geometry.VPos

@@ -4,20 +4,18 @@ import de.flapdoodle.fx.extensions.fire
 import de.flapdoodle.fx.lazy.ChangeableValue
 import de.flapdoodle.fx.lazy.bindFrom
 import de.flapdoodle.fx.lazy.mapToList
-import de.flapdoodle.photosync.ui.config.SyncEntry
-import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.Scanner
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.sync.NIOSynchronizer
 import de.flapdoodle.photosync.sync.Synchronizer
-import de.flapdoodle.photosync.ui.sync.SyncGroup
+import de.flapdoodle.photosync.ui.config.SyncEntry
+import de.flapdoodle.photosync.ui.events.ActionEvent
 import de.flapdoodle.photosync.ui.sync.SyncList
 import javafx.concurrent.Task
 import javafx.scene.control.Alert
 import tornadofx.*
 import java.nio.file.Paths
-import java.util.UUID
-import kotlin.collections.LinkedHashMap
+import java.util.*
 
 class TaskList : Fragment() {
 

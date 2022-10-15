@@ -3,7 +3,9 @@ package de.flapdoodle.fx.layout.weightflex
 import javafx.css.CssMetaData
 import javafx.css.StyleablePropertyFactory
 import javafx.scene.control.Control
-import tornadofx.*
+import tornadofx.Stylesheet
+import tornadofx.cssclass
+import tornadofx.cssproperty
 
 class WeightFlexPaneStyle : Stylesheet() {
   companion object {

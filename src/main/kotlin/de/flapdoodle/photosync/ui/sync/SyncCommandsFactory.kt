@@ -17,9 +17,6 @@ import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.control.OverrunStyle
 import javafx.scene.layout.Priority
-import javafx.scene.layout.Region
-import javafx.scene.paint.Color
-import javafx.scene.paint.Paint
 import tornadofx.*
 
 class SyncCommandsFactory : LazyNodeFactory<SyncGroup.SyncEntry, SyncCommandsFactory.Container> {

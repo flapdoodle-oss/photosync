@@ -1,6 +1,5 @@
 package de.flapdoodle.photosync.sync
 
-import de.flapdoodle.photosync.analyze.GroupSameContent
 import java.nio.file.Path
 
 sealed class Command {

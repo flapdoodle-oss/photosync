@@ -1,6 +1,5 @@
 package de.flapdoodle.fx.layout.weightflex
 
-import de.flapdoodle.fx.layout.weightgrid.WeightGridPane
 import javafx.geometry.HPos
 import javafx.geometry.VPos
 import javafx.scene.Node

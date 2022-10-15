@@ -3,7 +3,6 @@ package de.flapdoodle.photosync.ui.io
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import de.flapdoodle.photosync.ui.config.SyncConfig
-import java.util.*
 
 object SyncConfigIO {
     private val moshi = Moshi.Builder()

@@ -3,7 +3,9 @@ package de.flapdoodle.fx.layout.weightgrid
 import javafx.css.CssMetaData
 import javafx.css.StyleablePropertyFactory
 import javafx.scene.control.Control
-import tornadofx.*
+import tornadofx.Stylesheet
+import tornadofx.cssclass
+import tornadofx.cssproperty
 
 class WeightGridPaneStyle : Stylesheet() {
   companion object {

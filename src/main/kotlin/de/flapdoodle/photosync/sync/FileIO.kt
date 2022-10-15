@@ -1,7 +1,10 @@
 package de.flapdoodle.photosync.sync
 
 import de.flapdoodle.photosync.LastModified
-import java.nio.file.*
+import java.nio.file.Files
+import java.nio.file.LinkOption
+import java.nio.file.Path
+import java.nio.file.StandardOpenOption
 import java.util.*
 
 object FileIO {

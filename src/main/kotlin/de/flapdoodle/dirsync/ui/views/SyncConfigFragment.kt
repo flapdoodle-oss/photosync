@@ -11,7 +11,6 @@ import de.flapdoodle.fx.layout.weightflex.updateRow
 import de.flapdoodle.fx.layout.weightflex.withPosition
 import de.flapdoodle.fx.lazy.LazyValue
 import de.flapdoodle.fx.lazy.mapToList
-import de.flapdoodle.photosync.ui.SyncConfigView
 import javafx.geometry.HPos
 import javafx.scene.Node
 import javafx.scene.control.Button

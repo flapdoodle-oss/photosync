@@ -8,23 +8,14 @@ import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
-import de.flapdoodle.photosync.analyze.GroupMetaData
-import de.flapdoodle.photosync.analyze.GroupSameContent
-import de.flapdoodle.photosync.diff.Scan
-import de.flapdoodle.photosync.diff.ScanDiffAnalyzer
-import de.flapdoodle.photosync.filehash.*
-import de.flapdoodle.photosync.filetree.*
+import de.flapdoodle.photosync.filehash.FullHash
+import de.flapdoodle.photosync.filehash.Hasher
+import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.paths.matches
-import de.flapdoodle.photosync.progress.Monitor
-import de.flapdoodle.photosync.sync.Diff2CopySourceCommands
-import de.flapdoodle.photosync.sync.Diff2SyncCommands
 import de.flapdoodle.photosync.sync.SyncCommand2Command
 import de.flapdoodle.photosync.sync.UnixCommandListRenderer
-import de.flapdoodle.photosync.ui.sync.SyncList
-import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
-import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 object PhotoSync {

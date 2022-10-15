@@ -9,7 +9,6 @@ import de.flapdoodle.fx.lazy.LazyValue
 import de.flapdoodle.photosync.progress.Monitor
 import javafx.scene.control.Alert
 import tornadofx.EventContext
-import java.lang.Exception
 import java.nio.file.Path
 import java.nio.file.Paths
 

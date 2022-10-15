@@ -1,8 +1,7 @@
 package de.flapdoodle.fx.layout.weightflex
 
-import de.flapdoodle.fx.layout.AutoArray
-import de.flapdoodle.fx.layout.GridMap
 import de.flapdoodle.fx.extensions.constraint
+import de.flapdoodle.fx.layout.AutoArray
 import javafx.collections.ObservableList
 import javafx.css.CssMetaData
 import javafx.css.SimpleStyleableDoubleProperty
@@ -11,7 +10,7 @@ import javafx.geometry.HPos
 import javafx.geometry.VPos
 import javafx.scene.Node
 import javafx.scene.control.Control
-import tornadofx.*
+import tornadofx.addClass
 
 class WeightFlexPane : Control() {
 

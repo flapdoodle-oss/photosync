@@ -9,7 +9,6 @@ import de.flapdoodle.io.resolve.commands.Precondition.Companion.expectSource
 import de.flapdoodle.io.resolve.commands.SyncCommandMapper
 import de.flapdoodle.photosync.Comparision
 import de.flapdoodle.photosync.compare
-import tornadofx.observable
 
 object Diff2Commands : SyncCommandMapper<Diff> {
 

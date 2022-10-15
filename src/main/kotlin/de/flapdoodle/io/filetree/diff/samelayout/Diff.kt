@@ -3,9 +3,7 @@ package de.flapdoodle.io.filetree.diff.samelayout
 import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.photosync.Comparision
 import de.flapdoodle.photosync.compare
-import de.flapdoodle.photosync.filehash.Hash
 import de.flapdoodle.photosync.filehash.HashSelector
-import de.flapdoodle.photosync.filehash.Hasher
 import java.nio.file.Path
 
 data class Diff(

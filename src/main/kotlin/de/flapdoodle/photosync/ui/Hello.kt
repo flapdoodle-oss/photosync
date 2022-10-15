@@ -1,6 +1,8 @@
 package de.flapdoodle.photosync.ui
 
-import tornadofx.*
+import tornadofx.View
+import tornadofx.borderpane
+import tornadofx.label
 
 class Hello : View("My View") {
   override val root = borderpane {

@@ -1,6 +1,5 @@
 package de.flapdoodle.photosync.sync
 
-import de.flapdoodle.photosync.analyze.GroupSameContent
 import de.flapdoodle.photosync.paths.expectParent
 import java.nio.file.Path
 

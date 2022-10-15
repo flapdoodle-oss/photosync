@@ -3,7 +3,6 @@ package de.flapdoodle.photosync.ui.sync
 import javafx.scene.paint.Color
 import tornadofx.Stylesheet
 import tornadofx.cssclass
-import tornadofx.multi
 
 class LabelStyles : Stylesheet() {
     companion object {

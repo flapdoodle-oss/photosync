@@ -6,7 +6,6 @@ import de.flapdoodle.fx.lazy.mapToList
 import javafx.concurrent.Task
 import tornadofx.*
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 class Tasks {
     private val runningTasks = ChangeableValue<Map<UUID, Task<out Any>>>(LinkedHashMap())

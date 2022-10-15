@@ -1,8 +1,5 @@
 package de.flapdoodle.photosync.progress
 
-import de.flapdoodle.fx.lazy.ChangedListener
-import de.flapdoodle.fx.lazy.LazyValue
-
 object Monitor {
 
   private val threadReporter = ThreadLocal<Reporter>()

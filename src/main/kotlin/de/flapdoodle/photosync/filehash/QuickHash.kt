@@ -1,7 +1,5 @@
 package de.flapdoodle.photosync.filehash
 
-import java.nio.ByteBuffer
-import java.nio.file.Files
 import java.nio.file.Path
 
 @Deprecated(message = "use SizedQuickHash")
