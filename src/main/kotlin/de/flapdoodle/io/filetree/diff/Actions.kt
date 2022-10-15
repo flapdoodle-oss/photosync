@@ -13,18 +13,21 @@ object Actions {
     }
 
     fun asHumanReadable(actions: List<Action>): List<String> {
-        return actions.map { action ->
-            when (action) {
-                is Action.CopyFile ->
-                    "cp ${action.src} ${action.dest} #size=${action.size}, replace=${action.replace}"
-                is Action.SetLastModified ->
-                    "touch ${action.dest} ${action.lastModified}"
-                is Action.MakeDirectory ->
-                    "mkdir ${action.dest}"
-                is Action.Remove ->
-                    "rm ${action.dest}"
-            }
-        }
+        return actions.map(::asHumanReadable)
+    }
+
+    fun asHumanReadable(action: Action) = when (action) {
+        is Action.CopyFile ->
+            "cp ${action.src} ${action.dest} #size=${action.size}, replace=${action.replace}"
+
+        is Action.SetLastModified ->
+            "touch ${action.dest} ${action.lastModified}"
+
+        is Action.MakeDirectory ->
+            "mkdir ${action.dest}"
+
+        is Action.Remove ->
+            "rm ${action.dest}"
     }
 
     private fun execute(action: Action) {

@@ -121,6 +121,9 @@ object DirDiff2 {
       return when (readLine()) {
         "yes" -> {
           println("do it")
+          Actions.execute(actions) { current, size, action ->
+            Monitor.message("$current of $size -> ${Actions.asHumanReadable(action)} ")
+          }
           true
         }
 
