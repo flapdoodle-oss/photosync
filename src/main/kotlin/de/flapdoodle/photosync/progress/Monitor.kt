@@ -100,6 +100,9 @@ object Monitor {
       print(message)
       print("\r")
       clearLastMessage = " ".repeat(message.length)
+      if (message.isEmpty()) {
+        System.out.flush()
+      }
     }
 
   }
