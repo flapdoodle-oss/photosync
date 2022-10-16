@@ -19,7 +19,12 @@ sealed class Node(
         override val name: String,
         override val lastModifiedTime: LastModified,
         val children: List<Node> = emptyList()
-    ) : Node(name, lastModifiedTime)
+    ) : Node(name, lastModifiedTime) {
+        init {
+          val nameCollisions = children.groupBy { it.name }.filterValues { it.size!=1 }
+          require(nameCollisions.isEmpty()) { "name collisions: $nameCollisions" }
+        }
+    }
 
     data class File(
         override val name: String,
