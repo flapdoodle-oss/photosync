@@ -10,7 +10,7 @@ internal class DarktableMetaFileFilterTest {
 
   @Test
   fun shortNameIsBaseFileForLongName() {
-    val metaFiles = testee.metaFileNames(MetaFileMap.of(
+    val metaFiles = testee.filter(MetaFileMap.of(
       "foo.bar",
       "foo.bar.xmp",
       "foo_01.bar.xmp",

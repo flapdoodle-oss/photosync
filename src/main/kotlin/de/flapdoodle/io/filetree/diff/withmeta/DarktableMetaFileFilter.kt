@@ -2,7 +2,7 @@ package de.flapdoodle.io.filetree.diff.withmeta
 
 class DarktableMetaFileFilter : MetaFileFilter {
 
-  override fun metaFileNames(map: MetaFileMap): MetaFileMap {
+  override fun filter(map: MetaFileMap): MetaFileMap {
     val parsedNames = map.baseNames().map {
       ParsedDarktableFileName.parse(it) to it
     }
