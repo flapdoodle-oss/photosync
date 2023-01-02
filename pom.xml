@@ -151,6 +151,18 @@
                 <version>2.2.2.RELEASE</version>
                 <executions>
                     <execution>
+                        <id>dirdiff</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>dirdiff</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.DirDiff
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>photosync</id>
                         <goals>
                             <goal>repackage</goal>
@@ -219,18 +231,6 @@
                             <classifier>fileinfo</classifier>
                             <mainClass>
                                 de.flapdoodle.photosync.FileInfo
-                            </mainClass>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>dirdiff</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>dirdiff</classifier>
-                            <mainClass>
-                                de.flapdoodle.photosync.DirDiff
                             </mainClass>
                         </configuration>
                     </execution>
@@ -423,7 +423,7 @@
         <dependency>
             <groupId>com.squareup.moshi</groupId>
             <artifactId>moshi</artifactId>
-            <version>1.13.0</version>
+            <version>1.14.0</version>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.squareup.moshi</groupId>-->
@@ -433,7 +433,7 @@
         <dependency>
             <groupId>com.squareup.moshi</groupId>
             <artifactId>moshi-kotlin</artifactId>
-            <version>1.13.0</version>
+            <version>1.14.0</version>
         </dependency>
 
     </dependencies>
