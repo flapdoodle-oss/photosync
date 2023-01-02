@@ -240,9 +240,9 @@
                             <goal>repackage</goal>
                         </goals>
                         <configuration>
-                            <classifier>findsame</classifier>
+                            <classifier>findsamecontent</classifier>
                             <mainClass>
-                                de.flapdoodle.photosync.FindSame
+                                de.flapdoodle.photosync.FindSameContent
                             </mainClass>
                         </configuration>
                     </execution>

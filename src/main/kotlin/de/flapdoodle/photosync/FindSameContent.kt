@@ -12,7 +12,7 @@ import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.filehash.SizeHash
 import de.flapdoodle.photosync.progress.Monitor
 
-object FindSame {
+object FindSameContent {
 
   class Args : CliktCommand() {
     init {
