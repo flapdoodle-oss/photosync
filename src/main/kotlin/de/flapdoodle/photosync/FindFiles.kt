@@ -113,7 +113,7 @@ object FindFiles {
       match.dest.forEach {
         println("  ${it.path}")
       }
-      println()
+      if (match.dest.isNotEmpty()) println()
     }
   }
 
