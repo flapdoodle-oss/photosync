@@ -33,12 +33,9 @@ object FindDuplicates {
               require(it.toFile().isDirectory) { "is not a directory" }
             }
 
-    val hashMode by option(
-      "-H", "--hash", help = "hash (default is quick)"
-    ).groupChoice(
-      "quick" to HashMode.Quick(),
-      "full" to HashMode.Full()
-    )
+    val safeHash by option(
+      "-S", "--safe", help = "use fullhash"
+    ).flag()
 
     val filter by option(
       "-F","--filter", help = "filter by regex"
@@ -51,12 +48,6 @@ object FindDuplicates {
     val debug by option("-D", "--debug").flag()
 
     override fun run() {
-      val hasher = when (hashMode) {
-        is HashMode.Full -> FullHash
-        is HashMode.Quick -> SizedQuickHash
-        else -> SizedQuickHash
-      }
-
       val matches = Monitor.execute {
         val src = FileTrees.walkFileTree(source, listener = {
           Monitor.message("source $it")
@@ -69,7 +60,7 @@ object FindDuplicates {
 
         Monitor.message("DONE")
         if (filtered!=null) {
-          FindDuplicatesByHash.find(filtered, MonitoringHasher(hasher))
+          FindDuplicatesByHash.find(filtered, safeHash)
         } else {
           Monitor.message("Nothing found")
           emptyMap()
