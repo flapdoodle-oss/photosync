@@ -48,11 +48,15 @@ object FindFileInDestination {
       val dest = destPath.resolve(d.name)
       when (d) {
         is Node.File -> {
-          if (src.name == d.name && src.size == d.size) {
-            val destHash = hasher.hash(dest, d.size)
-            if (srcHash == destHash) {
-              Monitor.message("found match: ${src.name} -> $dest")
-              matches = matches.plusElement(dest)
+          if (src.name == d.name) {
+            if (src.size == d.size) {
+              val destHash = hasher.hash(dest, d.size)
+              if (srcHash == destHash) {
+                Monitor.message("found match: ${src.name} -> $dest")
+                matches = matches.plusElement(dest)
+              }
+            } else {
+              Monitor.message("different size: ${src.name} (${src.size}) != $dest (${d.size})")
             }
           }
         }
