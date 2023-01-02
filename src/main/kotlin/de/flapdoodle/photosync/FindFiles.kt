@@ -71,49 +71,52 @@ object FindFiles {
       }
 
       val withoutMatches = matches.filter { it.dest.isEmpty() }
-      val withMatches = matches.filter { it.dest.any { d -> d.type==FindFileInDestination.MatchType.SameContent } }
+      val withMatches = matches
+        .map { FindFileInDestination.Match(it.src, it.dest.filter { m -> m.type==FindFileInDestination.MatchType.SameContent }) }
+        .filter { it.dest.isNotEmpty() }
       val withSizeMismatch = matches.filter { it.dest.isNotEmpty() && it.dest.all { d -> d.type==FindFileInDestination.MatchType.DifferentSize } }
 
-      println("match found:")
-      println("----------------------------")
-      withMatches.forEach { m ->
-        println(m.src)
-        m.dest
-          .filter { it.type==FindFileInDestination.MatchType.SameContent }
-          .forEach { it: FindFileInDestination.Destination ->
-          println(" -> ${it.path}")
+      if (withMatches.isNotEmpty()) {
+        println("match found:")
+        println("----------------------------")
+        withMatches.forEach { m ->
+          printMatch(m)
         }
         println()
       }
 
-      println("size mismatch:")
-      println("----------------------------")
-      withSizeMismatch.forEach { m ->
-        println(m.src)
-        m.dest
-          .forEach { it: FindFileInDestination.Destination ->
-            println(" -> ${it.path}")
-          }
+      if (withSizeMismatch.isNotEmpty()) {
+        println("size mismatch:")
+        println("----------------------------")
+        withSizeMismatch.forEach { m ->
+          printMatch(m)
+        }
         println()
       }
 
-      println("no matches for:")
-      println("----------------------------")
-      withoutMatches.forEach { m ->
-        println(m.src)
+      if (withoutMatches.isNotEmpty()) {
+        println("no matches for:")
+        println("----------------------------")
+        withoutMatches.forEach { m ->
+          printMatch(m)
+        }
+        println()
       }
-      
-//      val diff = Monitor.execute {
-//        val srcTree = FileTrees.asTree(source, listener = {
-//          Monitor.message("source $it")
-//        })
-//        Monitor.message("DONE")
-//
-//        FindSameContent.find(srcTree, listOf(MonitoringHasher(SizeHash), MonitoringHasher(QuickHash)))
-//      }
+    }
+  }
+
+  private fun printMatch(match: FindFileInDestination.Match) {
+    if (match.dest.size==1) {
+      println("${match.src} ${match.dest[0].path}")
+    } else {
+      println(match.src)
+      match.dest.forEach {
+        println("  ${it.path}")
+      }
       println()
     }
   }
+
 
   @JvmStatic
   fun main(vararg args: String) {
