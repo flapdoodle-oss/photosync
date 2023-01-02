@@ -8,26 +8,26 @@ import de.flapdoodle.photosync.progress.Monitor
 import java.nio.file.Path
 
 object FindFileInDestination {
-  fun find(src: Node.Top, dest: Node.Top, hashSelector: HashSelector): List<Match> {
-    return find(src.path, src.children, dest.path, dest.children, hashSelector)
+  fun find(src: Node.Top, dest: Node.Top, compare: Compare, hashSelector: HashSelector): List<Match> {
+    return find(src.path, src.children, dest.path, dest.children, compare, hashSelector)
   }
 
-  private fun find(srcPath: Path, src: List<Node>, destPath: Path, dest: List<Node>, hashSelector: HashSelector): List<Match> {
+  private fun find(srcPath: Path, srcNodes: List<Node>, destPath: Path, dest: List<Node>, compare: Compare, hashSelector: HashSelector): List<Match> {
     var matches = listOf<Match>()
 
-    src.forEach { s ->
+    srcNodes.forEach { s ->
       val src = srcPath.resolve(s.name)
       when (s) {
         is Node.File -> {
           Monitor.message("inspect $src")
           val hasher = hashSelector.hasherFor(src)
           val srcHash = hasher.hash(src, s.size)
-          val destinations = findMatches(s, srcHash, destPath, dest, hasher)
+          val destinations = findMatches(s, srcHash, destPath, dest, compare, hasher)
           matches = matches + Match(src, destinations)
         }
 
         is Node.Directory -> {
-          matches = matches + find(src, s.children, destPath, dest, hashSelector)
+          matches = matches + find(src, s.children, destPath, dest, compare, hashSelector)
         }
 
         else -> {
@@ -39,16 +39,16 @@ object FindFileInDestination {
     return matches
   }
 
-  private fun findMatches(src: Node.File, srcHash: Hash<*>, destPath: Path, dest: List<Node>, hasher: Hasher<*>): List<Destination> {
+  private fun findMatches(src: Node.File, srcHash: Hash<*>, destPath: Path, destNodes: List<Node>, compare: Compare, hasher: Hasher<*>): List<Destination> {
     var matches= listOf<Destination>()
 
     Monitor.message("search in $destPath")
     
-    dest.forEach { d ->
+    destNodes.forEach { d ->
       val dest = destPath.resolve(d.name)
       when (d) {
         is Node.File -> {
-          if (src.name == d.name) {
+          if (src.name == d.name || compare == Compare.ByHashOnly) {
             if (src.size == d.size) {
               val destHash = hasher.hash(dest, d.size)
               if (srcHash == destHash) {
@@ -56,13 +56,15 @@ object FindFileInDestination {
                 matches = matches + Destination(dest, MatchType.SameContent)
               }
             } else {
-              Monitor.message("different size: ${src.name} (${src.size}) != $dest (${d.size})")
-              matches = matches + Destination(dest, MatchType.DifferentSize)
+              if (compare == Compare.ByName) {
+                Monitor.message("different size: ${src.name} (${src.size}) != $dest (${d.size})")
+                matches = matches + Destination(dest, MatchType.DifferentSize)
+              }
             }
           }
         }
         is Node.Directory -> {
-          matches = matches + findMatches(src, srcHash, dest, d.children, hasher)
+          matches = matches + findMatches(src, srcHash, dest, d.children, compare, hasher)
         }
         else -> {
           Monitor.message("skip $dest")
@@ -73,6 +75,9 @@ object FindFileInDestination {
     return matches
   }
 
+  enum class Compare {
+    ByName, ByHashOnly
+  }
   data class Match(val src: Path, val dest: List<Destination>)
   data class Destination(val path: Path, val type: MatchType)
   enum class MatchType {

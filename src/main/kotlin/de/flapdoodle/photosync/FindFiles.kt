@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.context
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.validate
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.path
@@ -11,7 +12,6 @@ import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.layouts.splitted.FindFileInDestination
 import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.progress.Monitor
-import java.nio.file.Path
 
 object FindFiles {
 
@@ -47,6 +47,18 @@ object FindFiles {
       "full" to HashMode.Full()
     )
 
+    val compareMode by option(
+      "-C", "--compare", help = "compare (default is byName)"
+    ).groupChoice(
+      "name" to CompareMode.ByName(),
+      "hash" to CompareMode.ByHashOnly()
+    )
+
+    sealed class CompareMode(name: String, val mode: FindFileInDestination.Compare)  : OptionGroup(name) {
+      class ByName : CompareMode("name and hash", FindFileInDestination.Compare.ByName)
+      class ByHashOnly : CompareMode("hash only", FindFileInDestination.Compare.ByHashOnly)
+    }
+
     override fun run() {
       val hashSelector = when (hashMode) {
         is HashMode.Full -> HashSelector.always(FullHash)
@@ -63,7 +75,7 @@ object FindFiles {
         })
         Monitor.message("DONE")
         if (src!=null && dest!=null) {
-          FindFileInDestination.find(src, dest, MonitoringHashSelector(hashSelector))
+          FindFileInDestination.find(src, dest, (compareMode?:CompareMode.ByName()).mode, MonitoringHashSelector(hashSelector))
         } else {
           Monitor.message("Nothing found")
           emptyList()
