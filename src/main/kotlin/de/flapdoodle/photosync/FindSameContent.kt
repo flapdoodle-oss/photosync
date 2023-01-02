@@ -10,6 +10,7 @@ import de.flapdoodle.io.tree.FileTrees
 import de.flapdoodle.photosync.filehash.MonitoringHasher
 import de.flapdoodle.photosync.filehash.QuickHash
 import de.flapdoodle.photosync.filehash.SizeHash
+import de.flapdoodle.photosync.filehash.SizedQuickHash
 import de.flapdoodle.photosync.progress.Monitor
 
 object FindSameContent {
@@ -37,7 +38,7 @@ object FindSameContent {
         })
         Monitor.message("DONE")
 
-        FindSameContent.find(srcTree, listOf(MonitoringHasher(SizeHash), MonitoringHasher(QuickHash)))
+        FindSameContent.find(srcTree, listOf(MonitoringHasher(SizeHash), MonitoringHasher(SizedQuickHash)))
       }
       println()
     }
