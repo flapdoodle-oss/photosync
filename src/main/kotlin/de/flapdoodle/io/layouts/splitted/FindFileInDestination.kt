@@ -9,10 +9,19 @@ import java.nio.file.Path
 
 object FindFileInDestination {
   fun find(src: Node.Top, dest: Node.Top, compare: Compare, hashSelector: HashSelector): List<Match> {
-    return find(src.path, src.children, dest.path, dest.children, compare, hashSelector)
+    val hasherCache = HashCacheLookup()
+    return find(src.path, src.children, dest.path, dest.children, compare, hashSelector, hasherCache)
   }
 
-  private fun find(srcPath: Path, srcNodes: List<Node>, destPath: Path, dest: List<Node>, compare: Compare, hashSelector: HashSelector): List<Match> {
+  private fun find(
+    srcPath: Path,
+    srcNodes: List<Node>,
+    destPath: Path,
+    dest: List<Node>,
+    compare: Compare,
+    hashSelector: HashSelector,
+    cacheLookup: HashCacheLookup
+  ): List<Match> {
     var matches = listOf<Match>()
 
     srcNodes.forEach { s ->
@@ -21,13 +30,14 @@ object FindFileInDestination {
         is Node.File -> {
           Monitor.message("inspect $src")
           val hasher = hashSelector.hasherFor(src)
-          val srcHash = hasher.hash(src, s.size)
-          val destinations = findMatches(s, srcHash, destPath, dest, compare, hasher)
+          val cachedHasher = cacheLookup.cacheFor(hasher)
+          val srcHash = cachedHasher.hash(src, s.size)
+          val destinations = findMatches(s, srcHash, destPath, dest, compare, cachedHasher)
           matches = matches + Match(src, destinations)
         }
 
         is Node.Directory -> {
-          matches = matches + find(src, s.children, destPath, dest, compare, hashSelector)
+          matches = matches + find(src, s.children, destPath, dest, compare, hashSelector, cacheLookup)
         }
 
         else -> {
@@ -82,5 +92,34 @@ object FindFileInDestination {
   data class Destination(val path: Path, val type: MatchType)
   enum class MatchType {
     SameContent, DifferentSize
+  }
+
+  class HashCacheLookup() {
+    private var hasherCache = mapOf<Hasher<*>, HashCache<*>>()
+
+    fun <T: Hash<T>> cacheFor(hasher: Hasher<T>): HashCache<T> {
+      val cache = hasherCache[hasher]
+      if (cache!=null) {
+        return cache as HashCache<T>
+      }
+      val newCache = HashCache(hasher)
+      hasherCache = hasherCache + (hasher to newCache)
+      return newCache
+    }
+  }
+
+  class HashCache<T: Hash<T>>(val delegate: Hasher<T>): Hasher<T> {
+    private var hashCache= mapOf<Pair<Path, Long>, T>()
+
+    override fun hash(path: Path, size: Long): T {
+      val key = path to size
+      val hash = hashCache[key]
+      if (hash!=null) {
+        return hash
+      }
+      val newHash = delegate.hash(path, size)
+      hashCache = hashCache + (key to newHash)
+      return newHash
+    }
   }
 }
