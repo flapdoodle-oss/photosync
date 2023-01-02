@@ -71,15 +71,29 @@ object FindFiles {
       }
 
       val withoutMatches = matches.filter { it.dest.isEmpty() }
-      val withMatches = matches.filter { it.dest.isNotEmpty() }
+      val withMatches = matches.filter { it.dest.any { d -> d.type==FindFileInDestination.MatchType.SameContent } }
+      val withSizeMismatch = matches.filter { it.dest.isNotEmpty() && it.dest.all { d -> d.type==FindFileInDestination.MatchType.DifferentSize } }
 
       println("match found:")
       println("----------------------------")
       withMatches.forEach { m ->
         println(m.src)
-        m.dest.forEach { it: Path ->
-          println(" -> $it")
+        m.dest
+          .filter { it.type==FindFileInDestination.MatchType.SameContent }
+          .forEach { it: FindFileInDestination.Destination ->
+          println(" -> ${it.path}")
         }
+        println()
+      }
+
+      println("size mismatch:")
+      println("----------------------------")
+      withSizeMismatch.forEach { m ->
+        println(m.src)
+        m.dest
+          .forEach { it: FindFileInDestination.Destination ->
+            println(" -> ${it.path}")
+          }
         println()
       }
 

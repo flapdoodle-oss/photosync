@@ -39,8 +39,8 @@ object FindFileInDestination {
     return matches
   }
 
-  private fun findMatches(src: Node.File, srcHash: Hash<*>, destPath: Path, dest: List<Node>, hasher: Hasher<*>): List<Path> {
-    var matches= listOf<Path>()
+  private fun findMatches(src: Node.File, srcHash: Hash<*>, destPath: Path, dest: List<Node>, hasher: Hasher<*>): List<Destination> {
+    var matches= listOf<Destination>()
 
     Monitor.message("search in $destPath")
     
@@ -53,10 +53,11 @@ object FindFileInDestination {
               val destHash = hasher.hash(dest, d.size)
               if (srcHash == destHash) {
                 Monitor.message("found match: ${src.name} -> $dest")
-                matches = matches.plusElement(dest)
+                matches = matches + Destination(dest, MatchType.SameContent)
               }
             } else {
               Monitor.message("different size: ${src.name} (${src.size}) != $dest (${d.size})")
+              matches = matches + Destination(dest, MatchType.DifferentSize)
             }
           }
         }
@@ -72,5 +73,9 @@ object FindFileInDestination {
     return matches
   }
 
-  data class Match(val src: Path, val dest: List<Path>)
+  data class Match(val src: Path, val dest: List<Destination>)
+  data class Destination(val path: Path, val type: MatchType)
+  enum class MatchType {
+    SameContent, DifferentSize
+  }
 }
