@@ -163,6 +163,19 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>findfiles</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>findfiles</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.FindFiles
+                            </mainClass>
+                        </configuration>
+                    </execution>
+
+                    <execution>
                         <id>photosync</id>
                         <goals>
                             <goal>repackage</goal>
