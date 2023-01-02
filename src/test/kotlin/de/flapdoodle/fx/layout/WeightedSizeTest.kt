@@ -55,7 +55,7 @@ internal class WeightedSizeTest {
     (300..400).forEach {
       val space = it * 1.0
       val sizes = WeightedSize.distribute(space, src)
-      assertThat(sizes.sumByDouble { it })
+      assertThat(sizes.sumOf { it })
           .describedAs("space = $space")
           .isEqualTo(space)
     }

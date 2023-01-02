@@ -8,6 +8,7 @@ import org.assertj.core.api.ListAssert
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.function.Consumer
 
 internal class FileTreesTest {
 
@@ -134,7 +135,7 @@ internal class FileTreesTest {
 
             assertThat(events)
                     .hasSize(10)
-                    .satisfies { list ->
+                    .satisfies(Consumer { list ->
                         val subPath = it.resolve("sub")
                         val subSubPath = subPath.resolve("sub-sub")
 
@@ -170,12 +171,12 @@ internal class FileTreesTest {
 
                         assertThat(list[8]).isEqualTo(leaveSub)
                         assertThat(list[9]).isEqualTo(leave)
-                    }
+                    })
         }
     }
 
     private fun <T> ListAssert<T>.itemIsBetween(it: T, start: T, stop: T):ListAssert<T> {
-        satisfies { list ->
+        satisfies(Consumer { list ->
             val idx = list.indexOf(it)
             val startIdx = list.indexOf(start)
             val stopIdx = list.indexOf(stop)
@@ -188,11 +189,11 @@ internal class FileTreesTest {
             assertThat(idx)
                     .`as`("%s is before %s",it,stop)
                     .isLessThan(stopIdx)
-        }
+        })
         return this
     }
     private fun <T> ListAssert<T>.itemIsNotBetween(it: T, start: T, stop: T):ListAssert<T> {
-        satisfies { list ->
+      satisfies(Consumer { list ->
             val idx = list.indexOf(it)
             val startIdx = list.indexOf(start)
             val stopIdx = list.indexOf(stop)
@@ -202,7 +203,7 @@ internal class FileTreesTest {
             assertThat(idx < startIdx || idx > stopIdx)
                     .`as`("%s is not between %s and %s",it,start,stop)
                     .isTrue()
-        }
+        })
         return this
     }
 
