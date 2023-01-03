@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filehash
 
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.progress.Statistic
 import java.nio.file.Path
 
 interface Hasher<T: Hash<T>> {

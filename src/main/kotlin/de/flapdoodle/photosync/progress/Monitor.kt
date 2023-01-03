@@ -1,6 +1,5 @@
 package de.flapdoodle.photosync.progress
 
-import de.flapdoodle.types.Either
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference

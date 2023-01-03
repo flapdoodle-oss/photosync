@@ -13,6 +13,7 @@ import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.io.layouts.splitted.FindDuplicatesByHash
 import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.progress.Statistic
 import java.util.regex.Pattern
 
 object FindDuplicates {
@@ -48,43 +49,50 @@ object FindDuplicates {
     val debug by option("-D", "--debug").flag()
 
     override fun run() {
-      val matches = Monitor.execute {
-        val src = FileTrees.walkFileTree(source, listener = {
-          Monitor.message("source $it")
-        })
-        val filtered = if (filter != null) {
-          filter(src, filter!!, negateFilter)
-        } else {
-          src
-        }
-
-        Monitor.message("DONE")
-        if (filtered!=null) {
-          FindDuplicatesByHash.find(filtered, safeHash)
-        } else {
-          Monitor.message("Nothing found")
-          emptyMap()
-        }
-      }
-
-      matches.forEach { (grouped, paths) ->
-        when (grouped) {
-          is FindDuplicatesByHash.Grouped.BySize -> {
-            require(paths.size == 1)
-            if (debug) println("single: ${paths[0]}")
+      val stats = Statistic.collect {
+        val matches = Monitor.execute {
+          val src = FileTrees.walkFileTree(source, listener = {
+            Monitor.message("source $it")
+          })
+          val filtered = if (filter != null) {
+            filter(src, filter!!, negateFilter)
+          } else {
+            src
           }
-          is FindDuplicatesByHash.Grouped.ByHash -> {
-            if (paths.size > 1) {
-              println("hash: ${grouped.hash}")
-              paths.forEach {
-                println("  $it")
-              }
-              println()
-            } else {
+
+          Monitor.message("DONE")
+          if (filtered != null) {
+            FindDuplicatesByHash.find(filtered, safeHash)
+          } else {
+            Monitor.message("Nothing found")
+            emptyMap()
+          }
+        }
+
+        matches.forEach { (grouped, paths) ->
+          when (grouped) {
+            is FindDuplicatesByHash.Grouped.BySize -> {
+              require(paths.size == 1)
               if (debug) println("single: ${paths[0]}")
+            }
+
+            is FindDuplicatesByHash.Grouped.ByHash -> {
+              if (paths.size > 1) {
+                println("hash: ${grouped.hash}")
+                paths.forEach {
+                  println("  $it")
+                }
+                println()
+              } else {
+                if (debug) println("single: ${paths[0]}")
+              }
             }
           }
         }
+      }
+      println("---")
+      stats.forEach {
+        println(it.asHumanReadable())
       }
     }
   }
