@@ -1,11 +1,17 @@
 package de.flapdoodle.photosync.progress
 
+import de.flapdoodle.types.Either
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
+
 object Monitor {
 
   private val threadReporter = ThreadLocal<Reporter>()
   private val state = ThreadLocal<StateHolder>()
 
-  fun <T> execute(reporter: Reporter = ConsoleReporter(), action: () -> T): T {
+  fun <T> execute(reporter: Reporter = DeferredReporter(ConsoleReporter()), action: () -> T): T {
     try {
       threadReporter.set(reporter)
       state.set(StateHolder())
@@ -14,6 +20,9 @@ object Monitor {
       reporter.report("")
       state.remove()
       threadReporter.remove()
+      if (reporter is AutoCloseable) {
+        reporter.close()
+      }
     }
   }
 
@@ -105,5 +114,50 @@ object Monitor {
       }
     }
 
+  }
+
+  class DeferredReporter(
+    private val delegate: Reporter,
+    private val interval: Duration = Duration.ofMillis(100)
+  ): Reporter, AutoCloseable {
+
+    init {
+      require(interval.toMillis() >= 10) {"interval to small: $interval, should >= 10ms"}
+    }
+
+    val lastMessage = AtomicReference<String>()
+    val stop=AtomicBoolean()
+    var runningThread: Thread? = null
+
+    override fun report(message: String) {
+      startThread()
+      lastMessage.set(message)
+    }
+
+    private fun startThread() {
+      if (runningThread == null) {
+        runningThread = thread(start = true) {
+          do {
+            pushMessage()
+            Thread.sleep(interval.toMillis(), 0)
+          } while (!stop.get())
+        }
+      }
+    }
+
+    private fun pushMessage() {
+      val message = lastMessage.get()
+      if (message!=null) {
+        delegate.report(message)
+      }
+      lastMessage.set(null)
+    }
+
+    override fun close() {
+      stop.set(true)
+      runningThread?.join()
+      pushMessage()
+      runningThread=null
+    }
   }
 }

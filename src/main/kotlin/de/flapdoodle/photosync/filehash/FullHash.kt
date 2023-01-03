@@ -19,7 +19,6 @@ data class FullHash(
           update(byteBuffer)
         }
       })
-//      return FullHash(Hashing.sha256(Files.readAllBytes(path)))
     }
   }
 }
