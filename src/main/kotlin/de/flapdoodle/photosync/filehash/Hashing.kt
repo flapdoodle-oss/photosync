@@ -36,7 +36,7 @@ object Hashing {
     }
     return hexString.toString()
   }
-
+  
   internal fun read(path: Path, offset: Long, len: Int): ByteArray {
     return Files.newByteChannel(path).use {
       val buffer = ByteBuffer.allocate(len)

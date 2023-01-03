@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.io
 
 import de.flapdoodle.photosync.progress.Statistic
+import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.Path
@@ -9,7 +10,7 @@ import java.text.StringCharacterIterator
 
 
 object FileIO {
-  private val BYTES_READ=Statistic.property("bytes read", Long::class.java, Long::plus) {
+  private val BYTES_READ=Statistic.property("FileIO.read", Long::class.java, Long::plus) {
     humanReadableByteCount(it)
   }
 
@@ -23,6 +24,15 @@ object FileIO {
         buffer.clear()
       }
     }
+  }
+
+  fun read(path: Path, offset: Long, len: Int): ByteArray {
+    var result: ByteArray? = null
+    read(path, offset, len) { byteBuffer, size ->
+      result = ByteArray(size)
+      byteBuffer.get(result, 0, size)
+    }
+    return result ?: throw IOException("could not read into buffer")
   }
 
   fun read(path: Path, offset: Long, len: Int, onBlock: (ByteBuffer, Int) -> Unit) {

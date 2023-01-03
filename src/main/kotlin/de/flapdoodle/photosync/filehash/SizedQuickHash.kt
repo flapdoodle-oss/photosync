@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.photosync.io.FileIO
 import de.flapdoodle.photosync.progress.Statistic
 import java.nio.file.Path
 
@@ -22,12 +23,12 @@ data class SizedQuickHash(
 
       return try {
         val firstHash = if (size > 0)
-          Hashing.sha256(Hashing.read(path, 0, BLOCK_SIZE))
+          Hashing.sha256(FileIO.read(path, 0, BLOCK_SIZE))
         else
           ""
 
         val secondHash = if (size > BLOCK_SIZE)
-          Hashing.sha256(Hashing.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
+          Hashing.sha256(FileIO.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
         else
           ""
 
