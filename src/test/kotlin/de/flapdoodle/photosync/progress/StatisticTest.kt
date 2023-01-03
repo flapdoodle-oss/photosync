@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.progress
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Condition
 import org.junit.jupiter.api.Test
 
 class StatisticTest {
@@ -19,6 +20,11 @@ class StatisticTest {
     }
 
     assertThat(result)
+      .haveExactly(1, Condition({ it.key == Statistic.RUNTIME},"runtime"))
+
+    val withoutRuntime = result.filter { it.key != Statistic.RUNTIME }
+
+    assertThat(withoutRuntime)
       .hasSize(3)
       .containsExactlyInAnyOrder(
         Statistic.Entry(KeyA, 140),
@@ -26,7 +32,7 @@ class StatisticTest {
         Statistic.Entry(genKeyC, 13),
       )
 
-    assertThat(result.map { it.asHumanReadable() })
+    assertThat(withoutRuntime.map { it.asHumanReadable() })
       .containsExactlyInAnyOrder(
         "foo: >101<",
         "foo: >13<",

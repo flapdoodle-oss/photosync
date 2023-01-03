@@ -5,13 +5,11 @@ import java.io.IOException
 import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.Path
-import java.text.CharacterIterator
-import java.text.StringCharacterIterator
 
 
 object FileIO {
   private val BYTES_READ=Statistic.property("FileIO.read", Long::class.java, Long::plus) {
-    humanReadableByteCount(it)
+    Humans.humanReadableByteCount(it)
   }
 
   fun readAllBytes(path: Path, blocksize: Int = 512, onBlock: (ByteBuffer) -> Unit) {
@@ -49,22 +47,5 @@ object FileIO {
 //      buffer.get(block, 0, readSize)
 //      block
     }
-  }
-
-  fun humanReadableByteCount(bytes: Long): String {
-    val absB = if (bytes == Long.MIN_VALUE) Long.MAX_VALUE else Math.abs(bytes)
-    if (absB < 1024) {
-      return "$bytes B"
-    }
-    var value = absB
-    val ci: CharacterIterator = StringCharacterIterator("KMGTPE")
-    var i = 40
-    while (i >= 0 && absB > 0xfffccccccccccccL shr i) {
-      value = value shr 10
-      ci.next()
-      i -= 10
-    }
-    value *= java.lang.Long.signum(bytes).toLong()
-    return String.format("%.1f %ciB", value / 1024.0, ci.current()) + " ($absB B)"
   }
 }

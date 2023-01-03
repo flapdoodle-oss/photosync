@@ -1,8 +1,8 @@
 package de.flapdoodle.photosync.filehash
 
 import de.flapdoodle.photosync.io.FileIO
+import de.flapdoodle.photosync.io.Humans
 import de.flapdoodle.photosync.progress.Statistic
-import java.nio.file.Files
 import java.nio.file.Path
 
 data class FullHash(
@@ -11,7 +11,7 @@ data class FullHash(
 
   companion object : Hasher<FullHash> {
     private val HASHED = Statistic.property("Hash.${toString()}", Long::class.java, Long::plus) { "$it" }
-    private val HASHED_SIZE = Statistic.property("Hash.${toString()}.size", Long::class.java, Long::plus) { FileIO.humanReadableByteCount(it) }
+    private val HASHED_SIZE = Statistic.property("Hash.${toString()}.size", Long::class.java, Long::plus) { Humans.humanReadableByteCount(it) }
 
     override fun toString(): String {
       return FullHash::class.java.simpleName

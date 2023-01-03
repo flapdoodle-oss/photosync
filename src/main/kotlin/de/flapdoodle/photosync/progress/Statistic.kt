@@ -1,10 +1,15 @@
 package de.flapdoodle.photosync.progress
 
+import de.flapdoodle.photosync.io.Humans
+import java.time.Duration
+import java.time.Period
 import java.util.concurrent.ConcurrentHashMap
 
 object Statistic {
-
   private val threadCollector = ThreadLocal<Collector>()
+  internal val RUNTIME= property("Statistic.Runtime", Long::class.java, Long::plus) {
+    Humans.asHumanReadable(Duration.ofMillis(it))
+  }
 
   fun collect(collector: Collector = GroupByNameCollector(), action: () -> Unit): List<Entry<out Any>> {
     collecting(collector, action)
@@ -12,11 +17,14 @@ object Statistic {
   }
 
   private fun <T> collecting(collector: Collector, action: () -> T): T {
+    val start = System.currentTimeMillis()
     try {
       threadCollector.set(collector)
       return action()
     } finally {
+      val stop = System.currentTimeMillis()
       threadCollector.remove()
+      collector.set(RUNTIME, stop - start)
     }
   }
 
