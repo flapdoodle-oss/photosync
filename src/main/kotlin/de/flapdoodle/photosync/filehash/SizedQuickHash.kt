@@ -14,6 +14,7 @@ data class SizedQuickHash(
   companion object : Hasher<SizedQuickHash> {
     private const val BLOCK_SIZE: Int = 512
     private val HASHED = Statistic.property("Hash.${toString()}", Long::class.java, Long::plus) { "$it" }
+    private val HASHED_READ = Statistic.property("Hash.${toString()}.read", Long::class.java, Long::plus) { Humans.humanReadableByteCount(it) }
     private val HASHED_SIZE = Statistic.property("Hash.${toString()}.size", Long::class.java, Long::plus) { Humans.humanReadableByteCount(it) }
 
     override fun toString(): String {
@@ -25,14 +26,16 @@ data class SizedQuickHash(
       Statistic.set(HASHED_SIZE, size)
 
       return try {
-        val firstHash = if (size > 0)
+        val firstHash = if (size > 0) {
+          Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
           Hashing.sha256(FileIO.read(path, 0, BLOCK_SIZE))
-        else
+        } else
           ""
 
-        val secondHash = if (size > BLOCK_SIZE)
+        val secondHash = if (size > BLOCK_SIZE) {
+          Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
           Hashing.sha256(FileIO.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
-        else
+        } else
           ""
 
         SizedQuickHash(firstHash, size, secondHash)
