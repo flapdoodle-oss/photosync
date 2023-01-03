@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.photosync.io.FileIO
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -12,6 +13,13 @@ data class FullHash(
       return FullHash::class.java.simpleName
     }
 
-    override fun hash(path: Path, size: Long) = FullHash(Hashing.sha256(Files.readAllBytes(path)))
+    override fun hash(path: Path, size: Long): FullHash {
+      return FullHash(Hashing.sha256 {
+        FileIO.readAllBytes(path) { byteBuffer ->
+          update(byteBuffer)
+        }
+      })
+//      return FullHash(Hashing.sha256(Files.readAllBytes(path)))
+    }
   }
 }
