@@ -12,14 +12,16 @@ data class SizedQuickHash(
 
   companion object : Hasher<SizedQuickHash> {
     private const val BLOCK_SIZE: Int = 512
-    private val HASHED = Statistic.property(toString(), Long::class.java, Long::plus) { "$it" }
+    private val HASHED = Statistic.property("Hash.${toString()}", Long::class.java, Long::plus) { "$it" }
+    private val HASHED_SIZE = Statistic.property("Hash.${toString()}.size", Long::class.java, Long::plus) { FileIO.humanReadableByteCount(it) }
 
     override fun toString(): String {
       return SizedQuickHash::class.java.simpleName
     }
 
     override fun hash(path: Path, size: Long): SizedQuickHash {
-      Statistic.set(HASHED, 1)
+      Statistic.increment(HASHED)
+      Statistic.set(HASHED_SIZE, size)
 
       return try {
         val firstHash = if (size > 0)

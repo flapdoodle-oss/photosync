@@ -7,17 +7,37 @@ object Statistic {
   private val threadCollector = ThreadLocal<Collector>()
 
   fun collect(collector: Collector = GroupByNameCollector(), action: () -> Unit): List<Entry<out Any>> {
+    collecting(collector, action)
+    return collector.entries()
+  }
+
+  private fun <T> collecting(collector: Collector, action: () -> T): T {
     try {
       threadCollector.set(collector)
-      action()
+      return action()
     } finally {
       threadCollector.remove()
     }
-    return collector.entries()
+  }
+
+  fun <T> collectAndReport(collector: Collector = GroupByNameCollector(), action: () -> T): T {
+    try {
+      return collecting(collector, action)
+    } finally {
+      println("---")
+      val sorted = collector.entries().sortedBy { it.key.name }
+      sorted.forEach {
+        println(it.asHumanReadable())
+      }
+    }
   }
 
   fun <T: Any> set(key: Property<T>, value: T) {
     threadCollector.get()?.set(key, value)
+  }
+
+  fun increment(key: Property<Long>) {
+    set(key, 1L)
   }
 
   interface Property<T> {

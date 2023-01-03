@@ -15,6 +15,7 @@ import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.io.filetree.diff.samelayout.Sync
 import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.progress.Monitor
+import de.flapdoodle.photosync.progress.Statistic
 import kotlin.system.exitProcess
 
 object DirDiff {
@@ -71,32 +72,34 @@ object DirDiff {
     )
 
     override fun run() {
-      val hashSelector = when (hashMode) {
-        is HashMode.Full -> HashSelector.always(FullHash)
-        is HashMode.Quick -> HashSelector.always(SizedQuickHash)
-        else -> FastHashSelector.defaultMapping()
-      }
-
-      val copy = (syncMode ?: SyncMode.OnlyNew()).copy
-      val leftover = (syncMode ?: SyncMode.OnlyNew()).leftover
-
-      val diff = Monitor.execute {
-        val src = FileTrees.walkFileTree(source, listener = {
-          Monitor.message("source $it")
-        })
-        val dest = FileTrees.walkFileTree(destination, listener = {
-          Monitor.message("destination $it")
-        })
-        Monitor.message("DONE")
-        if (src!=null && dest!=null) {
-          Diff.diff(src, dest, MonitoringHashSelector(hashSelector))
-        } else {
-          Diff(source,destination, emptyList())
+      val actions = Statistic.collectAndReport {
+        val hashSelector = when (hashMode) {
+          is HashMode.Full -> HashSelector.always(FullHash)
+          is HashMode.Quick -> HashSelector.always(SizedQuickHash)
+          else -> FastHashSelector.defaultMapping()
         }
-      }
 
-      val actions = Sync(copy, leftover)
-        .actions(diff)
+        val copy = (syncMode ?: SyncMode.OnlyNew()).copy
+        val leftover = (syncMode ?: SyncMode.OnlyNew()).leftover
+
+        val diff = Monitor.execute {
+          val src = FileTrees.walkFileTree(source, listener = {
+            Monitor.message("source $it")
+          })
+          val dest = FileTrees.walkFileTree(destination, listener = {
+            Monitor.message("destination $it")
+          })
+          Monitor.message("DONE")
+          if (src != null && dest != null) {
+            Diff.diff(src, dest, MonitoringHashSelector(hashSelector))
+          } else {
+            Diff(source, destination, emptyList())
+          }
+        }
+
+        Sync(copy, leftover)
+          .actions(diff)
+      }
 
       println()
 

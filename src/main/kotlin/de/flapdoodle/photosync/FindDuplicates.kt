@@ -49,7 +49,7 @@ object FindDuplicates {
     val debug by option("-D", "--debug").flag()
 
     override fun run() {
-      val stats = Statistic.collect {
+      Statistic.collectAndReport {
         val matches = Monitor.execute {
           val src = FileTrees.walkFileTree(source, listener = {
             Monitor.message("source $it")
@@ -89,10 +89,6 @@ object FindDuplicates {
             }
           }
         }
-      }
-      println("---")
-      stats.forEach {
-        println(it.asHumanReadable())
       }
     }
   }
