@@ -16,5 +16,13 @@ object ByteArrays {
     fun zeros(size: Int): ByteArray {
         return ByteArray(size)
     }
+
+    fun incrementing(size: Int): ByteArray {
+        return ByteArray(size).apply {
+            (0 until size).forEach {
+                set(it, it.toByte())
+            }
+        }
+    }
 }
 

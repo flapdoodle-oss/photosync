@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.filehash
 
 import de.flapdoodle.photosync.ByteArrays
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -9,10 +10,26 @@ import java.nio.file.Path
 internal class SizedQuickHashTest : AbstractHashTest() {
 
     @Test
+    fun emptyHash(@TempDir tempDir: Path) {
+        val content = ByteArrays.zeros(0)
+        with(SizedQuickHash, tempDir, content, content) { a, b ->
+            assertThat(a).isEqualTo(b)
+        }
+    }
+
+    @Test
+    fun shortHash(@TempDir tempDir: Path) {
+        val content = ByteArrays.random(random.nextInt(1,512 + 511))
+        with(SizedQuickHash, tempDir, content, content) { a, b ->
+            assertThat(a).isEqualTo(b)
+        }
+    }
+
+    @Test
     fun sameContentHashMustMatch(@TempDir tempDir: Path) {
         val content = ByteArrays.random(random.nextInt(512, 2048))
         with(SizedQuickHash, tempDir, content, content) { a, b ->
-            Assertions.assertThat(a).isEqualTo(b)
+            assertThat(a).isEqualTo(b)
         }
     }
 
@@ -23,7 +40,7 @@ internal class SizedQuickHashTest : AbstractHashTest() {
         val first = firstBlock + ByteArrays.random(512) + lastBlock
         val second = firstBlock + ByteArrays.random(512) + lastBlock
         with(SizedQuickHash, tempDir, first, second) { a, b ->
-            Assertions.assertThat(a).isEqualTo(b)
+            assertThat(a).isEqualTo(b)
         }
     }
 
@@ -32,7 +49,7 @@ internal class SizedQuickHashTest : AbstractHashTest() {
         val first = ByteArrays.zeros(511) + 1
         val second = ByteArrays.zeros(511) + 2
         with(SizedQuickHash, tempDir, first, second) { a, b ->
-            Assertions.assertThat(a).isNotEqualTo(b)
+            assertThat(a).isNotEqualTo(b)
         }
     }
 
@@ -41,7 +58,7 @@ internal class SizedQuickHashTest : AbstractHashTest() {
         val first = ByteArrays.zeros(512) + 1
         val second = ByteArrays.zeros(512) + 2
         with(SizedQuickHash, tempDir, first, second) { a, b ->
-            Assertions.assertThat(a).isNotEqualTo(b)
+            assertThat(a).isNotEqualTo(b)
         }
     }
 }

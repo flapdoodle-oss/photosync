@@ -46,4 +46,30 @@ class FileIOTest {
       .startsWith(start.toTypedArray())
       .endsWith(end.toTypedArray())
   }
+
+  @Test
+  fun read(@TempDir tempDir: Path) {
+    val content = ByteArrays.incrementing(random.nextInt(512, 2048))
+    Files.write(tempDir.resolve("seekable"), content)
+    val result = FileIO.read(tempDir.resolve("seekable")) {
+      // read segments more than once
+      val first = read(0, 512)
+      val second = read(content.size - 512L, 512)
+
+      val firstAgain = read(0, 512)
+      assertThat(first)
+        .containsExactly(firstAgain.toTypedArray())
+
+      val secondAgain = read(content.size - 512L, 512)
+      assertThat(second)
+        .containsExactly(secondAgain.toTypedArray())
+
+      first to second
+    }
+
+    assertThat(tempDir.resolve("seekable"))
+      .binaryContent()
+      .startsWith(result.first.toTypedArray())
+      .endsWith(result.second.toTypedArray())
+  }
 }

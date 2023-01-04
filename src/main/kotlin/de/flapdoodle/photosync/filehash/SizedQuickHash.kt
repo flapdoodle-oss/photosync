@@ -26,19 +26,36 @@ data class SizedQuickHash(
       Statistic.set(HASHED_SIZE, size)
 
       return try {
-        val firstHash = if (size > 0) {
-          Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
-          Hashing.sha256(FileIO.read(path, 0, BLOCK_SIZE))
-        } else
-          ""
+        FileIO.read(path) {
+          val firstHash = if (size > 0) {
+            Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
+            Hashing.sha256(read(0, BLOCK_SIZE))
+          } else {
+            ""
+          }
 
-        val secondHash = if (size > BLOCK_SIZE) {
-          Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
-          Hashing.sha256(FileIO.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
-        } else
-          ""
+          val secondHash = if (size > BLOCK_SIZE) {
+            Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
+            Hashing.sha256(read( size - BLOCK_SIZE, BLOCK_SIZE))
+          } else
+            ""
 
-        SizedQuickHash(firstHash, size, secondHash)
+          SizedQuickHash(firstHash, size, secondHash)
+        }
+//
+//        val firstHash = if (size > 0) {
+//          Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
+//          Hashing.sha256(FileIO.read(path, 0, BLOCK_SIZE))
+//        } else
+//          ""
+//
+//        val secondHash = if (size > BLOCK_SIZE) {
+//          Statistic.set(HASHED_READ, BLOCK_SIZE.toLong())
+//          Hashing.sha256(FileIO.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
+//        } else
+//          ""
+//
+//        SizedQuickHash(firstHash, size, secondHash)
       } catch (ex: Exception) {
         throw RuntimeException("could not hash $path", ex)
       }

@@ -1,8 +1,8 @@
 package de.flapdoodle.photosync.io
 
 import de.flapdoodle.photosync.progress.Statistic
-import java.io.IOException
 import java.nio.ByteBuffer
+import java.nio.channels.SeekableByteChannel
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -25,27 +25,74 @@ object FileIO {
   }
 
   fun read(path: Path, offset: Long, len: Int): ByteArray {
-    var result: ByteArray? = null
-    read(path, offset, len) { byteBuffer, size ->
-      result = ByteArray(size)
-      byteBuffer.get(result, 0, size)
+    return read(path) {
+      read(offset, len)
     }
-    return result ?: throw IOException("could not read into buffer")
   }
 
-  fun read(path: Path, offset: Long, len: Int, onBlock: (ByteBuffer, Int) -> Unit) {
+  fun <T> read(path: Path, action: ChannelAdapter.() -> T): T {
     Files.newByteChannel(path).use { channel ->
-      val buffer = ByteBuffer.allocate(len)
+      return action(ChannelWrapper(channel))
+    }
+  }
 
-      channel.position(offset)
-      val readSize = channel.read(buffer)
-      buffer.flip()
-      Statistic.set(BYTES_READ, buffer.limit().toLong())
+  class BufferCache {
+    private var byteBuffer: ByteBuffer = ByteBuffer.allocate(0)
+    private var byteArray: ByteArray = ByteArray(0)
 
-      onBlock(buffer.asReadOnlyBuffer(), readSize)
-//      val block = ByteArray(readSize)
-//      buffer.get(block, 0, readSize)
-//      block
+    fun <T> withByteBuffer(size: Int, action: BufferCache.(ByteBuffer) -> T): T {
+      val buffer = if (byteBuffer.remaining()==size) {
+        byteBuffer
+      } else {
+        byteBuffer = ByteBuffer.allocate(size)
+        byteBuffer
+      }
+
+      try {
+        return action(buffer)
+      } finally {
+        buffer.clear()
+      }
+    }
+
+    fun <T> withByteArray(size: Int, action: (ByteArray) -> T): T {
+      val array = if (byteArray.size == size) {
+        byteArray
+      } else {
+        byteArray = ByteArray(size)
+        byteArray
+      }
+      return action(array)
+    }
+
+  }
+
+  interface ChannelAdapter {
+    fun <T> read(offset: Long, len: Int, action: (ByteArray) -> T): T
+
+    fun read(offset: Long, len: Int): ByteArray {
+      return read(offset, len) {
+        it.copyOf()
+      }
+    }
+  }
+
+  class ChannelWrapper(val channel: SeekableByteChannel):ChannelAdapter {
+    private val bufferCache = BufferCache()
+
+    override fun <T> read(offset: Long, len: Int, action: (ByteArray) -> T): T {
+      return bufferCache.withByteBuffer(len) { buffer ->
+
+        channel.position(offset)
+        val readSize = channel.read(buffer)
+        buffer.flip()
+        Statistic.set(BYTES_READ, buffer.limit().toLong())
+
+        withByteArray(readSize) { byteArray ->
+          buffer.get(byteArray, 0, readSize)
+          action(byteArray)
+        }
+      }
     }
   }
 }
