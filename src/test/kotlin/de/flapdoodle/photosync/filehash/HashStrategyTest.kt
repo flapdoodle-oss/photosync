@@ -77,13 +77,13 @@ class HashStrategyTest {
   data class SizeHash(val key: Long) : Hash<SizeHash>
 
   class HashFilename : Hasher<FilenameHash> {
-    override fun hash(path: Path, size: Long): FilenameHash {
+    override fun hash(path: Path, size: Long, lastModifiedTime: LastModified): FilenameHash {
       return FilenameHash(path.fileName.toString())
     }
   }
 
   class HashSize : Hasher<SizeHash> {
-    override fun hash(path: Path, size: Long): SizeHash {
+    override fun hash(path: Path, size: Long, lastModifiedTime: LastModified): SizeHash {
       return SizeHash(size)
     }
   }

@@ -47,7 +47,7 @@ interface HashStrategy {
           val parentHash = if (hash != NoHash) hash else null
           rehashedBlobs = if (list.size>1 || !rehashOnCollisionOnly) {
 //            println("must rehash ${list.size} entries with $hasher")
-            rehashedBlobs + list.groupBy { Hash.prepend(useHasher.hash(it.path, it.size),parentHash) }
+            rehashedBlobs + list.groupBy { Hash.prepend(useHasher.hash(it.path, it.size, it.lastModifiedTime),parentHash) }
           } else {
             rehashedBlobs + (hash to list)
           }
@@ -74,7 +74,7 @@ interface HashStrategy {
           val parentHash = if (hash != NoHash) hash else null
           rehashedBlobs = if (list.size>1 || !rehashOnCollisionOnly) {
 //            println("must rehash ${list.size} entries with $hasher")
-            rehashedBlobs + list.groupBy { Hash.prepend(useHasher.hash(it.path, it.size),parentHash) }
+            rehashedBlobs + list.groupBy { Hash.prepend(useHasher.hash(it.path, it.size, it.lastModified),parentHash) }
           } else {
             rehashedBlobs + (hash to list)
           }

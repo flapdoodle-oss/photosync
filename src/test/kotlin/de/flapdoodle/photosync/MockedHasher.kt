@@ -19,7 +19,7 @@ data class MockedHasher(
     })
   }
 
-  override fun hash(path: Path, size: Long): MockHash {
+  override fun hash(path: Path, size: Long, lastModifiedTime: LastModified): MockHash {
     rules.forEach {
       val result = it(path, size)
       if (result != null) {

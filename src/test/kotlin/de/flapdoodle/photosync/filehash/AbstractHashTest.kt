@@ -1,6 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
-import de.flapdoodle.photosync.ByteArrays
+import de.flapdoodle.photosync.LastModified
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
@@ -14,8 +14,8 @@ abstract class AbstractHashTest {
             .use { a ->
                 writeFile(tempDir, "B", second)
                     .use { b ->
-                        val firstHash = testee.hash(a.path, a.size)
-                        val secondHash = testee.hash(b.path, b.size)
+                        val firstHash = testee.hash(a.path, a.size, LastModified.from(a.path))
+                        val secondHash = testee.hash(b.path, b.size, LastModified.from(b.path))
                         check(firstHash,secondHash)
                     }
             }

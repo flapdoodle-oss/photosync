@@ -1,6 +1,7 @@
 package de.flapdoodle.io.layouts.splitted
 
 import de.flapdoodle.io.filetree.Node
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.filehash.FullHash
 import de.flapdoodle.photosync.filehash.Hash
 import de.flapdoodle.photosync.filehash.MonitoringHasher
@@ -42,10 +43,10 @@ object FindDuplicatesByHash {
         if (paths.size==1) {
           put(Grouped.BySize(size), paths)
         } else {
-          val groupedByHash = paths.groupBy { hasher.hash(it, size) }
+          val groupedByHash = paths.groupBy { hasher.hash(it, size, LastModified.from(it)) }
           groupedByHash.forEach { (hash, grouped) ->
             if (grouped.size>1 && safeHash) {
-              val hashedAgain = grouped.groupBy { safeHasher.hash(it, size) }
+              val hashedAgain = grouped.groupBy { safeHasher.hash(it, size, LastModified.from(it)) }
               hashedAgain.forEach { (fullHash, compared) ->
                 put(Grouped.ByHash(fullHash), compared)
               }

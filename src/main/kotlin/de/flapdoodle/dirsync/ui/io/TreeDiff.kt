@@ -72,8 +72,8 @@ class TreeDiff(
             for (hasher in hashStrategy.hasher()) {
                 val monitoredHasher = hasher.withMonitor()
                 
-                val srcHash = monitoredHasher.hash(srcEntry.path, srcEntry.size)
-                val dstHash = monitoredHasher.hash(dstEntry.path, dstEntry.size)
+                val srcHash = monitoredHasher.hash(srcEntry.path, srcEntry.size, srcEntry.lastModifiedTime)
+                val dstHash = monitoredHasher.hash(dstEntry.path, dstEntry.size, dstEntry.lastModifiedTime)
                 if (srcHash != dstHash) {
                     return true
                 }

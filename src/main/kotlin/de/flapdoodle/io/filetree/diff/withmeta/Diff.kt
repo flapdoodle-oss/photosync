@@ -32,7 +32,7 @@ class Diff {
       val baseFilesNames = metaFileMap.baseNames()
       val baseFiles = fileNodes.filter { baseFilesNames.contains(it.name) }
 
-      baseFiles.map { hashSelector.hasherFor(currentPath.resolve(it.name)).hash(currentPath.resolve(it.name), it.size) }
+      baseFiles.map { hashSelector.hasherFor(currentPath.resolve(it.name)).hash(currentPath.resolve(it.name), it.size, it.lastModifiedTime) }
       // filter meta files
       // hash main files
     }

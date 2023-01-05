@@ -17,7 +17,11 @@ data class Diff2SyncCommands(
 
   companion object {
     fun sameContent(hasher: Hasher<*>): (Blob, Blob?) -> Boolean = { sourceMeta, matchingDest ->
-      matchingDest != null && hasher.hash(sourceMeta.path, sourceMeta.size) == hasher.hash(matchingDest.path, matchingDest.size)
+      matchingDest != null && hasher.hash(sourceMeta.path, sourceMeta.size, sourceMeta.lastModifiedTime) == hasher.hash(
+        matchingDest.path,
+        matchingDest.size,
+        matchingDest.lastModifiedTime
+      )
     }
   }
 

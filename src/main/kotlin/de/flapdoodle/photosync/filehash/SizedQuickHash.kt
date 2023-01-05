@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.io.FileIO
 import de.flapdoodle.photosync.io.Humans
 import de.flapdoodle.photosync.progress.Statistic
@@ -21,7 +22,7 @@ data class SizedQuickHash(
       return SizedQuickHash::class.java.simpleName
     }
 
-    override fun hash(path: Path, size: Long): SizedQuickHash {
+    override fun hash(path: Path, size: Long, lastModifiedTime: LastModified): SizedQuickHash {
       Statistic.increment(HASHED)
       Statistic.set(HASHED_SIZE, size)
 

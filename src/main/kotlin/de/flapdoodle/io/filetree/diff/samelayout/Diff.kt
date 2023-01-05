@@ -151,8 +151,8 @@ data class Diff(
       return if (src.size == dest.size) {
         // check for content change
         val hasher = hashSelector.hasherFor(srcPath.resolve(src.name))
-        val srcHash = hasher.hash(srcPath.resolve(src.name), src.size)
-        val destHash = hasher.hash(destPath.resolve(dest.name), dest.size)
+        val srcHash = hasher.hash(srcPath.resolve(src.name), src.size, src.lastModifiedTime)
+        val destHash = hasher.hash(destPath.resolve(dest.name), dest.size, dest.lastModifiedTime)
         if (srcHash == destHash) {
           // same content
           if (!timeStampChanged) Entry.IsEqual(src)

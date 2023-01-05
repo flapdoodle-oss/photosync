@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.photosync.LastModified
 import java.nio.file.Path
 
 @Deprecated(message = "use SizedQuickHash")
@@ -15,7 +16,7 @@ data class QuickHash(
       return QuickHash::class.java.simpleName
     }
 
-    override fun hash(path: Path, size: Long): QuickHash {
+    override fun hash(path: Path, size: Long, lastModifiedTime: LastModified): QuickHash {
       return try {
         val secondHash = if (size > BLOCK_SIZE)
           Hashing.sha256(Hashing.read(path, size - BLOCK_SIZE, BLOCK_SIZE))
