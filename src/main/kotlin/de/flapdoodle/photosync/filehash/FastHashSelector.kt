@@ -1,5 +1,6 @@
 package de.flapdoodle.photosync.filehash
 
+import de.flapdoodle.photosync.LastModified
 import org.apache.tika.Tika
 import java.nio.file.Path
 
@@ -9,7 +10,7 @@ class FastHashSelector(
 ) : HashSelector {
   private val tika = Tika()
 
-  override fun hasherFor(path: Path): Hasher<*> {
+  override fun hasherFor(path: Path, size: Long, lastModifiedTime: LastModified): Hasher<*> {
     val mimeType = tika.detect(path)
     var matchingHasher = mimeTypeHasherMap[mimeType]
     if (matchingHasher==null) {

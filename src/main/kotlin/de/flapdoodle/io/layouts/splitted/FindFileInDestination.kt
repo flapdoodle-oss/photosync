@@ -30,7 +30,7 @@ object FindFileInDestination {
       when (s) {
         is Node.File -> {
           Monitor.message("inspect $src")
-          val hasher = hashSelector.hasherFor(src)
+          val hasher = hashSelector.hasherFor(src, s.size, s.lastModifiedTime)
           val cachedHasher = cacheLookup.cacheFor(hasher)
           val srcHash = cachedHasher.hash(src, s.size, s.lastModifiedTime)
           val destinations = findMatches(s, srcHash, destPath, dest, compare, cachedHasher)
