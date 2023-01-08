@@ -4,12 +4,13 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.attribute.FileTime
-import java.time.Instant
+import java.time.*
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.io.path.isSymbolicLink
 
 data class LastModified(
-    private val value: Instant
+    private val value: ZonedDateTime
 ) : Comparable<LastModified> {
 
     override fun compareTo(other: LastModified): Int {
@@ -25,6 +26,8 @@ data class LastModified(
     }
 
     companion object {
+        val customFormatter = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault())
+
         fun from(path: Path): LastModified {
             return from(
                 Files.getLastModifiedTime(
@@ -44,16 +47,24 @@ data class LastModified(
         }
 
         fun from(fileTime: FileTime): LastModified {
-            val instant = fileTime.toInstant()
+            val instant = ZonedDateTime.ofInstant(fileTime.toInstant(), ZoneId.systemDefault())
             return LastModified(instant.truncatedTo(ChronoUnit.SECONDS))
         }
 
         fun now(): LastModified {
-            return LastModified(Instant.now().truncatedTo(ChronoUnit.SECONDS))
+            return LastModified(ZonedDateTime.now().truncatedTo(ChronoUnit.SECONDS))
         }
 
         fun asFileTime(lastModified: LastModified): FileTime {
-            return FileTime.from(lastModified.value)
+            return FileTime.from(lastModified.value.toInstant())
+        }
+
+        fun toString(lastModified: LastModified): String {
+            return customFormatter.format(lastModified.value)
+        }
+
+        fun fromString(lastModifiedAsString: String): LastModified {
+            return LastModified(ZonedDateTime.parse(lastModifiedAsString, customFormatter))
         }
     }
 }

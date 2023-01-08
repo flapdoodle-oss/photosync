@@ -4,6 +4,7 @@ import de.flapdoodle.photosync.progress.Statistic
 import java.nio.ByteBuffer
 import java.nio.channels.SeekableByteChannel
 import java.nio.file.Files
+import java.nio.file.LinkOption
 import java.nio.file.Path
 
 
@@ -11,6 +12,25 @@ object FileIO {
   private val BYTES_READ=Statistic.property("FileIO.read", Long::class.java, Long::plus) {
     Humans.humanReadableByteCount(it)
   }
+
+  fun createDirectoryIfNotExist(path: Path): Path {
+    return if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+      Files.createDirectory(path)
+    } else {
+      require(Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {"is not a directory: $path"}
+      path
+    }
+  }
+
+  fun createDirectoriesIfNotExist(path: Path): Path {
+    return if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) {
+      Files.createDirectories(path)
+    } else {
+      require(Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {"is not a directory: $path"}
+      path
+    }
+  }
+
 
   fun readAllBytes(path: Path, blocksize: Int = 512, onBlock: (ByteBuffer) -> Unit) {
     Files.newByteChannel(path).use { channel ->

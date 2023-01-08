@@ -7,7 +7,7 @@ import de.flapdoodle.photosync.progress.Statistic
 import java.nio.file.Path
 
 data class FullHash(
-    private val hash: String
+    val hash: String
 ) : Hash<FullHash> {
 
   companion object : Hasher<FullHash> {

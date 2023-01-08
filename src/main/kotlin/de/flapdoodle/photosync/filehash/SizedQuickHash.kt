@@ -7,9 +7,9 @@ import de.flapdoodle.photosync.progress.Statistic
 import java.nio.file.Path
 
 data class SizedQuickHash(
-    private val startHash: String,
-    private val size: Long,
-    private val endHash: String
+    val startHash: String,
+    val size: Long,
+    val endHash: String
 ) : Hash<SizedQuickHash> {
 
   companion object : Hasher<SizedQuickHash> {
@@ -17,6 +17,8 @@ data class SizedQuickHash(
     private val HASHED = Statistic.property("Hash.${toString()}", Long::class.java, Long::plus) { "$it" }
     private val HASHED_READ = Statistic.property("Hash.${toString()}.read", Long::class.java, Long::plus) { Humans.humanReadableByteCount(it) }
     private val HASHED_SIZE = Statistic.property("Hash.${toString()}.size", Long::class.java, Long::plus) { Humans.humanReadableByteCount(it) }
+
+    fun blockSize() = BLOCK_SIZE
 
     override fun toString(): String {
       return SizedQuickHash::class.java.simpleName
