@@ -9,6 +9,8 @@ interface PersistHashAdapterLookup {
   fun <T : Hash<T>> adapterFor(hasher: Hasher<T>): PersistHashAdapter<T>?
 
   companion object {
+    fun defaultAdapter() = Default()
+    
     class Default: PersistHashAdapterLookup {
       override fun <T : Hash<T>> adapterFor(hasher: Hasher<T>): PersistHashAdapter<T>? {
         if (hasher == FullHash) return PersistFullHash as PersistHashAdapter<T>

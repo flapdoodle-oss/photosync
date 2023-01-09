@@ -7,13 +7,16 @@ import com.github.ajalt.clikt.parameters.arguments.validate
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.groupChoice
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.validate
 import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.io.filetree.diff.Actions
 import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.io.filetree.diff.samelayout.Sync
+import de.flapdoodle.photosync.file.PersistentFileAttributeCache
 import de.flapdoodle.photosync.filehash.*
+import de.flapdoodle.photosync.filehash.cache.PersistentHashCache
 import de.flapdoodle.photosync.progress.Monitor
 import de.flapdoodle.photosync.progress.Statistic
 import kotlin.system.exitProcess
@@ -39,6 +42,12 @@ object DirDiff {
     }
 
     val destination by argument("destination").path(
+      mustExist = true, canBeFile = false, canBeDir = true
+    ).validate {
+      require(it.toFile().isDirectory) { "is not a directory" }
+    }
+
+    val cacheDir by option("cache").path(
       mustExist = true, canBeFile = false, canBeDir = true
     ).validate {
       require(it.toFile().isDirectory) { "is not a directory" }
@@ -79,6 +88,13 @@ object DirDiff {
           else -> MimeTypeHashSelector.defaultConfig()
         }
 
+        val hashCache: HashCache? = if (cacheDir!=null) {
+          val fileAttributeCache = PersistentFileAttributeCache(cacheDir!!)
+          PersistentHashCache(fileAttributeCache)
+        } else {
+          null
+        }
+
         val copy = (syncMode ?: SyncMode.OnlyNew()).copy
         val leftover = (syncMode ?: SyncMode.OnlyNew()).leftover
 
@@ -91,7 +107,7 @@ object DirDiff {
           })
           Monitor.message("DONE")
           if (src != null && dest != null) {
-            Diff.diff(src, dest, MonitoringHashSelector(hashSelector))
+            Diff.diff(src, dest, MonitoringHashSelector(hashSelector), hashCache)
           } else {
             Diff(source, destination, emptyList())
           }

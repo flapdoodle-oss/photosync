@@ -9,10 +9,12 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 
 class PersistentFileAttributeCache(
-  private val cacheDir: Path
+  baseDir: Path
 ): FileAttributeCache {
+
+  private val cacheDir: Path
   init {
-    FileIO.createDirectoryIfNotExist(cacheDir)
+    cacheDir = FileIO.createDirectoryIfNotExist(baseDir.resolve(".fileAttributeCache"))
   }
 
   override fun get(path: Path, size: Long, lastModifiedTime: LastModified, key: String): ByteArray? {

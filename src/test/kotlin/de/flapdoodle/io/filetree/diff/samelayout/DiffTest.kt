@@ -62,7 +62,7 @@ internal class DiffTest {
             .addRule(srcPath / "sub" / "file", 123L, "same-file-hash")
             .addRule(destPath / "sub" / "file", 123L, "same-file-hash")
 
-        val diff = Diff.diff(srcTree, destTree, HashSelector.always(hasher))
+        val diff = Diff.diff(srcTree, destTree, HashSelector.always(hasher), null)
 
         assertThat(diff.src).isEqualTo(srcPath)
         assertThat(diff.dest).isEqualTo(destPath)
@@ -122,7 +122,8 @@ internal class DiffTest {
             val result = Diff.diff(
                 srcPath,Node.File("same", now, 1L),
                 destPath,Node.File("same", now, 1L),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result).isEqualTo(Diff.Entry.IsEqual(Node.File("same", now, 1L)))
@@ -135,7 +136,8 @@ internal class DiffTest {
             val result = Diff.diff(
                 srcPath,Node.File("same", now, 1L),
                 destPath,Node.File("same", now, 2L),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result).isEqualTo(Diff.Entry.FileChanged(
@@ -154,7 +156,8 @@ internal class DiffTest {
             val result = Diff.diff(
                 srcPath,Node.File("same", now, 1L),
                 destPath,Node.File("same", now + 1, 1L),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result).isEqualTo(Diff.Entry.FileChanged(
@@ -173,7 +176,8 @@ internal class DiffTest {
             val result = Diff.diff(
                 srcPath,Node.File("same", now, 1L),
                 destPath,Node.File("same", now , 1L),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result).isEqualTo(Diff.Entry.FileChanged(
@@ -245,7 +249,8 @@ internal class DiffTest {
                 destPath,Node.Directory("same", now, listOf(
                     Node.File("same-same", now, 1L)
                 )),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result)
@@ -270,7 +275,8 @@ internal class DiffTest {
                 destPath,Node.Directory("same", now, listOf(
                     Node.File("same-same", now + 1, 1L)
                 )),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result)
@@ -305,7 +311,8 @@ internal class DiffTest {
                 destPath,Node.Directory("same", now + 1, listOf(
                     Node.File("same-same", now, 1L)
                 )),
-                HashSelector.always(hasher)
+                HashSelector.always(hasher),
+                null
             )
 
             assertThat(result)

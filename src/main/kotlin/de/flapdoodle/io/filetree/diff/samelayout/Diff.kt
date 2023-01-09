@@ -3,6 +3,7 @@ package de.flapdoodle.io.filetree.diff.samelayout
 import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.photosync.Comparision
 import de.flapdoodle.photosync.compare
+import de.flapdoodle.photosync.filehash.HashCache
 import de.flapdoodle.photosync.filehash.HashSelector
 import java.nio.file.Path
 
@@ -76,8 +77,8 @@ data class Diff(
   }
 
   companion object {
-    fun diff(src: Node.Top, dest: Node.Top, hashSelector: HashSelector): Diff {
-      return Diff(src.path, dest.path, diff(src.path, src.children, dest.path, dest.children, hashSelector))
+    fun diff(src: Node.Top, dest: Node.Top, hashSelector: HashSelector, hashCache: HashCache?): Diff {
+      return Diff(src.path, dest.path, diff(src.path, src.children, dest.path, dest.children, hashSelector, hashCache))
     }
 
     fun diff(
@@ -85,7 +86,8 @@ data class Diff(
       src: List<Node>,
       destPath: Path,
       dest: List<Node>,
-      hashSelector: HashSelector
+      hashSelector: HashSelector,
+      hashCache: HashCache?
     ): List<Entry> {
       val srcByName = src.associateBy(Node::name)
       val destByName = dest.associateBy(Node::name)
@@ -97,7 +99,7 @@ data class Diff(
       val onlyInSrc = srcByName.keys - destByName.keys
       val onlyInDest = destByName.keys - srcByName.keys
 
-      val changed = both.map { diffNodes(srcPath, srcByName[it]!!, destPath, destByName[it]!!, hashSelector) }
+      val changed = both.map { diffNodes(srcPath, srcByName[it]!!, destPath, destByName[it]!!, hashSelector, hashCache) }
 
       val missing = src.filter { onlyInSrc.contains(it.name) }
         .map(::missing)
@@ -125,7 +127,8 @@ data class Diff(
       src: Node,
       destPath: Path,
       dest: Node,
-      hashSelector: HashSelector
+      hashSelector: HashSelector,
+      hashCache: HashCache?
     ): Entry {
       require(src.name == dest.name) { "different names: $src - $dest" }
 
@@ -133,9 +136,9 @@ data class Diff(
         return Entry.TypeMismatch(src, dest)
       }
       return when (src) {
-        is Node.File -> diff(srcPath, src, destPath, dest as Node.File, hashSelector)
+        is Node.File -> diff(srcPath, src, destPath, dest as Node.File, hashSelector, hashCache)
         is Node.SymLink -> diff(src, dest as Node.SymLink)
-        is Node.Directory -> diff(srcPath, src, destPath, dest as Node.Directory, hashSelector)
+        is Node.Directory -> diff(srcPath, src, destPath, dest as Node.Directory, hashSelector, hashCache)
       }
     }
 
@@ -144,15 +147,21 @@ data class Diff(
       src: Node.File,
       destPath: Path,
       dest: Node.File,
-      hashSelector: HashSelector
+      hashSelector: HashSelector,
+      hashCache: HashCache?
     ): Entry {
       val timeStampChanged = src.lastModifiedTime != dest.lastModifiedTime
 
       return if (src.size == dest.size) {
         // check for content change
         val hasher = hashSelector.hasherFor(srcPath.resolve(src.name), src.size, src.lastModifiedTime)
-        val srcHash = hasher.hash(srcPath.resolve(src.name), src.size, src.lastModifiedTime)
-        val destHash = hasher.hash(destPath.resolve(dest.name), dest.size, dest.lastModifiedTime)
+
+        val srcHash = hashCache?.hash(srcPath.resolve(src.name), src.size, src.lastModifiedTime, hasher)
+          ?: hasher.hash(srcPath.resolve(src.name), src.size, src.lastModifiedTime)
+
+        val destHash = hashCache?.hash(destPath.resolve(dest.name), dest.size, dest.lastModifiedTime, hasher)
+          ?: hasher.hash(destPath.resolve(dest.name), dest.size, dest.lastModifiedTime)
+
         if (srcHash == destHash) {
           // same content
           if (!timeStampChanged) Entry.IsEqual(src)
@@ -177,9 +186,10 @@ data class Diff(
       src: Node.Directory,
       destPath: Path,
       dest: Node.Directory,
-      hashSelector: HashSelector
+      hashSelector: HashSelector,
+      hashCache: HashCache?
     ): Entry {
-      val changes = diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hashSelector)
+      val changes = diff(srcPath.resolve(src.name), src.children, destPath.resolve(dest.name), dest.children, hashSelector, hashCache)
       val nochange = changes.all { it is Entry.IsEqual }
 
       return if (src == dest && nochange)

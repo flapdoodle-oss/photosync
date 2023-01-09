@@ -13,7 +13,7 @@ import java.nio.file.Path
 class PersistentHashCache(
   private val cache: FileAttributeCache,
   private val minPersistableSize: Long = 1024L,
-  private val persistHashAdapterLookup: PersistHashAdapterLookup = PersistHashAdapterLookup.Companion.Default()
+  private val persistHashAdapterLookup: PersistHashAdapterLookup = PersistHashAdapterLookup.defaultAdapter()
 ) : HashCache {
 
   override fun <T : Hash<T>> hash(path: Path, size: Long, lastModifiedTime: LastModified, hasher: Hasher<T>): T {

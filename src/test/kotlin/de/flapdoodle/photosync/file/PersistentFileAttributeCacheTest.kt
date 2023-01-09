@@ -41,7 +41,7 @@ class PersistentFileAttributeCacheTest {
 
     testee.set(samplePath, sampleSize, sampleTimeStamp, "test", "one".toByteArray(Charsets.UTF_8))
 
-    val entryDir = cacheDir.resolve(PersistentFileAttributeCache.hashPath(samplePath, sampleSize, sampleTimeStamp))
+    val entryDir = cacheDir.resolve(".fileAttributeCache").resolve(PersistentFileAttributeCache.hashPath(samplePath, sampleSize, sampleTimeStamp))
 
     assertThat(entryDir)
       .isDirectory()
