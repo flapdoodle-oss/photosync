@@ -39,6 +39,8 @@ class MimeTypes(
 
     fun defaultMapping() = MimeTypes(knownExtensions = mapOf(
       "cr2" to "image/x-canon-cr2",
+      "jpg" to "image/jpeg",
+      "jpeg" to "image/jpeg",
       "xmp" to "application/xml",
       "txt" to "text/plain"
     ))
