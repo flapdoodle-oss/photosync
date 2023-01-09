@@ -47,7 +47,7 @@ object DirDiff {
       require(it.toFile().isDirectory) { "is not a directory" }
     }
 
-    val cacheDir by option("cache").path(
+    val cacheDir by option("-C", "--cacheDir", help = "cache dir").path(
       mustExist = true, canBeFile = false, canBeDir = true
     ).validate {
       require(it.toFile().isDirectory) { "is not a directory" }

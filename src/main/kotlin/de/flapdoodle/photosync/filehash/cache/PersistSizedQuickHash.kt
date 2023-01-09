@@ -1,10 +1,10 @@
 package de.flapdoodle.photosync.filehash.cache
 
-import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.photosync.filehash.SizedQuickHash
+import de.flapdoodle.photosync.io.Humans
+import de.flapdoodle.photosync.progress.Statistic
 
 object PersistSizedQuickHash: PersistHashAdapter<SizedQuickHash> {
-
   override fun key(): String = "SizeQuickHash"
 
   override fun toString(hash: SizedQuickHash): String {
