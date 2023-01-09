@@ -1,6 +1,7 @@
 package de.flapdoodle.photosync.filehash.cache
 
 import de.flapdoodle.photosync.LastModified
+import de.flapdoodle.photosync.file.FileAttributeCache
 import de.flapdoodle.photosync.filehash.Hash
 import de.flapdoodle.photosync.filehash.HashCache
 import de.flapdoodle.photosync.filehash.Hasher
@@ -10,54 +11,35 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 class PersistentHashCache(
-  private val cacheDir: Path,
+  private val cache: FileAttributeCache,
   private val minPersistableSize: Long = 1024L,
   private val persistHashAdapterLookup: PersistHashAdapterLookup = PersistHashAdapterLookup.Companion.Default()
 ) : HashCache {
-
-  init {
-    FileIO.createDirectoryIfNotExist(cacheDir)
-  }
 
   override fun <T : Hash<T>> hash(path: Path, size: Long, lastModifiedTime: LastModified, hasher: Hasher<T>): T {
     if (size > minPersistableSize) {
       val adapter = persistHashAdapterLookup.adapterFor(hasher)
       if (adapter != null) {
-        val hashFile = cacheDir.resolve(hashPath(path, size))
-        return hash(hashFile, adapter, path, size, lastModifiedTime, hasher)
+        return hash(adapter, path, size, lastModifiedTime, hasher)
       }
     }
     return hasher.hash(path, size, lastModifiedTime)
   }
 
-  fun <T : Hash<T>> hash(hashFile: Path, adapter: PersistHashAdapter<T>, path: Path, size: Long, lastModifiedTime: LastModified, hasher: Hasher<T>): T {
-    if (Files.exists(hashFile)) {
-      val hashContent = read(hashFile)
-      val parts = hashContent.split('|')
-      val persistedLastModified = LastModified.fromString(parts[0])
-      if (persistedLastModified == lastModifiedTime) {
-        val persistedHash = adapter.fromString(parts[1])
-        if (persistedHash != null) {
-          return persistedHash
-        }
+  fun <T : Hash<T>> hash(adapter: PersistHashAdapter<T>, path: Path, size: Long, lastModifiedTime: LastModified, hasher: Hasher<T>): T {
+    val key = "hash_${adapter.key()}"
+    val content = cache.get(path, size, lastModifiedTime, key)
+    if (content!=null) {
+      val hashContent = content.toString(Charsets.UTF_8)
+      val hash = adapter.fromString(hashContent)
+      if (hash!=null) {
+        return hash
       }
     }
 
     val hash = hasher.hash(path, size,lastModifiedTime)
-    val hashFileContent = "${LastModified.toString(lastModifiedTime)}|$hash"
-    persist(hashFile, hashFileContent)
+    cache.set(path, size, lastModifiedTime, key, adapter.toString(hash).toByteArray(Charsets.UTF_8))
     return hash
-  }
-
-  private fun read(hashFile: Path): String {
-    val bytes = Files.readAllBytes(hashFile)
-    return bytes.toString(Charsets.UTF_8)
-  }
-
-  private fun persist(hashFile: Path, content: String) {
-    val parent = hashFile.parent
-    FileIO.createDirectoriesIfNotExist(parent)
-    Files.write(hashFile, content.toByteArray(Charsets.UTF_8))
   }
 
   companion object {

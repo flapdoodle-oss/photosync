@@ -5,6 +5,8 @@ import de.flapdoodle.photosync.filehash.SizedQuickHash
 
 object PersistSizedQuickHash: PersistHashAdapter<SizedQuickHash> {
 
+  override fun key(): String = "SizeQuickHash"
+
   override fun toString(hash: SizedQuickHash): String {
     return "${SizedQuickHash.blockSize()}:${hash.startHash}:${hash.size}:${hash.endHash}"
   }

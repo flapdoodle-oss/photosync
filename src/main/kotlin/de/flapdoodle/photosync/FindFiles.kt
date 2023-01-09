@@ -63,7 +63,7 @@ object FindFiles {
       val hashSelector = when (hashMode) {
         is HashMode.Full -> HashSelector.always(FullHash)
         is HashMode.Quick -> HashSelector.always(SizedQuickHash)
-        else -> FastHashSelector.defaultMapping()
+        else -> MimeTypeHashSelector.defaultConfig()
       }
 
       val matches = Monitor.execute {

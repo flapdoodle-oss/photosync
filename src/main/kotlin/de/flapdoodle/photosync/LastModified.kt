@@ -10,7 +10,7 @@ import java.time.temporal.ChronoUnit
 import kotlin.io.path.isSymbolicLink
 
 data class LastModified(
-    private val value: ZonedDateTime
+    val value: ZonedDateTime
 ) : Comparable<LastModified> {
 
     override fun compareTo(other: LastModified): Int {
@@ -23,6 +23,10 @@ data class LastModified(
 
     operator fun minus(offsetInSeconds: Int): LastModified {
         return LastModified(value.minus(offsetInSeconds.toLong(), ChronoUnit.SECONDS))
+    }
+
+    fun epochSecond(): Long {
+        return value.toEpochSecond()
     }
 
     companion object {
