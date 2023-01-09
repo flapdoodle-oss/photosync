@@ -41,6 +41,8 @@ class MimeTypes(
       "cr2" to "image/x-canon-cr2",
       "jpg" to "image/jpeg",
       "jpeg" to "image/jpeg",
+      "mov" to "video/quicktime",
+      "mp4" to "video/mp4",
       "xmp" to "application/xml",
       "txt" to "text/plain"
     ))

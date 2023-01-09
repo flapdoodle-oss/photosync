@@ -40,6 +40,7 @@ class MimeTypeHashSelector(
           "text/" to FullHash,
           "image/gif" to FullHash,
           "image/" to SizedQuickHash,
+          "video/" to SizedQuickHash,
           "application/xml" to FullHash
         ),
         fallbackHasher = listOf(
