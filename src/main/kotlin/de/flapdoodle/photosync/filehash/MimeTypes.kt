@@ -8,10 +8,7 @@ class MimeTypes(
   private val knownExtensions: Map<String, String>
 ) {
   fun mimeTypeOf(path: Path): String {
-    val fileName = path.fileName.toString()
-    val idx = fileName.lastIndexOf('.')
-    val extension = if (idx != -1) fileName.substring(idx + 1).lowercase()
-    else ""
+    val extension = fileExtension(path)
 
     return knownExtensions[extension] ?: mimeType(path)
   }
@@ -31,9 +28,17 @@ class MimeTypes(
       }
     }
 
+    private fun fileExtension(path: Path): String {
+      val fileName = path.fileName.toString()
+      val idx = fileName.lastIndexOf('.')
+      return if (idx != -1) fileName.substring(idx + 1).lowercase()
+      else ""
+    }
+
     private fun mimeType(path: Path): String {
       val mimeType = tika.detect(path)
-      Statistic.set(MIMETYPES, MimeTypeSet(mapOf(mimeType to 1L)))
+      val extension = fileExtension(path)
+      Statistic.set(MIMETYPES, MimeTypeSet(mapOf("$extension->$mimeType" to 1L)))
       return mimeType
     }
 
@@ -41,10 +46,15 @@ class MimeTypes(
       "cr2" to "image/x-canon-cr2",
       "jpg" to "image/jpeg",
       "jpeg" to "image/jpeg",
+      "png" to "image/png",
+      "tiff" to "image/tiff",
+      "tif" to "image/tiff",
       "mov" to "video/quicktime",
       "mp4" to "video/mp4",
       "xmp" to "application/xml",
-      "txt" to "text/plain"
+      "xml" to "application/xml",
+      "txt" to "text/plain",
+      "bib" to "application/x-bibtex-text-file"
     ))
   }
 }

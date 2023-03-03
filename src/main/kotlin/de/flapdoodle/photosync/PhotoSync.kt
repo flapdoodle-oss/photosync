@@ -18,6 +18,7 @@ import java.nio.file.Path
 import java.time.Duration
 import java.util.regex.Pattern
 
+@Deprecated("use dir dirDiff instead")
 object PhotoSync {
 
   class Args : CliktCommand() {

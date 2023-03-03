@@ -12,7 +12,7 @@ import java.nio.file.Path
 
 class PersistentHashCache(
   private val cache: FileAttributeCache,
-  private val minPersistableSize: Long = 1024L,
+  private val minPersistableSize: Long = 512L,
   private val persistHashAdapterLookup: PersistHashAdapterLookup = PersistHashAdapterLookup.defaultAdapter()
 ) : HashCache {
 
@@ -21,6 +21,8 @@ class PersistentHashCache(
       val adapter = persistHashAdapterLookup.adapterFor(hasher)
       if (adapter != null) {
         return hash(adapter, path, size, lastModifiedTime, hasher)
+      } else {
+        Statistic.increment(HASHED_MISSING_ADAPTER)
       }
     }
     return hasher.hash(path, size, lastModifiedTime)
@@ -54,8 +56,9 @@ class PersistentHashCache(
     private val HASHED = Statistic.property("PersistHashCache", Long::class.java, Long::plus) { "$it" }
     private val HASHED_READ = Statistic.property("PersistHashCache.read", Long::class.java, Long::plus) { "$it" }
     private val HASHED_HIT = Statistic.property("PersistHashCache.hit", Long::class.java, Long::plus) { "$it" }
-    private val HASHED_WRITE = Statistic.property("PersistHashCache.read", Long::class.java, Long::plus) { "$it" }
+    private val HASHED_WRITE = Statistic.property("PersistHashCache.write", Long::class.java, Long::plus) { "$it" }
     private val HASHED_SIZE = Statistic.property("PersistHashCache.size", Long::class.java, Long::plus) { Humans.humanReadableByteCount(it) }
+    private val HASHED_MISSING_ADAPTER = Statistic.property("PersistHashCache.missingAdapter", Long::class.java, Long::plus) { "$it" }
 
     fun pathHash(path: Path): String {
       val absPath = path.toAbsolutePath()
