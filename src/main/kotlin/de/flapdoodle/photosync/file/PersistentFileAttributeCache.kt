@@ -7,6 +7,7 @@ import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
+import kotlin.math.min
 
 class PersistentFileAttributeCache(
   baseDir: Path
@@ -65,8 +66,10 @@ class PersistentFileAttributeCache(
 
     fun shortPath(path: Path): String {
       val absPath = path.toAbsolutePath()
-      val shortPath = absPath.map { it.fileName.toString().subSequence(0,2) }
-        .joinToString()
+      val shortPath = absPath.joinToString {
+        val partAsString = it.fileName.toString()
+        partAsString.subSequence(0, min(2, partAsString.length))
+      }
       return shortPath.replace("[^\\x30-\\x7A]".toRegex(),"")
     }
 
