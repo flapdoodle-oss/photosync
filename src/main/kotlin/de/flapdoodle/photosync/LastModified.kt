@@ -29,6 +29,10 @@ data class LastModified(
         return value.toEpochSecond()
     }
 
+    fun asHumanReadable(): String {
+        return Companion.toString(this)
+    }
+
     companion object {
         val customFormatter = DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.systemDefault())
 

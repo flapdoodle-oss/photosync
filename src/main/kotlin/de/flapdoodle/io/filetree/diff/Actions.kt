@@ -21,7 +21,7 @@ object Actions {
             "cp ${action.src} ${action.dest} #size=${action.size}, replace=${action.replace}"
 
         is Action.SetLastModified ->
-            "touch ${action.dest} ${action.lastModified}"
+            "touch ${action.dest} ${action.lastModified.asHumanReadable()}"
 
         is Action.MakeDirectory ->
             "mkdir ${action.dest}"
