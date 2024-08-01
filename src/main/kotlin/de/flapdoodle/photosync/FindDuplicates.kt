@@ -78,7 +78,8 @@ object FindDuplicates {
 
             is FindDuplicatesByHash.Grouped.ByHash -> {
               if (paths.size > 1) {
-                println("hash: ${grouped.hash}")
+                if (debug) println("hash: ${grouped.hash}")
+                else println("--")
                 paths.forEach {
                   println("  $it")
                 }
