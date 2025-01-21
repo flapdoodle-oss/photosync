@@ -15,8 +15,8 @@
         <main.class>kotlin.KotlinHelloKt</main.class>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.compiler.languageVersion>1.8</kotlin.compiler.languageVersion>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.languageVersion>2.0</kotlin.compiler.languageVersion>
+        <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
 <!--        <javafx.version>13.0.2</javafx.version>-->
     </properties>
 
@@ -159,6 +159,18 @@
                             <classifier>dirdiff</classifier>
                             <mainClass>
                                 de.flapdoodle.photosync.DirDiff
+                            </mainClass>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>graphdiff</id>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>graphdiff</classifier>
+                            <mainClass>
+                                de.flapdoodle.photosync.GraphDiff
                             </mainClass>
                         </configuration>
                     </execution>

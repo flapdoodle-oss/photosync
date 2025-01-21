@@ -2,24 +2,12 @@ package de.flapdoodle.photosync.filehash
 
 import de.flapdoodle.io.tree.IsFile
 import de.flapdoodle.photosync.Blob
-import de.flapdoodle.photosync.KotlinCompilerFix_SAM_Helper
 
 
-interface HashStrategy {
+fun interface HashStrategy {
   fun hasher(): List<Hasher<*>>
 
   companion object {
-
-      @KotlinCompilerFix_SAM_Helper
-      inline operator fun invoke(
-          crossinline delegate: () -> List<Hasher<*>>
-      ): HashStrategy {
-        return object : HashStrategy {
-          override fun hasher(): List<Hasher<*>> {
-            return delegate()
-          }
-        }
-      }
 
     fun groupBlobs(
         hasher: Hasher<*>,

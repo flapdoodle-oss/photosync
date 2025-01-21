@@ -2,6 +2,7 @@ package de.flapdoodle.photosync.paths
 
 import java.nio.file.Path
 
+@Deprecated("don't use it")
 object Meta {
 
   fun isMeta(path: Path, basePath: Path): Boolean {
