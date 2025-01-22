@@ -1,18 +1,15 @@
 package de.flapdoodle.photosync
 
 import de.flapdoodle.io.filetree.FileTrees
+import de.flapdoodle.io.filetree.diff.Sync
 import de.flapdoodle.io.filetree.diff.graph.DarktableMetafile2Basename
 import de.flapdoodle.io.filetree.diff.graph.GraphSync
 import de.flapdoodle.io.filetree.diff.graph.HashTree
 import de.flapdoodle.io.filetree.diff.graph.HashTreeDiff
-import de.flapdoodle.io.filetree.diff.samelayout.Sync
-import de.flapdoodle.photosync.filehash.FullHash
+import de.flapdoodle.io.filetree.diff.samelayout.SameLayoutSync
 import de.flapdoodle.photosync.filehash.HashSelector
 import de.flapdoodle.photosync.filehash.MonitoringHashSelector
 import de.flapdoodle.photosync.filehash.SizedQuickHash
-import de.flapdoodle.photosync.progress.Monitor
-import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import kotlin.io.path.Path
 

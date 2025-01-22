@@ -12,11 +12,12 @@ import com.github.ajalt.clikt.parameters.types.path
 import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.io.filetree.diff.Actions
+import de.flapdoodle.io.filetree.diff.Sync
 import de.flapdoodle.io.filetree.diff.graph.DarktableMetafile2Basename
 import de.flapdoodle.io.filetree.diff.graph.GraphSync
 import de.flapdoodle.io.filetree.diff.graph.HashTree
 import de.flapdoodle.io.filetree.diff.graph.HashTreeDiff
-import de.flapdoodle.io.filetree.diff.samelayout.Sync
+import de.flapdoodle.io.filetree.diff.samelayout.SameLayoutSync
 import de.flapdoodle.photosync.file.PersistentFileAttributeCache
 import de.flapdoodle.photosync.filehash.*
 import de.flapdoodle.photosync.filehash.cache.PersistentHashCache

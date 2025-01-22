@@ -1,25 +1,18 @@
 package de.flapdoodle.io.filetree.diff.samelayout
 
 import de.flapdoodle.io.filetree.diff.Action
+import de.flapdoodle.io.filetree.diff.Sync
 import de.flapdoodle.photosync.Comparision
 import de.flapdoodle.photosync.LastModified
 import de.flapdoodle.types.letThis
 import java.nio.file.Path
+import kotlin.collections.plus
 import kotlin.io.path.div
 
-class Sync(
-  private val copy: Copy=Copy.ONLY_NEW,
-  private val leftover: Leftover=Leftover.IGNORE
+class SameLayoutSync(
+  private val copy: Sync.Copy= Sync.Copy.ONLY_NEW,
+  private val leftover: Sync.Leftover=Sync.Leftover.IGNORE
 ) {
-
-  enum class Copy {
-    IF_CHANGED, // any change -> copy
-    ONLY_NEW // any change -> copy only if new
-  }
-
-  enum class Leftover {
-    IGNORE, DELETE, COPY_BACK
-  }
 
   fun actions(diff: Diff): List<Action> {
     return actions(diff.src, diff.dest, diff.entries)
@@ -37,8 +30,8 @@ class Sync(
       srcPath: Path,
       destPath: Path,
       entry: Diff.Entry,
-      copy: Copy,
-      leftover: Leftover
+      copy: Sync.Copy,
+      leftover: Sync.Leftover
     ): List<Action> {
       return when (entry) {
         is Diff.Entry.TypeMismatch -> throw IllegalArgumentException("not supported: $entry")
@@ -51,11 +44,11 @@ class Sync(
       }
     }
 
-    internal fun leftover(srcPath: Path, destPath: Path, entry: Diff.Entry.Leftover, leftover: Leftover): List<Action> {
+    internal fun leftover(srcPath: Path, destPath: Path, entry: Diff.Entry.Leftover, leftover: Sync.Leftover): List<Action> {
       return when(leftover) {
-        Leftover.IGNORE -> emptyList()
-        Leftover.DELETE -> remove(srcPath, entry)
-        Leftover.COPY_BACK -> copyBack(srcPath, destPath, entry)
+        Sync.Leftover.IGNORE -> emptyList()
+        Sync.Leftover.DELETE -> remove(srcPath, entry)
+        Sync.Leftover.COPY_BACK -> copyBack(srcPath, destPath, entry)
       }
     }
 
@@ -135,14 +128,14 @@ class Sync(
       srcPath: Path,
       destPath: Path,
       entry: Diff.Entry.DirectoryChanged,
-      copy: Copy,
-      leftover: Leftover
+      copy: Sync.Copy,
+      leftover: Sync.Leftover
     ): List<Action> {
       val actions = entry.entries.flatMap { actions(srcPath / entry.src.name,destPath / entry.dest.name,it,copy,leftover) }
       val isNewer = entry.compareTimeStamp() == Comparision.Bigger
 
       return if (actions.isNotEmpty()) {
-        if (isNewer || copy == Copy.IF_CHANGED) {
+        if (isNewer || copy == Sync.Copy.IF_CHANGED) {
           actions + Action.SetLastModified(destPath / entry.dest.name, entry.src.lastModifiedTime)
         } else {
           actions + Action.SetLastModified(destPath / entry.dest.name, entry.dest.lastModifiedTime)
@@ -156,18 +149,18 @@ class Sync(
       }
     }
 
-    internal fun copyFile(srcPath: Path, destPath: Path, entry: Diff.Entry.FileChanged, mode: Copy): List<Action> {
+    internal fun copyFile(srcPath: Path, destPath: Path, entry: Diff.Entry.FileChanged, mode: Sync.Copy): List<Action> {
       val compareTimeStamp = entry.compareTimeStamp()
       val contentHasChanged = entry.contentHasChanged()
       val isNewer = compareTimeStamp == Comparision.Bigger
 
       val shouldCopyFile = when (mode) {
-        Copy.ONLY_NEW -> isNewer && contentHasChanged
-        Copy.IF_CHANGED -> contentHasChanged
+        Sync.Copy.ONLY_NEW -> isNewer && contentHasChanged
+        Sync.Copy.IF_CHANGED -> contentHasChanged
       }
       val shouldSetLastModified = when (mode) {
-        Copy.ONLY_NEW -> isNewer
-        Copy.IF_CHANGED -> true
+        Sync.Copy.ONLY_NEW -> isNewer
+        Sync.Copy.IF_CHANGED -> true
       }
 
       return if (shouldCopyFile) {

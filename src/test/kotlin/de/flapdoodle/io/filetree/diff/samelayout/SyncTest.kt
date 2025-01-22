@@ -2,6 +2,7 @@ package de.flapdoodle.io.filetree.diff.samelayout
 
 import de.flapdoodle.io.filetree.Node
 import de.flapdoodle.io.filetree.diff.Action
+import de.flapdoodle.io.filetree.diff.Sync
 import de.flapdoodle.photosync.LastModified
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
@@ -18,7 +19,7 @@ internal class SyncTest {
   inner class Missing {
     @Test
     fun copyFileIfMissing() {
-      val actions = Sync.create(
+      val actions = SameLayoutSync.create(
         srcPath, destPath, Diff.Entry.Missing.MissingFile(
           Node.File("s", now, 123L)
         )
@@ -34,7 +35,7 @@ internal class SyncTest {
 
     @Test
     fun copyDirectoryIfMissing() {
-      val actions = Sync.create(
+      val actions = SameLayoutSync.create(
         srcPath, destPath, Diff.Entry.Missing.MissingDirectory(
           Node.Directory("sub", now + 1),
           listOf(Diff.Entry.Missing.MissingFile(
@@ -58,7 +59,7 @@ internal class SyncTest {
   inner class Leftovers {
     @Test
     fun removeFile() {
-      val actions = Sync.remove(
+      val actions = SameLayoutSync.remove(
         destPath, Diff.Entry.Leftover.LeftoverFile(
           Node.File("d", now, 123L)
         )
@@ -73,7 +74,7 @@ internal class SyncTest {
 
     @Test
     fun removeSymlink() {
-      val actions = Sync.remove(
+      val actions = SameLayoutSync.remove(
         destPath, Diff.Entry.Leftover.LeftoverSymLink(
           Node.SymLink("d", now, Node.NodeReference("x"))
         )
@@ -88,7 +89,7 @@ internal class SyncTest {
 
     @Test
     fun removeDirectory() {
-      val actions = Sync.remove(
+      val actions = SameLayoutSync.remove(
         destPath, Diff.Entry.Leftover.LeftoverDirectory(
           Node.Directory("sub", now, emptyList()),
           listOf(
@@ -109,7 +110,7 @@ internal class SyncTest {
 
     @Test
     fun copyFileBack() {
-      val actions = Sync.copyBack(srcPath, destPath, Diff.Entry.Leftover.LeftoverFile(
+      val actions = SameLayoutSync.copyBack(srcPath, destPath, Diff.Entry.Leftover.LeftoverFile(
         Node.File("d", now, 123L)
       ))
       
@@ -123,7 +124,7 @@ internal class SyncTest {
 
     @Test
     fun copyDirectoryBack() {
-      val actions = Sync.copyBack(srcPath, destPath, Diff.Entry.Leftover.LeftoverDirectory(
+      val actions = SameLayoutSync.copyBack(srcPath, destPath, Diff.Entry.Leftover.LeftoverDirectory(
         Node.Directory("sub", now + 1, emptyList()),
         listOf(
           Diff.Entry.Leftover.LeftoverFile(
@@ -148,7 +149,7 @@ internal class SyncTest {
 
     @Test
     fun copyFileIfIsNewerAndContentHasChanged() {
-      val actions = Sync.copyFile(
+      val actions = SameLayoutSync.copyFile(
         srcPath, destPath, Diff.Entry.FileChanged(
           Node.File("s", now + 1, 123L),
           Node.File("d", now, 123L),
@@ -166,7 +167,7 @@ internal class SyncTest {
 
     @Test
     fun setLastModifiedIfContentHasNotChangedButIsNewer() {
-      val actions = Sync.copyFile(
+      val actions = SameLayoutSync.copyFile(
         srcPath, destPath, Diff.Entry.FileChanged(
           Node.File("s", now + 1, 123L),
           Node.File("d", now, 123L),
@@ -183,7 +184,7 @@ internal class SyncTest {
 
     @Test
     fun dontCopyFileOrSetLastModifiedIfNotNewer() {
-      val actions = Sync.copyFile(
+      val actions = SameLayoutSync.copyFile(
         srcPath, destPath, Diff.Entry.FileChanged(
           Node.File("s", now, 123L),
           Node.File("d", now, 123L),
@@ -196,7 +197,7 @@ internal class SyncTest {
 
     @Test
     fun copyFileIfContentHasChanged() {
-      val actions = Sync.copyFile(
+      val actions = SameLayoutSync.copyFile(
         srcPath, destPath, Diff.Entry.FileChanged(
           Node.File("s", now, 123L),
           Node.File("d", now, 123L),
@@ -218,7 +219,7 @@ internal class SyncTest {
   inner class DirectoryChanges {
     @Test
     fun restoreLastModifiedAsLastEntry() {
-      val actions = Sync.copyDirectory(
+      val actions = SameLayoutSync.copyDirectory(
         srcPath, destPath, Diff.Entry.DirectoryChanged(
           Node.Directory("s", now, emptyList()),
           Node.Directory("d", now + 2, emptyList()),
@@ -245,7 +246,7 @@ internal class SyncTest {
 
     @Test
     fun setLastModifiedAfterCopy() {
-      val actions = Sync.copyDirectory(
+      val actions = SameLayoutSync.copyDirectory(
         srcPath, destPath, Diff.Entry.DirectoryChanged(
           Node.Directory("s", now, emptyList()),
           Node.Directory("d", now + 2, emptyList()),
@@ -272,7 +273,7 @@ internal class SyncTest {
 
     @Test
     fun setLastModifiedIfNewerEvenIfNoOtherChanges() {
-      val actions = Sync.copyDirectory(
+      val actions = SameLayoutSync.copyDirectory(
         srcPath, destPath, Diff.Entry.DirectoryChanged(
           Node.Directory("s", now + 1, emptyList()),
           Node.Directory("d", now, emptyList()),
@@ -291,7 +292,7 @@ internal class SyncTest {
 
     @Test
     fun noActionsIfDestinationIsNewer() {
-      val actions = Sync.copyDirectory(
+      val actions = SameLayoutSync.copyDirectory(
         srcPath, destPath, Diff.Entry.DirectoryChanged(
           Node.Directory("s", now, emptyList()),
           Node.Directory("d", now + 1, emptyList()),
