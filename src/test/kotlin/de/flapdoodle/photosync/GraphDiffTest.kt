@@ -2,8 +2,10 @@ package de.flapdoodle.photosync
 
 import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.filetree.diff.graph.DarktableMetafile2Basename
+import de.flapdoodle.io.filetree.diff.graph.GraphSync
 import de.flapdoodle.io.filetree.diff.graph.HashTree
 import de.flapdoodle.io.filetree.diff.graph.HashTreeDiff
+import de.flapdoodle.io.filetree.diff.samelayout.Sync
 import de.flapdoodle.photosync.filehash.FullHash
 import de.flapdoodle.photosync.filehash.HashSelector
 import de.flapdoodle.photosync.filehash.MonitoringHashSelector
@@ -45,7 +47,10 @@ class GraphDiffTest {
 //    println(destFiltered)
 //    println("------------------")
 //
-    HashTreeDiff.diff(srcFiltered, destFiltered)
+    val diff = HashTreeDiff.diff(srcFiltered, destFiltered)
+    val actions = GraphSync(Sync.Copy.ONLY_NEW, Sync.Leftover.IGNORE)
+      .actions(diff)
 
+    println(actions)
   }
 }

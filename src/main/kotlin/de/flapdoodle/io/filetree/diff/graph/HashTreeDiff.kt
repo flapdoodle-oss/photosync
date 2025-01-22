@@ -1,10 +1,13 @@
 package de.flapdoodle.io.filetree.diff.graph
 
+import de.flapdoodle.photosync.filehash.Hash
 import java.nio.file.Path
 
 class HashTreeDiff(
-  val src: Path,
-  val dest: Path,
+  val src: HashTree.Top,
+  val dest: HashTree.Top,
+  val sourceHashMap: Map<Hash<*>, Set<Path>>,
+  val destinationHashMap: Map<Hash<*>, Set<Path>>,
 ) {
 
   companion object {
@@ -45,11 +48,7 @@ class HashTreeDiff(
 //      println(deshHashMap.map)
 //      println("------------------")
 
-      return HashTreeDiff(src.path, dest.path)
-    }
-
-    fun emptyDiff(src: Path, dest: Path): HashTreeDiff {
-      return HashTreeDiff(src, dest)
+      return HashTreeDiff(src, dest, sourceHashMap.map, destHashMap.map)
     }
   }
 }

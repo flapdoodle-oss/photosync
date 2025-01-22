@@ -13,9 +13,9 @@ import de.flapdoodle.io.filetree.FileTrees
 import de.flapdoodle.io.filetree.diff.Action
 import de.flapdoodle.io.filetree.diff.Actions
 import de.flapdoodle.io.filetree.diff.graph.DarktableMetafile2Basename
+import de.flapdoodle.io.filetree.diff.graph.GraphSync
 import de.flapdoodle.io.filetree.diff.graph.HashTree
 import de.flapdoodle.io.filetree.diff.graph.HashTreeDiff
-import de.flapdoodle.io.filetree.diff.samelayout.Diff
 import de.flapdoodle.io.filetree.diff.samelayout.Sync
 import de.flapdoodle.photosync.file.PersistentFileAttributeCache
 import de.flapdoodle.photosync.filehash.*
@@ -106,23 +106,22 @@ object GraphDiff {
             Monitor.message("destination $it")
           })
           Monitor.message("DONE")
-          if (src != null && dest != null) {
-            val srcHashed = HashTree.asHashTree(src, MonitoringHashSelector(hashSelector), hashCache)
-            val destHashed = HashTree.asHashTree(dest, MonitoringHashSelector(hashSelector), hashCache)
-            val srcFiltered = HashTree.filterMetaFiles(srcHashed, DarktableMetafile2Basename)
-            val destFiltered = HashTree.filterMetaFiles(destHashed, DarktableMetafile2Basename)
+          require(src != null) { "could not read directory $source" }
+          require(dest != null) { "could not read destination $destination" }
 
-            HashTreeDiff.diff(srcFiltered, destFiltered)
-          } else {
-            HashTreeDiff.emptyDiff(source, destination)
-          }
+          val srcHashed = HashTree.asHashTree(src, MonitoringHashSelector(hashSelector), hashCache)
+          val destHashed = HashTree.asHashTree(dest, MonitoringHashSelector(hashSelector), hashCache)
+          val srcFiltered = HashTree.filterMetaFiles(srcHashed, DarktableMetafile2Basename)
+          val destFiltered = HashTree.filterMetaFiles(destHashed, DarktableMetafile2Basename)
+
+          HashTreeDiff.diff(srcFiltered, destFiltered)
         }
 
-//        val copy = (syncMode ?: SyncMode.OnlyNew()).copy
-//        val leftover = (syncMode ?: SyncMode.OnlyNew()).leftover
+        val copy = (syncMode ?: SyncMode.OnlyNew()).copy
+        val leftover = (syncMode ?: SyncMode.OnlyNew()).leftover
 //
-//        Sync(copy, leftover)
-//          .actions(diff)
+        GraphSync(copy, leftover)
+          .actions(diff)
       }
 
       println()
