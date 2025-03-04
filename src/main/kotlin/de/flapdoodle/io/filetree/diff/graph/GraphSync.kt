@@ -6,6 +6,10 @@ import de.flapdoodle.io.filetree.diff.samelayout.SameLayoutSync
 
 class GraphSync(copy: Sync.Copy, leftover: Sync.Leftover) {
   fun actions(diff: HashTreeDiff): List<Action> {
-    TODO("Not yet implemented")
+    val src = diff.src
+    val dest = diff.dest
+
+
+    return emptyList()
   }
 }

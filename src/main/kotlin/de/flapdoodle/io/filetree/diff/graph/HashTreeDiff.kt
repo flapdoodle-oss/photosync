@@ -29,18 +29,18 @@ class HashTreeDiff(
 //      }
 //      println("--------------------")
 
-      println("both: $both")
-      println("new: $onlySource")
-      println("deleted: $onyDest")
+//      println("both: $both")
+//      println("new: $onlySource")
+//      println("deleted: $onyDest")
 
-      both.forEach { hash ->
-        println("-----------------")
-        println("$hash")
-        val srcPaths: Set<Path> = sourceHashMap[hash]
-        val destPaths: Set<Path> = destHashMap[hash]
-        srcPaths.forEach { println("$it -->") }
-        destPaths.forEach { println("--> $it") }
-      }
+//      both.forEach { hash ->
+//        println("-----------------")
+//        println("$hash")
+//        val srcPaths: Set<Path> = sourceHashMap[hash]
+//        val destPaths: Set<Path> = destHashMap[hash]
+//        srcPaths.forEach { println("$it -->") }
+//        destPaths.forEach { println("--> $it") }
+//      }
 
 //      println("------------------")
 //      println(sourceHashMap.map)
